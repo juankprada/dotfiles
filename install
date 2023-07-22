@@ -13,6 +13,7 @@ pushd $DOTFILES
 for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
 do
     echo ">>> stow $folder"
-    stow -R $folder --verbose=3 -t $HOME
+    stow -D $folder
+    stow $folder --target ~/ --dotfiles
 done
 popd
