@@ -41,10 +41,13 @@
                            yaml-mode
                            json-mode
                            markdown-mode
-                           easy-jekyll
-                           ruby-mode
-                           web-mode
-                           rainbow-mode
+                           seeing-is-believing
+                           ruby-electric
+                           chruby
+                           inf-ruby
+                           ruby-test-mode
+                           php-mode
+                           typescript-mode
                            ))
 
 
@@ -161,6 +164,8 @@
 (require 'which-key)
 (setq which-key-idle-delay 5)
 (which-key-mode)
+
+
 
 ;; Smooth Scrolling
 (setq scroll-conservatively 101)
@@ -290,7 +295,7 @@
 (setq doom-modeline-env-rust-executable "rustc")
 
 ;; Set the font
-(set-frame-font "BitstromWera Nerd Font Mono 12" nil t)
+(set-frame-font "Hack Nerd Font Mono 12" nil t)
 
 ;; Hide minor mode names in modeline
 (require 'diminish)
@@ -477,6 +482,19 @@
 (require 'lsp-java)
 (add-hook 'java-mode-hook 'lsp)
 
+(dap-mode 1)
+
+;; The modes below are optional
+
+(dap-ui-mode 1)
+;; enables mouse hover support
+(dap-tooltip-mode 1)
+;; use tooltips for mouse hover
+;; if it is not enabled `dap-mode' will use the minibuffer.
+(tooltip-mode 1)
+;; displays floating panel with debug buttons
+;; requies emacs 26+
+(dap-ui-controls-mode 1)
 
 
 
@@ -515,6 +533,58 @@
 (setq rustic-format-trigger 'on-save)
 (setq rustic-format-on-save-method 'rustic-format-buffer)
 
+
+;; PHP MODE
+;;; ----------------------------------------
+(add-hook 'php-mode-hook 'lsp)
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  (require 'dap-php)
+  (yas-global-mode))
+
+;; RUBY MODE
+;; ----------------------------------------
+;; ----------------------------------------
+(require 'ruby-electric)
+(require 'dap-ruby)
+(add-hook 'ruby-mode-hook 'ruby-electric-mode)
+(chruby "2.2.2")
+
+(setq seeing-is-believing-prefix "C-.")
+(add-hook 'ruby-mode-hook 'seeing-is-believing)
+(require 'seeing-is-believing)
+
+(autoload 'inf-ruby-minor-mode "inf-ruby" "Run an inferior Ruby process" t)
+(add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
+
+(require 'ruby-test-mode)
+(add-hook 'ruby-mode-hook 'ruby-test-mode)
+
+
+
+;; PYTHON MODE
+;; ----------------------------------------
+(require 'dap-python)
+;; if you installed debugpy, you need to set this
+;; https://github.com/emacs-lsp/dap-mode/issues/306
+(setq dap-python-debugger 'debugpy)
+
+
+
+;; NODEJS
+;; ----------------------------------------
+
+(require 'lsp-mode)
+(add-hook 'typescript-mode-hook 'lsp-deferred)
+(add-hook 'javascript-mode-hook 'lsp-deferred)
+
+(defun my-setup-dap-node ()
+  "Require dap-node feature and run dap-node-setup if VSCode module isn't already installed"
+  (require 'dap-node)
+  (unless (file-exists-p dap-node-debug-path) (dap-node-setup)))
+
+(add-hook 'typescript-mode-hook 'my-setup-dap-node)
+(add-hook 'javascript-mode-hook 'my-setup-dap-node)
 
 
 ;; C/C++ Modes
@@ -1030,21 +1100,7 @@ directory."
 
 (defun casey-never-split-a-window
 ;    "Never, ever split a window.  Why would anyone EVER want you to do that??"
-    nil)
-
-
-
-;;----------------------------------------
-;; JEKYLL
-;;----------------------------------------
-
-(setq easy-jekyll-basedir "~/Documents/Projects/juankprada_net/")
-(setq easy-jekyll-url "https://juankprada.net")
-(setq easy-jekyll-sshdomain "domain")
-(setq easy-jekyll-root "/home/blog/")
-(setq easy-jekyll-previewtime "300")
-(define-key global-map (kbd "C-c C-e") 'easy-jekyll)
-
+  nil)
 
 ;; Mimic Vim's powerline
 ;(require 'powerline)
@@ -1099,3 +1155,16 @@ directory."
 (diminish 'autopair-mode)
 (diminish 'abbrev-mode)
 (diminish 'projectile-mode)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(ruby-test-mode inf-ruby chruby ruby-electric seeing-is-believing yasnippet yaml-mode which-key string-inflection rustic ox-reveal magit lsp-ui lsp-java json-mode helm-system-packages helm-projectile helm-gtags flycheck exec-path-from-shell doom-themes doom-modeline diminish dashboard-hackernews company-box cmake-mode all-the-icons)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
