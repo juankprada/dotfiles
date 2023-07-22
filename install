@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="bin,emacs,personal,tmux,zsh"
+    STOW_FOLDERS="emacs,tmux"
 fi
 
 if [[ -z $DOTFILES ]]; then
@@ -13,7 +13,6 @@ pushd $DOTFILES
 for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
 do
     echo "stow $folder"
-    stow -D $folder
-    stow $folder
+    stow -R $folder
 done
 popd
