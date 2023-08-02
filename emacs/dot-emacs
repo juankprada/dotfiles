@@ -1,4 +1,5 @@
 (require 'package)
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)  ;; for newest version of org mode
 (package-initialize)
@@ -1161,7 +1162,7 @@ directory."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ruby-test-mode inf-ruby chruby ruby-electric seeing-is-believing yasnippet yaml-mode which-key string-inflection rustic ox-reveal magit lsp-ui lsp-java json-mode helm-system-packages helm-projectile helm-gtags flycheck exec-path-from-shell doom-themes doom-modeline diminish dashboard-hackernews company-box cmake-mode all-the-icons)))
+   '(haskell-mode ruby-test-mode inf-ruby chruby ruby-electric seeing-is-believing yasnippet yaml-mode which-key string-inflection rustic ox-reveal magit lsp-ui lsp-java json-mode helm-system-packages helm-projectile helm-gtags flycheck exec-path-from-shell doom-themes doom-modeline diminish dashboard-hackernews company-box cmake-mode all-the-icons)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

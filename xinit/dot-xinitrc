@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# [... default stuff that your distro may throw in here ...] #
+
+# Set the default X cursor to the usual pointer
+xsetroot -cursor_name left_ptr
