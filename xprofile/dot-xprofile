@@ -1,12 +1,5 @@
 #!/bin/sh
 
-# TODO: maybe move this to .xsessions instead
-
-# [... default stuff that your distro may throw in here ...] #
-
-# Set the default X cursor to the usual pointer
-xsetroot -cursor_name left_ptr
-
 picom &
 trayer --edge top --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 24 &
 xsettingsd &

@@ -1,7 +1,6 @@
-  -- Base
 import XMonad
 import System.Directory
-import System.IO (hPutStrLn)
+import System.IO (hClose, hPutStr, hPutStrLn)
 import System.Exit (exitSuccess)
 import qualified XMonad.StackSet as W
 
@@ -18,19 +17,22 @@ import qualified XMonad.Actions.Search as S
 
     -- Data
 import Data.Char (isSpace, toUpper)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust)
 import Data.Monoid
+import Data.Maybe (isJust)
 import Data.Tree
 import qualified Data.Map as M
 
     -- Hooks
-import XMonad.Hooks.DynamicLog (dynamicLogWithPP, wrap, xmobarPP, xmobarColor, shorten, PP(..))
+import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops  -- for some fullscreen events, also for xcomposite in obs.
-import XMonad.Hooks.ManageDocks (avoidStruts, docks, manageDocks, ToggleStruts(..))
-import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat)
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat, doCenterFloat)
 import XMonad.Hooks.ServerMode
-import XMonad.Hooks.StatusBar.PP (filterOutWsPP)
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
+import XMonad.Hooks.WindowSwallowing
 import XMonad.Hooks.WorkspaceHistory
 
     -- Layouts
@@ -41,35 +43,45 @@ import XMonad.Layout.Spiral
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ThreeColumns
+import XMonad.Layout.FixedAspectRatio
+import XMonad.Layout.LayoutHints
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances
+import XMonad.Layout.Gaps
 
     -- Layouts modifiers
 import XMonad.Layout.LayoutModifier
-import XMonad.Layout.LimitWindows (limitWindows, increaseLimit, decreaseLimit)
-import XMonad.Layout.Magnifier
-import XMonad.Layout.MultiToggle (mkToggle, single, EOT(EOT), (??))
-import XMonad.Layout.MultiToggle.Instances (StdTransformers(NBFULL, MIRROR, NOBORDERS))
+import XMonad.Layout.LimitWindows
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Layout.ShowWName
 import XMonad.Layout.Simplest
 import XMonad.Layout.Spacing
 import XMonad.Layout.SubLayouts
-import XMonad.Layout.WindowArranger (windowArrange, WindowArrangerMsg(..))
+import XMonad.Layout.WindowArranger
 import XMonad.Layout.WindowNavigation
 import qualified XMonad.Layout.ToggleLayouts as T (toggleLayouts, ToggleLayout(Toggle))
 import qualified XMonad.Layout.MultiToggle as MT (Toggle(..))
 
    -- Utilities
 import XMonad.Util.Dmenu
-import XMonad.Util.EZConfig (additionalKeysP)
-import XMonad.Util.Hacks (windowedFullscreenFixEventHook)
-import XMonad.Util.NamedScratchpad
+import XMonad.Util.EZConfig (additionalKeysP, mkNamedKeymap)
+import XMonad.Util.Hacks (windowedFullscreenFixEventHook, javaHack, trayerAboveXmobarEventHook, trayAbovePanelEventHook, trayerPaddingXmobarEventHook, trayPaddingXmobarEventHook, trayPaddingEventHook)
+import XMonad.Util.NamedActions
+import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.SpawnOnce
+
+import XMonad.Prompt.ConfirmPrompt
+
+import Colors.DoomOne
 
 -- SETUP INITIAL PARAMETERS
 
 -- myFont :: String
+myFont :: String
+myFont = "xft:SauceCodePro Nerd Font Mono:regular:size=9:antialias=true:hinting=true"
+
 
 -- Sets modkey to Super/Windows key
 myModMask :: KeyMask
@@ -121,64 +133,50 @@ clickable ws = "<action=xdotool key super+"++show i++">"++ws++"</action>"
 myStartupHook :: X ()
 myStartupHook = do
   -- add a policikit startup
-  spawnOnce "ibus-daemon -drxR"
-  spawnOnce "xrandr --output eDP --left-of DP-1-2 --output DP-1-2 --primary --left-of HDMI-1-0 --output HDMI-1-0 --auto"
-  spawnOnce "trayer --edge top --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 24"
-  spawnOnce "xsettingsd &"
   spawnOnce "picom"
-  spawnOnce "shutter -min_at_startup &"
-  spawnOnce "xscreensaver -no-splash"
-  spawnOnce "xfce4-power-manager"
   spawnOnce "if [ -x /usr/bin/nm-applet ] ; then \
             \ nm-applet --sm-disable & \
             \fi"
-  spawnOnce "nitrogen --restore"
+  spawnOnce "volumeicon"
+  spawnOnce "ibus-daemon -drxR"
+  spawnOnce "/usr/bin/emacs --daemon"
+
+  spawnOnce "trayer --edge top --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 24"
+  spawnOnce "xsettingsd &"
+  spawnOnce "shutter -min_at_startup &"
+  spawnOnce "xscreensaver -no-splash"
+  spawnOnce "xfce4-power-manager"
+  spawnOnce "autorandr -c"
+  spawnOnce " sleep 2 && nitrogen --restore"
   setWMName "LG3D"
 
 
 
+-- Layouts
+-- ----------------------------------------
+-- defining a bunch of layouts
+
+-- Defining a bunch of layouts, many that I don't use.
+-- limitWindows n sets maximum number of windows displayed for layout.
+-- mySpacing n sets the gap size around the windows.
 
 
-myLayout = tiled ||| Mirror tiled ||| Full ||| threeCol
-  where
-    threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta ratio
-    tiled    = Tall nmaster delta ratio
-    nmaster  = 1        -- default number of windows in the master pane
-    ratio    = 1/2      -- default proportion of screen occupied by master pane
-    delta    = 3/100    -- Percent pf screen tp increment by when resizing panes
-
--- Scratchpads
-myScratchPads :: [NamedScratchpad]
-myScratchPads = [ NS "terminal" spawnTerm findTerm manageTerm
-                , NS "calculator" spawnCalc findCalc manageCalc
-                , NS "inputHelper" spawnInput findInput manageInput
-                ]
-  where
-    spawnTerm  = myTerminal ++ " -t scratchpad"
-    findTerm   = title =? "scratchpad"
-    manageTerm = customFloating $ W.RationalRect l t w h
-               where
-                 h = 0.9
-                 w = 0.9
-                 t = 0.95 -h
-                 l = 0.95 -w
-    spawnCalc  = "gnome-calculator"
-    findCalc   = className =? "gnome-calculator"
-    manageCalc = customFloating $ W.RationalRect l t w h
-               where
-                 h = 0.5
-                 w = 0.2
-                 t = 0.75 -h
-                 l = 0.60 -w
-    spawnInput  = "~/bin/steam-input-helper"
-    findInput   = title =? "Steam Linux input helper"
-    manageInput = customFloating $ W.RationalRect l t w h
-               where
-                 h = 0.1
-                 w = 0.2
-                 t = 0.5 -h
-                 l = 0.5 -w
-
+-- The layout hook
+myLayoutHook = renamed [KeepWordsRight 1]
+               . avoidStruts
+               . fixedAspectRatio (0.5, 0.5)
+               . layoutHintsWithPlacement (0.5, 0.5)
+               . spacingRaw False (Border 0 0 0 0) True (Border 10 10 10 10) True -- between windows
+               . gaps [(U, 15), (R, 15), (L, 15), (D, 15)] -- along the screen, excluding docks
+               . mkToggle (single NBFULL) -- toggle full screen
+               . smartBorders
+               $ tiled
+                   ||| mtiled
+                   ||| full
+          where
+            tiled = renamed [Replace "T "] $ ResizableTall 1 (3 / 100) (5 / 8) []
+            mtiled = renamed [Replace "MT"] $ Mirror tiled
+            full = renamed [Replace "F "] Full
 
 
 -- Manage
@@ -208,8 +206,8 @@ myManageHook = composeAll
      , (className  =? "Steam" <&&> fmap (/= "Steam") title) --> doFloat
      , className  =? "itch"           --> doShift "game"
      , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat  -- Float Firefox Dialog
-     , isFullscreen -->  doFullFloat
-     ] <+> namedScratchpadManageHook myScratchPads
+     --, isFullscreen -->  doFullFloat
+     ]
 
 
 
@@ -234,10 +232,6 @@ myKeys =
    -- Workspaces
    , ("M-.", nextScreen)  -- Switch focus to next monitor
    , ("M-,", prevScreen)  -- Switch focus to prev monitor
-   , ("M-S-<KP_Add>", shiftTo Next nonNSP >> moveTo Next nonNSP)       -- Shifts focused window to next ws
-   , ("M-S-<Right>", shiftTo Next nonNSP >> moveTo Next nonNSP)        -- Shifts focused window to next ws
-   , ("M-S-<KP_Subtract>", shiftTo Prev nonNSP >> moveTo Prev nonNSP)  -- Shifts focused window to prev ws
-   , ("M-S-<Left>", shiftTo Prev nonNSP >> moveTo Prev nonNSP)         -- Shifts focused window to prev ws
    , ("M-S-1", windows $ W.shift $ myWorkspaces !! 0)                  -- Send to workspace 1
    , ("M-S-2", windows $ W.shift $ myWorkspaces !! 1)                  -- Send to workspace 2
    , ("M-S-3", windows $ W.shift $ myWorkspaces !! 2)                  -- Send to workspace 3
@@ -265,7 +259,7 @@ myKeys =
 
    -- Layouts
    , ("M-<Tab>", sendMessage NextLayout)           -- Switch to next layout
-   , ("M-<Space>", sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts) -- Toggles noborder/full
+   , ("M-<Space>", sendMessage (Toggle NBFULL) >> sendMessage ToggleStruts) -- Toggles noborder/full
 
    -- Increase/decrease windows in the master pane or the stack
    , ("M-S-<Up>", sendMessage (IncMasterN 1))      -- Increase # of clients master pane
@@ -279,14 +273,6 @@ myKeys =
    , ("M-M1-j", sendMessage MirrorShrink)          -- Shrink vert window width
    , ("M-M1-k", sendMessage MirrorExpand)          -- Expand vert window width
 
-   -- Scratchpads
-    -- Toggle show/hide these programs.  They run on a hidden workspace.
-    -- When you toggle them to show, it brings them to your current workspace.
-    -- Toggle them to hide and it sends them back to hidden workspace (NSP).
-   , ("<F12>", namedScratchpadAction myScratchPads "terminal")
-   , ("S-<F12>", namedScratchpadAction myScratchPads "calculator")
-   , ("M-<Backspace>", namedScratchpadAction myScratchPads "inputHelper")
-
    -- Controls
    -- TODO: Check that keys are correctly mapped
    , ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1.5%")
@@ -294,67 +280,30 @@ myKeys =
    , ("<XF86AudioMute>", spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle")
    , ("<XF86MonBrightnessUp>", spawn "light -A 5")
    , ("<XF86MonBrightnessDown>", spawn "light -U 5")
+
+   -- Confirm logout
    ]
-   -- The following lines are needed for named scratchpads.
-   where nonNSP          = WSIs (return (\ws -> W.tag ws /= "NSP"))
-         nonEmptyNonNSP  = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
-
-
-
--- myXmobarPP :: PP
--- myXmobarPP = def
---      { ppSep              = magenta " • "
---      , ppTitleSanitize    = xmobarStrip
---      , ppCurrent          = wrap " " "" . xmobarBorder "Top" "#8be9fd" 2
---      , ppHidden           = white . wrap " " ""
---      , ppHiddenNoWindows  = lowWhite . wrap " " ""
---      , ppUrgent           = red . wrap (yellow "!") (yellow "!")
---      , ppOrder            = \[ws, l, _, wins] -> [ws, l, wins]
---      , ppExtras           = [logTitles formatFocused formatUnfocused]
---      }
---    where
---      formatFocused     = wrap (white      "[") (white      "]") . magenta . ppWindow
---      formatUnfocused   = wrap (lowWhite   "[") (lowWhite   "]") . blue    . ppWindow
-
---      -- | Windows should have *some* title, which should not not exceed a
---      -- sane length.
---      ppWindow :: String -> String
---      ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
-
---      blue, lowWhite, magenta, red, white, yellow :: String -> String
---      magenta  = xmobarColor "#ff79c6" ""
---      blue     = xmobarColor "#bd93f9" ""
---      white    = xmobarColor "#f8f8f2" ""
---      yellow   = xmobarColor "#f1fa8c" ""
---      red      = xmobarColor "#ff5555" ""
---      lowWhite = xmobarColor "#bbbbbb" ""
-
-
-
 
 main :: IO ()
 main = do
   -- Launching multiple instances of xmobar on their monitors. (if you have those many)
     xmproc  <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc"
-    xmproc1 <- spawnPipe "xmobar -x 1 $HOME/.config/xmobar/xmobarrc1"
 
     -- the xmonad, ya know...what the WM is named after!
     xmonad $ docks . ewmh $ def
       { manageHook          = myManageHook <+> manageDocks
-      , handleEventHook     = windowedFullscreenFixEventHook
+      , handleEventHook     = windowedFullscreenFixEventHook <> swallowEventHook (className =? "Alacritty"  <||> className =? "st-256color" <||> className =? "XTerm") (return True) <> trayerPaddingXmobarEventHook
       , modMask             = myModMask
       , terminal            = myTerminal
-      , startupHook         = myStartupHook
-      , layoutHook          = myLayout
+      , layoutHook          = myLayoutHook
       , workspaces          = myWorkspaces
       , borderWidth         = myBorderWidth
       , normalBorderColor    = myNormColor
       , focusedBorderColor  = myFocusColor
-      , logHook = dynamicLogWithPP $ filterOutWsPP [scratchpadWorkspaceTag] $ xmobarPP
+      , logHook = dynamicLogWithPP $ xmobarPP
            -- The following variables begining with 'pp' are settings for xmobar
            { ppOutput       = \x -> hPutStrLn xmproc x                         -- xmobar on monitor 1
-                                 >> hPutStrLn xmproc1 x                        -- xmobar on monitor 2
-
+                              --   >> hPutStrLn xmproc1 x                        -- xmobar on monitor 2
            , ppCurrent      = xmobarColor "#98be65" "" . wrap "[" "]"          -- current workspace
            , ppVisible      = xmobarColor "#98be65" "" . clickable             -- Visible but not current workspace
            , ppHidden       = xmobarColor "#82AAFF" "" . wrap "*" "" . clickable --Hidden workspaces
