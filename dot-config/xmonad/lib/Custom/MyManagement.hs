@@ -23,11 +23,11 @@ myManagement =
       (title   =? "MEGAsync" )                                        --> doFloat,
       (appName =? "keybase")                                          --> doFloat,
       (className  =? "Steam" <&&> fmap (/= "Steam") title)            --> doFloat,
-      (className =? "firefox" <&&> resource =? "Dialog")              --> doFloat,  -- Float Firefox Dialog,
       (title   =? "GameHub")                                          --> doFloat >> doShift "game",
       (appName =?  myBrowser)                                         --> doShift "www",
       (title   =? "Steam")                                            --> doShift "game",
-      (className  =? "itch")                                          --> doShift "game"
+      (className  =? "itch")                                          --> doShift "game",
+      (className =? "firefox" <&&> resource =? "Dialog")              --> doCenterFloat -- Float Firefox Dialog,
 
     ]
 

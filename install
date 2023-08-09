@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="emacs,tmux,xsession"
+    STOW_FOLDERS="emacs,tmux,xsession,profile,gtk"
 fi
 
 if [[ -z $DOTFILES ]]; then
