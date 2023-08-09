@@ -1,14 +1,24 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-picom &
-trayer --edge top --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 24 &
+
+# Hide the Mouse when not needed
+unclutter &
+
+# Notification daemon
 xsettingsd &
-shutter -min_at_startup &
-nm-applet &
-volumeicon &
+
+xsetroot -cursor_name left_ptr &
+
+
+[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
+
+
 ibus-daemon -drxR &
 emacs --daemon &
 xscreensaver -no-splash &
+autorandr -c -d common --skip-options crtc &
 xfce4-power-manager &
-autorandr -c &
-nitrogen --restore &
+dunst &
+systemctl --user import-environment DISPLAY XAUTHORITY
+dbus-update-activation-environment --systemd --all
+dbus-launch --exit-with-session xmonad

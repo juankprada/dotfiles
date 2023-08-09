@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="emacs,tmux,xinit,xsession,xprofile"
+    STOW_FOLDERS="emacs,tmux,xsession"
 fi
 
 if [[ -z $DOTFILES ]]; then
@@ -23,3 +23,11 @@ popd
 echo ">>> stow .config"
 stow -D dot-config --target ~/.config  --dotfiles
 stow dot-config --target ~/.config --dotfiles
+
+
+mkdir -p ~/.local/bin
+
+
+echo ">>> stow bin directory"
+stow -D bin --target ~/.local/bin
+stow bin --target ~/.local/bin
