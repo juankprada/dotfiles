@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="emacs,tmux,xsession,profile,gtk"
+    STOW_FOLDERS="emacs,tmux,xsession,gtk"
 fi
 
 if [[ -z $DOTFILES ]]; then
