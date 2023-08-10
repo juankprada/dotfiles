@@ -26,9 +26,9 @@ stow -D dot-config --target ~/.config  --dotfiles
 stow dot-config --target ~/.config --dotfiles
 
 
-mkdir -p ~/.local/bin
+#mkdir -p ~/.local/bin
 
 
-echo ">>> stow bin directory"
-stow -D bin --target ~/.local/bin
-stow bin --target ~/.local/bin
+#echo ">>> stow bin directory"
+#stow -D bin --target ~/.local/bin
+#stow bin --target ~/.local/bin
