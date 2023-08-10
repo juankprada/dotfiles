@@ -1,4 +1,5 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
+
 if [[ -z $STOW_FOLDERS ]]; then
     STOW_FOLDERS="emacs,tmux,xsession,profile,gtk"
 fi
