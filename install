@@ -26,6 +26,9 @@ stow -D dot-config --target ~/.config  --dotfiles
 stow dot-config --target ~/.config --dotfiles
 
 
+echo ">>> stow wallpapers"
+stow -D Pictures --target ~/Pictures
+stow Pictures --target ~/Pictures
 #mkdir -p ~/.local/bin
 
 

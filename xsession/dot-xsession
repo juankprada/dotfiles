@@ -19,6 +19,7 @@ xscreensaver -no-splash &
 autorandr -c -d common --skip-options crtc &
 xfce4-power-manager &
 dunst &
+picom -b &
 systemctl --user import-environment DISPLAY XAUTHORITY
 dbus-update-activation-environment --systemd --all
 dbus-launch --exit-with-session xmonad
