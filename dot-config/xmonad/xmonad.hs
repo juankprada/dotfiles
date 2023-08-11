@@ -74,7 +74,7 @@ main = do
   --    xmproc_bt1 <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc-bot"
     xmonad
       $ javaHack
-        . rescreenHook rescreenCfg
+         . rescreenHook rescreenCfg
       $ docks
         . ewmh
       $ def

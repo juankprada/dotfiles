@@ -17,4 +17,18 @@ myBrowser = "firefox"
 
 -- Sets my default text editor
 myEditor :: String
-myEditor = "emacs"
+myEditor = "emacsclient -c -a 'emacs'"
+
+-- The program that will play system sounds
+mySoundPlayer :: String
+mySoundPlayer = "ffplay -nodisp -autoexit"
+
+soundDir = "/opt/system_sounds/" -- The directory that has the sound files
+
+startupSound  = soundDir ++ "startup-01.mp3"
+shutdownSound = soundDir ++ "shutdown-01.mp3"
+dmenuSound    = soundDir ++ "menu-01.mp3"
+
+-- Sets the border width for windows
+myBorderWidth :: Dimension
+myBorderWidth = 2
