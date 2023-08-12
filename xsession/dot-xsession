@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+xrdb -merge .Xresources
+
 xsettingsd &
 
 xsetroot -cursor_name left_ptr &
+
 
 
 [[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
@@ -19,7 +22,7 @@ autorandr -c --default horizontal --skip-options crtc
 
 dunst &
 #picom -b &
-#ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
+ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
 
 systemctl --user import-environment DISPLAY XAUTHORITY
 dbus-update-activation-environment --systemd --all

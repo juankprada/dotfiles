@@ -18,12 +18,13 @@ myStartupHook = do
       picomCmd = "killall -9 picom; picom -b"
       startSoundCmd = (mySoundPlayer ++ startupSound)
 
-  sequence_ [spawnOnce startSoundCmd
-            , spawn wallpaperCmd
+  sequence_ [
+            spawn wallpaperCmd
             , spawn trayerCmd
             , spawn volumeIconCmd
             , spawn shutterCmd
             , setDefaultCursor xC_left_ptr
+            , spawn startSoundCmd
             ]
 
 

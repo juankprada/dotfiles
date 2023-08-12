@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="emacs,tmux,xsession,gtk"
+    STOW_FOLDERS="bashrc,Xresources,emacs,tmux,xsession,gtk"
 fi
 
 if [[ -z $DOTFILES ]]; then
@@ -19,11 +19,16 @@ do
 done
 popd
 
-
+echo ">>> stow .local/bin"
+stow -D dot-local/ --target ~/.local --dotfiles
+stow dot-local/ --target ~/.local --dotfiles
+chmod +x ~/.local/bin/*
 
 echo ">>> stow .config"
 stow -D dot-config --target ~/.config  --dotfiles
 stow dot-config --target ~/.config --dotfiles
+
+
 
 
 echo ">>> stow wallpapers"

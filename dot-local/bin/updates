@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo -e "$(dnf check-update| grep -Ec ' updates$') Updates"

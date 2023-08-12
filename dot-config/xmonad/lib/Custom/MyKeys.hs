@@ -129,8 +129,8 @@ myKeys =
 
      -- Xmonad
      ("M-S-r", spawn "xmonad --recompile && xmonad --restart"),    -- Restarts xmonad
-     ("M-S-q", io exitSuccess),              -- Quits xmonad
-
+     --     ("M-S-q", io exitSuccess),              -- Quits xmonad
+     ("M-S-q", spawn "ffplay -nodisp -autoexit /opt/system_sounds/shutdown-01.mp3" >> confirmPrompt def "exit" (io (exitWith ExitSuccess))),
 
         -- Controls
      ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1.5%"),
