@@ -6,16 +6,21 @@ xsetroot -cursor_name left_ptr &
 
 
 [[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
-
+dex-autostart --autostart --environment Xmonad
 unclutter &
+
 ibus-daemon -drxR &
+
 emacs --daemon &
+
 xscreensaver -no-splash &
+
 autorandr -c --default horizontal --skip-options crtc
-xfce4-power-manager &
+
 dunst &
 #picom -b &
 #ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
+
 systemctl --user import-environment DISPLAY XAUTHORITY
 dbus-update-activation-environment --systemd --all
 dbus-launch --exit-with-session xmonad

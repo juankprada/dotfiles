@@ -3,6 +3,7 @@ module Custom.MyStartupApps where
 import Custom.MyDefaults
 import XMonad
 import XMonad.Util.SpawnOnce
+import XMonad.Util.Cursor
 import XMonad.Hooks.SetWMName
 
 
@@ -15,10 +16,15 @@ myStartupHook = do
       volumeIconCmd = "killall -9 volumeicon; volumeicon"
       nmAppletCmd = "killall -9 nm-applet; nm-applet"
       picomCmd = "killall -9 picom; picom -b"
-      lxsessionCmd = "lxsession"
       startSoundCmd = (mySoundPlayer ++ startupSound)
 
-  sequence_ [spawnOnce lxsessionCmd, spawnOnce startSoundCmd, spawn wallpaperCmd, spawn picomCmd, spawn trayerCmd, spawn shutterCmd, spawn volumeIconCmd, spawn nmAppletCmd]
+  sequence_ [spawnOnce startSoundCmd
+            , spawn wallpaperCmd
+            , spawn trayerCmd
+            , spawn volumeIconCmd
+            , spawn shutterCmd
+            , setDefaultCursor xC_left_ptr
+            ]
 
 
 
