@@ -9,7 +9,11 @@ xsetroot -cursor_name left_ptr &
 
 
 [[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
+
+/usr/bin/lxpolkit &
+
 dex-autostart --autostart --environment Xmonad
+
 unclutter &
 
 ibus-daemon -drxR &
@@ -21,8 +25,9 @@ xscreensaver -no-splash &
 autorandr -c --default horizontal --skip-options crtc
 
 dunst &
+
 #picom -b &
-ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
+#ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
 
 systemctl --user import-environment DISPLAY XAUTHORITY
 dbus-update-activation-environment --systemd --all
