@@ -28,7 +28,7 @@ import XMonad.Layout.LayoutHints
 import XMonad.Layout.LayoutModifier
 import XMonad.Layout.Gaps
 
-mySpacing i = spacingRaw False (Border 10 10 30 30) True (Border i i i i) True
+mySpacing i = spacingRaw False (Border 5 5 10 10) True (Border i i i i) True
 
 
 tabs =

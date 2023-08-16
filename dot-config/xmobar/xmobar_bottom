@@ -4,15 +4,15 @@ Config { font    = "Hack Nerd Font Mono 11"
                            ]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
-       , position = BottomSize L 90 24
+       , position = BottomSize L 90 22
        , lowerOnStart = True
        , hideOnStart = False
        , allDesktops = True
        , persistent = True
-       --, iconRoot = "~/.xmonad/xpm/"  -- default: "."
-       , commands = [Run UnsafeStdinReader
+       , commands = [
+                     Run XPropertyLog "_XMONAD_LOG_2"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %UnsafeStdinReader% }{ "
+       , template = " %_XMONAD_LOG_2% }{ "
        }

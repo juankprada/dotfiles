@@ -150,7 +150,7 @@ ex ()
   fi
 }
 
-export DOTFILES="~/Documents/Projects/dotfiles/"
+export DOTFILES="/home/juankprada/Documents/Projects/dotfiles/"
 
 commitDotFiles() {
     pushd $DOTFILES

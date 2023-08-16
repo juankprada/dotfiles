@@ -1,7 +1,6 @@
-Config { font    = "xft:WenQuanYi Micro Hei Mono:weight=bold:pixelsize=11:antialias=true:hinting=true"
-       , additionalFonts = [ "xft:Mononoki Nerd Font:pixelsize=11:antialias=true:hinting=true"
-                           , "xft:Font Awesome 5 Free Solid:pixelsize=12"
-                           , "xft:Font Awesome 5 Brands:pixelsize=12"
+Config { font    = "Hack Nerd Font Mono 11"
+       , additionalFonts = [ "Font Awesome 5 Free Solid 11"
+                           , "Font Awesome 5 Brands 11"
                            ]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
@@ -10,12 +9,12 @@ Config { font    = "xft:WenQuanYi Micro Hei Mono:weight=bold:pixelsize=11:antial
        , hideOnStart = False
        , allDesktops = True
        , persistent = True
-       , iconRoot = "~/.xmonad/xpm/"  -- default: "."
+       -- , iconRoot = "~/.xmonad/xpm/"  -- default: "."
        , commands = [
                         -- Prints out the left side items such as workspaces, layout, etc.
-                    Run UnsafeStdinReader
+                    Run XPropertyLog "_XMONAD_LOG_3"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %UnsafeStdinReader%"
+       , template = " %_XMONAD_LOG_3%}{"
        }

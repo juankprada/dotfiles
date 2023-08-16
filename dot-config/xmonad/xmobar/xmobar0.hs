@@ -4,7 +4,7 @@ Config { font    = "Hack Nerd Font Mono 11"
                            ]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
-       , position = TopSize L 100 22
+       , position = TopSize L 90 24
        , lowerOnStart = True
        , hideOnStart = False
        , allDesktops = True
@@ -50,9 +50,9 @@ Config { font    = "Hack Nerd Font Mono 11"
                     , Run Com ".config/xmobar/trayer-padding-icon.sh" [] "trayerpad" 20
                         -- Prints out the left side items such as workspaces, layout, etc.
                     , Run Com "volume" [] "volume" 36000
-                    , Run UnsafeXPropertyLog "_XMONAD_LOG_1"
+                    , Run UnsafeXMonadLog
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%_XMONAD_LOG_1% }{<box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65><action=`alacritty -e btop`>%volume%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#ecbe7b><fc=#ecbe7b><action=`alacritty -e btop`>%cpu%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#ff6c6b><fc=#ff6c6b><action=`alacritty -e btop`>%memory%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#a9a1e1><fc=#a9a1e1>%disku%</fc></box>  <box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65>%uparrow% %uptime%</fc></box>  <box type=Bottom width=2 mb=2 color=#c678dd><fc=#c678dd>%bell% <action=`alacritty -e sudo pacman -Syu`>%pacupdate%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#da8548><fc=#da8548>%baticon% %battery%</fc></box>  <box type=Bottom width=2 mb=2 color=#46d9ff><fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc></box>"
+       , template = " %UnsafeXMonadLog% }{<box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65><action=`alacritty -e btop`>%volume%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#ecbe7b><fc=#ecbe7b><action=`alacritty -e btop`>%cpu%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#ff6c6b><fc=#ff6c6b><action=`alacritty -e btop`>%memory%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#a9a1e1><fc=#a9a1e1>%disku%</fc></box>  <box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65>%uparrow% %uptime%</fc></box>  <box type=Bottom width=2 mb=2 color=#c678dd><fc=#c678dd>%bell% <action=`alacritty -e sudo pacman -Syu`>%pacupdate%</action></fc></box>  <box type=Bottom width=2 mb=2 color=#da8548><fc=#da8548>%baticon% %battery%</fc></box>  <box type=Bottom width=2 mb=2 color=#46d9ff><fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc></box>"
        }
