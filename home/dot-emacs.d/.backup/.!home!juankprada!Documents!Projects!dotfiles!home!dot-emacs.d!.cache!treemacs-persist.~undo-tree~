@@ -1,0 +1,44 @@
+(undo-tree-save-format-version . 1)
+"ec6578382a1b4bc1deb00d5a7e7704ed59ef0c07"
+[nil nil nil nil (25834 42293 885036 332000) 0 nil]
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42044 917447 692000)) nil (25834 42293 885030 47000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42293 890649 31000)) nil (25834 42374 603630 598000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42374 608267 606000)) nil (25834 42473 368087 906000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42473 373800 898000)) nil (25834 42486 743235 836000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42486 748737 695000)) nil (25834 42581 802058 887000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42581 807288 504000)) nil (25834 42617 822276 91000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42617 826118 300000)) nil (25834 42949 142682 107000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 42949 152552 643000)) nil (25834 43543 495610 414000) 0 nil])
+([nil nil ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 43543 507215 630000)) nil (25834 45188 682320 312000) 0 nil])
+([nil current ((1 . 110) (#("* Default
+** net.juankprada.antjdtls.eclipse
+ - path :: ~/Documents/Projects/net.juankprada.antjdtls.eclipse
+" 0 109 (fontified nil)) . 1) (t 25834 45188 686240 122000)) nil (25834 45311 907834 85000) 0 nil])
+nil

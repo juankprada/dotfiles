@@ -1,3 +1,53 @@
+(setq gc-cons-threshold 100000000)
+(setq package-enable-at-startup nil)
+
+(defvar file-name-handler-alist-original file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
+(setq site-run-file nil)
+
+(menu-bar-mode -1)
+(unless (and (display-graphic-p) (eq system-type 'darwin))
+  (push '(menu-bar-lines . 0) default-frame-alist))
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+
+(setq user-full-name "Juan Camilo Prada")
+(setq user-mail-address "juankprada@gmail.com")
+
+(defconst *sys/win32*
+  (eq system-type 'windows-nt)
+  "Are we running on a WinTel system?")
+
+(defconst *sys/linux*
+  (eq system-type 'gnu/linux)
+  "Are we running on a GNU/Linux system?")
+
+(defconst *sys/mac*
+  (eq system-type 'darwin)
+  "Are we running on a Mac system?")
+
+(defconst python-p
+  (or (executable-find "python3")
+      (and (executable-find "python")
+           (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
+  "Do we have python3?")
+
+(defconst pip-p
+  (or (executable-find "pip3")
+      (and (executable-find "pip")
+           (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
+  "Do we have pip3?")
+
+(defconst clangd-p
+  (or (executable-find "clangd")  ;; usually
+      (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
+  "Do we have clangd?")
+
+(defconst eaf-env-p
+  (and (display-graphic-p) python-p pip-p)
+  "Do we have EAF environment setup?")
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/") t)
@@ -15,16 +65,21 @@
   :init
   (setq doom-themes-enable-bold t)  ; if nil, bold is universally disabled
   (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  :custom-face
+  (cursor ((t (:background "BlanchedAlmond"))))
   :config
+  ;; flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  (doom-themes-treemacs-config)
-  (doom-themes-org-config)
-  (load-theme 'doom-one t)
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config)
-  )
+  (load-theme 'doom-one t)
+  ;;(setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (defun switch-theme ()
+    "An interactive funtion to switch themes."
+    (interactive)
+    (disable-theme (intern (car (mapcar #'symbol-name custom-enabled-themes))))
+    (call-interactively #'load-theme)))
 
 (use-package solaire-mode
   :ensure t
@@ -67,6 +122,86 @@
 (use-package doom-modeline
   :ensure t)
 (doom-modeline-mode 1)
+
+(use-package format-all
+  :bind ("C-c C-f" . format-all-buffer))
+
+(use-package iedit
+  :bind ("C-|" . iedit-mode)
+  :diminish)
+
+(use-package dired
+  :ensure nil
+  :bind
+  (("C-x C-j" . dired-jump))
+  :custom
+  ;; Always delete and copy recursively
+  (dired-listing-switches "-lah")
+  (dired-recursive-deletes 'always)
+  (dired-recursive-copies 'always)
+  ;; Auto refresh Dired, but be quiet about it
+  (global-auto-revert-non-file-buffers t)
+  (auto-revert-verbose nil)
+  ;; Quickly copy/move file in Dired
+  (dired-dwim-target t)
+  ;; Move files to trash when deleting
+  (delete-by-moving-to-trash t)
+  ;; Load the newest version of a file
+  (load-prefer-newer t)
+  ;; Detect external file changes and auto refresh file
+  (auto-revert-use-notify nil)
+  (auto-revert-interval 3) ; Auto revert every 3 sec
+  :config
+  ;; Enable global auto-revert
+  (global-auto-revert-mode t)
+  ;; Reuse same dired buffer, to prevent numerous buffers while navigating in dired
+  (put 'dired-find-alternate-file 'disabled nil)
+  :hook
+  (dired-mode . (lambda ()
+                  (local-set-key (kbd "<mouse-2>") #'dired-find-alternate-file)
+                  (local-set-key (kbd "RET") #'dired-find-alternate-file)
+                  (local-set-key (kbd "^")
+                                 (lambda () (interactive) (find-alternate-file ".."))))))
+
+(use-package popup-kill-ring
+  :bind ("M-y" . popup-kill-ring)
+  :custom (kill-do-not-save-duplicates t))
+
+(use-package undo-tree
+  :ensure t
+  :defer t
+  :init (global-undo-tree-mode)
+  :custom
+  (undo-tree-visualizer-diff t)
+  (undo-tree-history-directory-alist `(("." . ,(expand-file-name ".backup" user-emacs-directory))))
+  (undo-tree-visualizer-timestamps t))
+
+(use-package sudo-edit
+  :commands (sudo-edit))
+
+(use-package avy
+  :defer t
+  :bind
+  (("C-:" . avy-goto-char-timer)
+   ("C-;" . avy-goto-line))
+  :custom
+  (avy-timeout-seconds 0.3)
+  (avy-style 'pre)
+  :custom-face
+  (avy-lead-face ((t (:background "#51afef" :foreground "#870000" :weight bold)))));
+
+(use-package crux
+  :ensure t
+  :bind
+  (("C-a" . crux-move-beginning-of-line)
+   ("C-x 4 t" . crux-transpose-windows)
+   ("C-x K" . crux-kill-other-buffers)
+   ("C-k" . crux-smart-kill-line))
+  :config
+  (crux-with-region-or-buffer indent-region)
+  (crux-with-region-or-buffer untabify)
+  (crux-with-region-or-point-to-eol kill-ring-save)
+  (defalias 'rename-file-and-buffer #'crux-rename-file-and-buffer))
 
 (use-package dashboard-hackernews
   :ensure t
@@ -113,15 +248,79 @@
 
 (use-package org
   :ensure t
-  :init
-  (setq org-log-done t)
+  :defer t
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture)
+         (:map org-mode-map (("C-c C-p" . eaf-org-export-to-pdf-and-open)
+                             ("C-c ;" . nil))))
+  :custom
+  (org-log-done 'time)
+  (calendar-latitude 43.65107) ;; Prerequisite: set it to your location, currently default: Toronto, Canada
+  (calendar-longitude -79.347015) ;; Usable for M-x `sunrise-sunset' or in `org-agenda'
+  (org-export-backends (quote (ascii html icalendar latex md odt)))
+  (org-use-speed-commands t)
+  (org-confirm-babel-evaluate 'nil)
+  (org-latex-listings-options '(("breaklines" "true")))
   (setq org-todo-keywords
         (quote ((sequence "TODO(t!)"  "NEXT(n!)" "|" "DONE(d!)")
                 (sequence "IDEA(i!)" "MAYBE(y!)" "STAGED(s!)" "WORKING(k!)" "|" "USED(u!/@)")
-                ))))
+                )))
+  (org-latex-listings t)
+  (org-deadline-warning-days 7)
+  (org-agenda-window-setup 'other-window)
+  (org-latex-pdf-process
+   '("pdflatex -shelnl-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  :custom-face
+  (org-agenda-current-time ((t (:foreground "spring green"))))
+  :config
+  (add-to-list 'org-latex-packages-alist '("" "listings"))
+  (unless (version< org-version "9.2")
+    (require 'org-tempo))
+  (when (file-directory-p "~/org/agenda/")
+    (setq org-agenda-files (list "~/org/agenda/")))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(;; other Babel languages
+     (C . t)
+     (python . t)
+     (plantuml . t)))
+  (defun org-export-toggle-syntax-highlight ()
+    "Setup variables to turn on syntax highlighting when calling `org-latex-export-to-pdf'."
+    (interactive)
+    (setq-local org-latex-listings 'minted)
+    (add-to-list 'org-latex-packages-alist '("newfloat" "minted")))
+
+  (defun org-table-insert-vertical-hline ()
+    "Insert a #+attr_latex to the current buffer, default the align to |c|c|c|, adjust if necessary."
+    (interactive)
+    (insert "#+attr_latex: :align |c|c|c|")))
+
+(use-package org-roam
+  :after org
+  :custom
+  (org-roam-node-display-template
+   (concat "${title:*} "
+           (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-completion-everywhere t)
+  :bind
+  (("C-c n l" . org-roam-buffer-toggle)
+   ("C-c n f" . org-roam-node-find)
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n h" . org-id-get-create))
+  :config
+  (when (file-directory-p "~/org/roam/")
+    (setq org-roam-directory (file-truename "~/org/roam")))
+  (org-roam-db-autosync-mode))
+
+(use-package toc-org
+  :hook (org-mode . toc-org-mode))
 
 (use-package ox-md
   :after (org))
+
+(use-package htmlize :defer t)
 
 (use-package rainbow-mode
   :ensure t
@@ -137,7 +336,16 @@
   (projectile-global-mode 1))
 
 (use-package magit
-  :ensure t)
+  :if (executable-find "git")
+  :bind
+  (("C-x g" . magit-status)
+   (:map magit-status-mode-map
+         ("M-RET" . magit-diff-visit-file-other-window)))
+  :config
+  (defun magit-log-follow-current-file ()
+    "A wrapper around `magit-log-buffer-file' with `--follow' argument."
+    (interactive)
+    (magit-log-buffer-file t)))
 
 (use-package helm-projectile
   :ensure t
@@ -430,6 +638,11 @@
 (use-package yasnippet-snippets
   :ensure t)
 
+(use-package dockerfile-mode :defer t)
+
+(use-package conf-mode
+  :ensure t)
+
 (use-package markdown-mode
   :ensure t
   :config
@@ -500,7 +713,20 @@
 ;; start full screen
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; set default coding of buffers
+(unless *sys/win32*
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8))
+;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
 (setq default-buffer-file-coding-system 'utf-8-unix)
+
 ;; switched from tabs to spaces for indentation
 (setq-default indent-tabs-mode nil)
 ;; also set the indentation level to 4.
@@ -558,8 +784,7 @@
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier nil)
 
-;; Smooth Scrolling
-(setq scroll-conservatively 101)
+
 
 ;; Stop Emacs from losing undo information by
 ;; setting very high limits for undo buffers
@@ -597,6 +822,50 @@
 ;; Don’t compact font caches during GC.
 (setq inhibit-compacting-font-caches t)
 
+;; Show Keystrokes in Progress Instantly
+(setq echo-keystrokes 0.1)
+
+;; Move Custom-Set-Variables to Different File
+(setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
+(load custom-file 'noerror)
+
+;; So Long mitigates slowness due to extremely long lines.
+;; Currently available in Emacs master branch *only*!
+(when (fboundp 'global-so-long-mode)
+  (global-so-long-mode))
+
+;; Enable `erase-buffer' function
+(put 'erase-buffer 'disabled nil)
+
+;; Default .args, .in, .out files to text-mode
+(add-to-list 'auto-mode-alist '("\\.in\\'" . text-mode))
+(add-to-list 'auto-mode-alist '("\\.out\\'" . text-mode))
+(add-to-list 'auto-mode-alist '("\\.args\\'" . text-mode))
+(add-to-list 'auto-mode-alist '("\\.bb\\'" . shell-script-mode))
+(add-to-list 'auto-mode-alist '("\\.bbclass\\'" . shell-script-mode))
+(add-to-list 'auto-mode-alist '("\\.Rmd\\'" . markdown-mode))
+
+;; Smooth Scrolling
+;; Vertical Scroll
+(setq scroll-step 1)
+(setq scroll-margin 1)
+(setq scroll-conservatively 101)
+(setq scroll-up-aggressively 0.01)
+(setq scroll-down-aggressively 0.01)
+(setq auto-window-vscroll nil)
+(setq fast-but-imprecise-scrolling nil)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+;; Horizontal Scroll
+(setq hscroll-step 1)
+(setq hscroll-margin 1)
+
+;; Titlebar
+(setq-default frame-title-format '("Emacs - " user-login-name "@" system-name " - %b"))
+
+(when (version<= "29.1" emacs-version)
+  (pixel-scroll-precision-mode 1))
+
 ;; show unncessary whitespace that can mess up your diff
 (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
 ;; redefine the isearch-forward-regexp function
@@ -622,8 +891,17 @@
 (modify-face 'font-lock-important-face "Yellow" nil nil t nil t nil nil)
 (modify-face 'font-lock-note-face "Green" nil nil t nil t nil nil)
 
+;; Better Compilation
+;; kill compilation process before starting another
+(setq-default compilation-always-kill t)
+;; save all buffers on `compile'
+(setq-default compilation-ask-about-save nil)
 ;; Get compilation buffer to autoscroll. Always!!!
-(setq compilation-scroll-output t)
+(setq-default compilation-scroll-output t)
+
+;; ad-handle-definition warnings are generated when functions are redefined with `defadvice',
+;; they are not helpful.
+(setq ad-redefinition-action 'accept)
 
 
 (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
@@ -958,6 +1236,9 @@
 ;; activate whitespace-mode to view all whitespace characters
 (global-set-key (kbd "C-c C-w") 'whitespace-mode)
 
+;; Save all buffers
+(global-set-key (kbd "C-x C-a") #'save-all-buffers)
+
 (define-key global-map [M-right] 'forward-word)
 (define-key global-map [M-left] 'backward-word)
 (define-key global-map [M-up] 'previous-blank-line)
@@ -1071,8 +1352,8 @@
 ;; function to call a command at a specific directory
 (defun in-directory ()
   "reads a directory name (using ido), then runs
-        execute-extended-command with default-directory in the given
-        directory."
+              execute-extended-command with default-directory in the given
+              directory."
   (interactive)
   (let ((default-directory
           (read-directory-name "in directory: "
@@ -1159,8 +1440,8 @@
 ;; Function used to call the compile command at a specific dir
 (defun project-compile ()
   "reads a directory name (using ido), then runs
-        execute-extended-command with default-directory in the given
-        directory."
+              execute-extended-command with default-directory in the given
+              directory."
   (interactive)
   (let ((default-directory
           (read-directory-name "compile in directory: "
@@ -1172,7 +1453,7 @@
 ;; custom grep tool
 (defun my-grep ()
   "grep recursively for something.  defaults to item at cursor
-          position and current directory."
+                position and current directory."
   (interactive)
   (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
   )
@@ -1263,3 +1544,91 @@
   (next-line 1)
   (yank)
   )
+
+(defun save-all-buffers ()
+  "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
+  (interactive)
+  (save-some-buffers t))
+
+
+(defun edit-configs ()
+  "Opens the README.org file."
+  (interactive)
+  (find-file "~/.emacs.d/config.org"))
+
+(global-set-key (kbd "C-z e") #'edit-configs)
+
+
+
+(defun save-and-update-includes ()
+  "Update the line numbers of #+INCLUDE:s in current buffer.
+Only looks at INCLUDEs that have either :range-begin or :range-end.
+This function does nothing if not in `org-mode', so you can safely
+add it to `before-save-hook'."
+  (interactive)
+  (when (derived-mode-p 'org-mode)
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward-regexp
+              "^\\s-*#\\+INCLUDE: *\"\\([^\"]+\\)\".*:range-\\(begin\\|end\\)"
+              nil 'noerror)
+        (let* ((file (expand-file-name (match-string-no-properties 1)))
+               lines begin end)
+          (forward-line 0)
+          (when (looking-at "^.*:range-begin *\"\\([^\"]+\\)\"")
+            (setq begin (match-string-no-properties 1)))
+          (when (looking-at "^.*:range-end *\"\\([^\"]+\\)\"")
+            (setq end (match-string-no-properties 1)))
+          (setq lines (decide-line-range file begin end))
+          (when lines
+            (if (looking-at ".*:lines *\"\\([-0-9]+\\)\"")
+                (replace-match lines :fixedcase :literal nil 1)
+              (goto-char (line-end-position))
+              (insert " :lines \"" lines "\""))))))))
+
+(add-hook 'before-save-hook #'save-and-update-includes)
+
+(defun decide-line-range (file begin end)
+  "Visit FILE and decide which lines to include.
+BEGIN and END are regexps which define the line range to use."
+  (let (l r)
+    (save-match-data
+      (with-temp-buffer
+        (insert-file-contents file)
+        (goto-char (point-min))
+        (if (null begin)
+            (setq l "")
+          (search-forward-regexp begin)
+          (setq l (line-number-at-pos (match-beginning 0))))
+        (if (null end)
+            (setq r "")
+          (search-forward-regexp end)
+          (setq r (1+ (line-number-at-pos (match-end 0)))))
+        (format "%s-%s" (+ l 1) (- r 1)))))) ;; Exclude wrapper
+
+
+(defun where-am-i ()
+  "An interactive function showing function `buffer-file-name' or `buffer-name'."
+  (interactive)
+  (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
+
+(use-package speed-type
+  :ensure t
+  :commands (speed-type-text))
+
+(use-package tetris
+:ensure nil
+:commands (tetris)
+:bind
+(:map tetris-mode-map
+      ("C-p" . tetris-rotate-prev)
+      ("C-n" . tetris-rotate-down)
+      ("C-b" . tetris-move-left)
+      ("C-f" . tetris-move-right)
+      ("C-SPC" . tetris-move-bottom))
+:config
+(defadvice tetris-end-game (around zap-scores activate)
+  (save-window-excursion ad-do-it)))
+
+(use-package 2048-game
+  :commands (2048-game))
