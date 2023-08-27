@@ -3,3 +3,4 @@ home/dot-emacs.d/*
 # except for the following files
 !home/dot-emacs.d/init.el
 !home/dot-emacs.d/config.org
+!home/dot-emacs.d/logos
