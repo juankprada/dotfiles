@@ -1,39 +1,45 @@
 #!/usr/bin/env bash
 
-if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="bashrc,Xresources,emacs,tmux,xsession,gtk"
-fi
+# if [[ -z $STOW_FOLDERS ]]; then
+#     STOW_FOLDERS="bashrc,Xresources,emacs,tmux,xsession,gtk-2.0"
+# fi
 
-if [[ -z $DOTFILES ]]; then
-    DOTFILES=$(pwd)
-fi
+# if [[ -z $DOTFILES ]]; then
+#     DOTFILES=$(pwd)
+# fi
 
-STOW_FOLDERS=$STOW_FOLDERS
+# STOW_FOLDERS=$STOW_FOLDERS
 
-pushd $DOTFILES
-for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
-do
-    echo ">>> stow $folder"
-    stow -D $folder --target ~/ --dotfiles
-    stow $folder --target ~/ --dotfiles
-done
+# pushd $DOTFILES
+# for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
+# do
+#     echo ">>> stow $folder"
+#     stow -D $folder --target ~/ --dotfiles
+#     stow $folder --target ~/ --dotfiles
+# done
+# popd
+
+
+
+echo ">>> stow HOME"
+stow -R home/  --target=$HOME --dotfiles -v
 popd
 
 echo ">>> stow .local/bin"
-stow -D dot-local/ --target ~/.local --dotfiles
-stow dot-local/ --target ~/.local --dotfiles
+stow -D dot-local/ --target=$HOME/.local --dotfiles
+stow dot-local/ --target=$HOME/.local --dotfiles
 chmod +x ~/.local/bin/*
 
 echo ">>> stow .config"
-stow -D dot-config --target ~/.config  --dotfiles
-stow dot-config --target ~/.config --dotfiles
+stow -D dot-config --target=$HOME/.config  --dotfiles
+stow dot-config --target=$HOME/.config --dotfiles
 
 
 
 
 echo ">>> stow wallpapers"
-stow -D Pictures --target ~/Pictures
-stow Pictures --target ~/Pictures
+stow -D Pictures --target=$HOME/Pictures
+stow Pictures --target=$HOME/Pictures
 #mkdir -p ~/.local/bin
 
 

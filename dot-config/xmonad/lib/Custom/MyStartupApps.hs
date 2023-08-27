@@ -11,21 +11,21 @@ myStartupHook :: X ()
 myStartupHook = do
   let
       wallpaperCmd = "nitrogen --restore"
-      --trayerCmd = "killall -9 trayer; trayer --edge top --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 24 --iconspacing 5 --monitor primary"
-      shutterCmd = "killall -9 shutter; shutter --min_at_startup"
-      volumeIconCmd = "killall -9 volumeicon; volumeicon"
-      nmAppletCmd = "killall -9 nm-applet; nm-applet"
-      picomCmd = "killall -9 picom; picom -b"
+      trayerCmd = "killall -9 trayer; trayer --edge bottom --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 22 --iconspacing 4 --monitor primary &"
+      shutterCmd = "killall -9 shutter; shutter --min_at_startup &"
+      volumeIconCmd = "killall -9 volumeicon; volumeicon &"
+      nmAppletCmd = "killall -9 nm-applet; nm-applet &"
+      picomCmd = "killall -9 picom; sleep 2 && picom -b &"
+      ibusCmd = "ibus-daemon -drxR &"
       startSoundCmd = (mySoundPlayer ++ startupSound)
 
-  sequence_ [
-            spawn wallpaperCmd
-            --, spawn trayerCmd
+  sequence_ [ spawn wallpaperCmd
+            , spawn trayerCmd
             , spawn picomCmd
             , spawn volumeIconCmd
             , spawn shutterCmd
+            , spawnOnce ibusCmd
             , setDefaultCursor xC_left_ptr
-            --, spawn startSoundCmd
             ]
 
 

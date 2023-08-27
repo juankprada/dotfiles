@@ -41,6 +41,7 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.Modal
 import XMonad.Hooks.Rescreen
+import XMonad.Hooks.FadeInactive
 
 import XMonad.Prelude
 
@@ -81,8 +82,8 @@ windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace
 
 myEventHook :: Event -> X All
 myEventHook = multiScreenFocusHook
---  windowedFullscreenFixEventHook
---  <> swallowEventHook (className =? "Alacritty"  <||> className =? "st-256color" <||> className =? "XTerm") (return True) <> trayerPaddingXmobarEventHook
+  <> windowedFullscreenFixEventHook
+  <> swallowEventHook (className =? "Alacritty"  <||> className =? "st-256color" <||> className =? "XTerm") (return True) <> trayerPaddingXmobarEventHook
 
 multiScreenFocusHook :: Event -> X All
 multiScreenFocusHook MotionEvent { ev_x = x, ev_y = y } = do
@@ -111,12 +112,13 @@ multiScreenFocusHook MotionEvent { ev_x = x, ev_y = y } = do
         focusWS ids = windows (W.view ids)
 multiScreenFocusHook _ = return (All True)
 
+myLogHook :: X ()
+myLogHook = fadeInactiveLogHook fadeAmount
+  where fadeAmount = 0.9
+
 
 main :: IO ()
 main = do
-  -- Launching multiple instances of xmobar on their monitors. (if you have those many)
-  --  xmproc  <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc"
-  --    xmproc_bt1 <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc-bot"
     xmonad
       . ewmhFullscreen
       . ewmh
@@ -134,9 +136,10 @@ main = do
         , normalBorderColor    = myNormalBorderColor
         , focusedBorderColor  = myFocusedBorderColor
         , startupHook = myStartupHook
-        , manageHook          = myManageHook <+> manageDocks
+        , manageHook          = myManageHook -- <+> manageDocks
         , layoutHook          = myLayoutHook
         , handleEventHook     = myEventHook
+        , logHook             = myLogHook
         } `additionalKeysP` myKeys
 
 
@@ -144,19 +147,20 @@ main = do
 -- Status Bars
 ----------------------------------------
 
--- barSpawner :: Applicative f => ScreenId -> f StatusBarConfig
--- barSpawner (S s) = do
---   pure $ (statusBarPropTo "_XMONAD_LOG_1" ("xmobar -x " ++ show s ++ " ~/.config/xmobar/xmobarrc") (pure $ myXmobarPP (S s))) <>
---          (statusBarPropTo "_XMONAD_LOG_2" ("xmobar -x " ++ show s ++ " ~/.config/xmobar/xmobar_bottom") (pure $ myXmobarBottomPP (S s)))
+barSpawner :: Applicative f => ScreenId -> f StatusBarConfig
+barSpawner (S s) = do
+  pure $ (statusBarPropTo "_XMONAD_LOG_1" ("xmobar -x " ++ show s ++ " ~/.config/xmobar/xmobarrc") (pure $ myXmobarPP (S s))) <>
+         (statusBarPropTo "_XMONAD_LOG_2" ("xmobar -x " ++ show s ++ " ~/.config/xmobar/xmobar_bottom") (pure $ myXmobarBottomPP (S s)))
 
 
-barSpawner :: ScreenId -> IO StatusBarConfig
-barSpawner 0 = pure $ xmobarTop <> xmobarBottom -- two bars in the main screen
-barSpawner _ = pure $ xmobarTop
+-- barSpawner :: ScreenId -> IO StatusBarConfig
+-- barSpawner 0 = pure $ xmobarTop <> xmobarBottom -- two bars in the main screen
+-- barSpawner 1 = pure $ xmobarTop <> xmobarBottom -- two bars in second screen
+-- barSpanwer _ = pure $ xmobarBottom
 
 
-xmobarTop    = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.config/xmobar/xmobarrc"       (pure $ myXmobarPP 0)
-xmobarBottom = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 0 ~/.config/xmobar/xmobar_bottom"  (pure $ myXmobarBottomPP 0)
+-- xmobarTop    = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.config/xmobar/xmobarrc"       (pure $ myXmobarPP 0)
+-- xmobarBottom = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 0 ~/.config/xmobar/xmobar_bottom"  (pure $ myXmobarBottomPP 0)
 
 myXmobarPP :: ScreenId -> PP
 myXmobarPP s = filterOutWsPP [scratchpadWorkspaceTag] $ def
@@ -171,10 +175,15 @@ myXmobarPP s = filterOutWsPP [scratchpadWorkspaceTag] $ def
  }
 
 myXmobarBottomPP :: ScreenId -> PP
-myXmobarBottomPP s =  def
+myXmobarBottomPP s = filterOutWsPP [scratchpadWorkspaceTag] $ def
   {
-    ppTitleSanitize = xmobarStrip
+    ppCurrent      = xmobarColor "#98be65" "" . wrap "[" "]"            -- current workspace
+  , ppVisible      = xmobarColor "#98be65" "" . clickable               -- Visible but not current workspace
+  , ppHidden       = xmobarColor "#82AAFF" "" . wrap "*" "" . clickable --Hidden workspaces
+  , ppHiddenNoWindows = xmobarColor "#c792ea" ""  . clickable           -- Hidden workspaces (no windows)
   , ppSep =  "<fc=#666666> | </fc>"                                     -- Separator character
+  , ppUrgent = xmobarColor "#C45500" "" . wrap "!" "!"
+  , ppTitleSanitize = xmobarStrip
   , ppExtras = [windowCount, logTitles formatFocused formatUnfocused]                                           -- # of windows current workspace
   , ppOrder = \(ws:l:t:ex) -> [l]++ex
   }
@@ -183,7 +192,7 @@ myXmobarBottomPP s =  def
    formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . blue    . ppWindow
 
    ppWindow :: String -> String
-   ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 50
+   ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
 
    blue, lowWhite, magenta, red, white, yellow :: String -> String
    magenta  = xmobarColor "#ff79c6" ""
@@ -192,22 +201,3 @@ myXmobarBottomPP s =  def
    yellow   = xmobarColor "#f1fa8c" ""
    red      = xmobarColor "#ff5555" ""
    lowWhite = xmobarColor "#bbbbbb" ""
-
-
-traySB :: StatusBarConfig
-traySB =
-  statusBarGeneric
-     ( unwords
-        [ "trayer"
-        , "--edge top"
-        , "--align right"
-        , "--widthtype request"
-       , "--expand true"
-       , "--monitor primary"
-       , "-l"
-       , "--tint 0x282c34"
-       , "--height 24"
-       , "--iconspacing 5"
-       ]
-    )
-    mempty

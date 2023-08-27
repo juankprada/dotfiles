@@ -10,7 +10,7 @@ import XMonad.Prompt
 
 -- My Font
 myFont :: String
-myFont = "xft:Hack Nerd Font Mono:regular:size=10:antialias=true:hinting=true"
+myFont = "xft:Hack Nerd Font Mono:regular:size=15:antialias=true:hinting=true"
 
 -- Sets border width for windows
 myBorderWidth :: XMonad.Dimension
@@ -27,16 +27,16 @@ myPromptConfig :: XPConfig
 myPromptConfig =
   def
     { bgColor = colorBack,
-      fgColor = color01,
-      bgHLight = color01,
+      fgColor = color03,
+      bgHLight = color02,
       fgHLight = colorBack,
       historySize = 0,
       position = Top,
-      borderColor = colorBack,
-      promptBorderWidth = 0,
+      borderColor = color03,
+      promptBorderWidth = 2,
       defaultText = "",
       alwaysHighlight = True,
-      height = 55,
+      height = 45,
       font = myFont,
       autoComplete = Nothing,
       showCompletionOnTab = False
@@ -45,37 +45,36 @@ myPromptConfig =
 myShowWNameConfig :: SWNConfig
 myShowWNameConfig =
   def
-    { swn_font = myFont,
-      swn_color = color01,
+    { swn_font = "xft:Hack Nerd Font Mono:regular:size=20:antialias=true:hinting=true",
+      swn_color = color04,
       swn_bgcolor = colorBack,
       swn_fade = 0.8
-
     }
 
 myTabConfig :: Theme
 myTabConfig =
   def
     {
-      activeColor = color01,
-      inactiveColor = colorBack,
+      activeColor = colorBack,
+      inactiveColor = color09,
       urgentColor = color02,
       activeBorderColor = colorBack,
       inactiveBorderColor = colorBack,
       urgentBorderColor = color02,
-      activeTextColor = colorBack,
-      inactiveTextColor = color03,
+      activeTextColor = color03,
+      inactiveTextColor = colorFore,
       urgentTextColor = colorBack,
-      fontName = myFont
+      fontName = "xft:Hack Nerd Font Mono:regular:size=12:antialias=true:hinting=true"
     }
 
-emConf :: EasyMotionConfig
-emConf =
-  def
-    { txtCol = color01,
-      bgCol = color04,
-      borderCol = color04,
-      cancelKey = xK_Escape,
-      emFont = myFont,
-      overlayF = textSize,
-      borderPx = 30
-    }
+-- emConf :: EasyMotionConfig
+-- emConf =
+--   def
+--     { txtCol = color02,
+--       bgCol = color04,
+--       borderCol = color04,
+--       cancelKey = xK_Escape,
+--       emFont = myFont,
+--       overlayF = textSize,
+--       borderPx = 30
+--     }
