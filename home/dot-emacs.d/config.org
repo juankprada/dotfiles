@@ -4,6 +4,7 @@
 
 * ESSENTIAL SETUP
 #+begin_src emacs-lisp
+  (random t)
 
   (setq gc-cons-threshold 100000000)
   (setq package-enable-at-startup nil)
@@ -55,6 +56,8 @@
     (and (display-graphic-p) python-p pip-p)
     "Do we have EAF environment setup?")
 #+end_src
+
+
 
 
 
@@ -115,11 +118,11 @@
       (disable-theme (intern (car (mapcar #'symbol-name custom-enabled-themes))))
       (call-interactively #'load-theme)))
 
-  (use-package solaire-mode
-    :ensure t
-    :config
-    (solaire-global-mode +1)
-    (add-to-list 'solaire-mode-themes-to-face-swap "^doom-"))
+  ;; (use-package solaire-mode
+  ;;   :ensure t
+  ;;   :config
+  ;;   (solaire-global-mode +1))
+  ;;   (add-to-list 'solaire-mode-themes-to-face-swap "^doom-"))
 #+end_src
 
 
@@ -246,6 +249,7 @@ Edit multiple regions simultaneously
 *** SUDO edit
 #+begin_src emacs-lisp
   (use-package sudo-edit
+    :ensure t
     :commands (sudo-edit))
 #+end_src
 
@@ -253,6 +257,7 @@ Edit multiple regions simultaneously
 
 #+begin_src emacs-lisp
   (use-package avy
+    :ensure t
     :defer t
     :bind
     (("C-:" . avy-goto-char-timer)
@@ -287,6 +292,7 @@ agenda items and an Emacs banner.
 #+begin_src emacs-lisp
   (use-package dashboard-hackernews
     :ensure t
+    :init
     :config
     (require 'json))
 
@@ -294,7 +300,8 @@ agenda items and an Emacs banner.
     :ensure t ;; Install dashboard if not installed
     :init     ;; tweak dashboard config before loading it
     (setq dashboard-banner-logo-title "Greetings my lord, let us hack today!")
-    (setq dashboard-startup-banner 'logo) ;; use the standrad emacs logo as banner
+    ;;(setq dashboard-startup-banner 'logo) ;; use the standrad emacs logo as banner
+    (setq dashboard-startup-banner (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")) ;; use the standrad emacs logo as banner
 
     (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
     ;;(setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
@@ -435,6 +442,7 @@ agenda items and an Emacs banner.
 #+begin_src emacs-lisp
 
   (use-package magit
+    :ensure t
     :if (executable-find "git")
     :bind
     (("C-x g" . magit-status)
@@ -586,6 +594,7 @@ Maybe one of the most customizable parts in my setup
 
   ;; optional if you want which-key integration
   (use-package which-key
+    :ensure t
     :config
     (which-key-mode))
 #+end_src
@@ -782,7 +791,8 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 *** Docker Files
 #+begin_src emacs-lisp
-  (use-package dockerfile-mode :defer t)
+  (use-package dockerfile-mode :defer t
+    :ensure t)
 #+end_src
 
 *** Conf Mode
@@ -1553,12 +1563,12 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 #+end_src
 
 
-* My Functions
+* MY FUNCTIONS
 #+begin_src emacs-lisp
+
   (defun juank-never-split-a-window
       ;; "Never, ever split a window.  Why would anyone EVER want you to do that??"
       nil)
-
 
   (defun juank-replace-string (FromString ToString)
     "Replace a string without moving point."
@@ -1609,8 +1619,8 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; function to call a command at a specific directory
   (defun in-directory ()
     "reads a directory name (using ido), then runs
-                execute-extended-command with default-directory in the given
-                directory."
+                  execute-extended-command with default-directory in the given
+                  directory."
     (interactive)
     (let ((default-directory
             (read-directory-name "in directory: "
@@ -1697,8 +1707,8 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; Function used to call the compile command at a specific dir
   (defun project-compile ()
     "reads a directory name (using ido), then runs
-                execute-extended-command with default-directory in the given
-                directory."
+                  execute-extended-command with default-directory in the given
+                  directory."
     (interactive)
     (let ((default-directory
             (read-directory-name "compile in directory: "
@@ -1710,7 +1720,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; custom grep tool
   (defun my-grep ()
     "grep recursively for something.  defaults to item at cursor
-                  position and current directory."
+                    position and current directory."
     (interactive)
     (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
     )
@@ -1819,9 +1829,9 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
   (defun save-and-update-includes ()
     "Update the line numbers of #+INCLUDE:s in current buffer.
-  Only looks at INCLUDEs that have either :range-begin or :range-end.
-  This function does nothing if not in `org-mode', so you can safely
-  add it to `before-save-hook'."
+    Only looks at INCLUDEs that have either :range-begin or :range-end.
+    This function does nothing if not in `org-mode', so you can safely
+    add it to `before-save-hook'."
     (interactive)
     (when (derived-mode-p 'org-mode)
       (save-excursion
@@ -1847,7 +1857,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
   (defun decide-line-range (file begin end)
     "Visit FILE and decide which lines to include.
-  BEGIN and END are regexps which define the line range to use."
+    BEGIN and END are regexps which define the line range to use."
     (let (l r)
       (save-match-data
         (with-temp-buffer
@@ -1869,10 +1879,12 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
     (interactive)
     (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
 
+
 #+end_src
 
 
-** Games and Practice
+
+* Games and Practice
 
 *** Speedtype
 #+begin_src emacs-lisp
@@ -1884,18 +1896,18 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 *** Tetris
 #+begin_src emacs-lisp
   (use-package tetris
-  :ensure nil
-  :commands (tetris)
-  :bind
-  (:map tetris-mode-map
-        ("C-p" . tetris-rotate-prev)
-        ("C-n" . tetris-rotate-down)
-        ("C-b" . tetris-move-left)
-        ("C-f" . tetris-move-right)
-        ("C-SPC" . tetris-move-bottom))
-  :config
-  (defadvice tetris-end-game (around zap-scores activate)
-    (save-window-excursion ad-do-it)))
+    :ensure nil
+    :commands (tetris)
+    :bind
+    (:map tetris-mode-map
+          ("C-p" . tetris-rotate-prev)
+          ("C-n" . tetris-rotate-down)
+          ("C-b" . tetris-move-left)
+          ("C-f" . tetris-move-right)
+          ("C-SPC" . tetris-move-bottom))
+    :config
+    (defadvice tetris-end-game (around zap-scores activate)
+      (save-window-excursion ad-do-it)))
 #+end_src
 
 
