@@ -1,10 +1,12 @@
 module Custom.MyManagement where
 
-import Custom.MyDefaults (myTerminal, myBrowser, myEditor)
-import Custom.MyScratchpads
+
 import XMonad
 import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat, doCenterFloat)
 import XMonad.Util.NamedScratchpad
+import Custom.MyDefaults (myTerminal, myBrowser, myEditor)
+import Custom.MyScratchpads
+import Custom.MyWorkspaces
 
 myManagement =
   composeAll
@@ -20,10 +22,10 @@ myManagement =
       (className =? "splash")                                         --> doFloat,
       (className =? "toolbar")                                        --> doFloat,
       (className =? "re.sonny.Commit")                                --> doFloat,
-      (title     =? "Mozilla Firefox")                                --> doShift " www ",
-      (title     =? "Steam")                                          --> doShift " game ",
-      (className =? "Gimp")                                           --> doShift " art ",
-      (className =? "Krita")                                          --> doShift " art ",
+      (className =? "firefox")                                        --> doShift (workspaceAt 1),
+      (title     =? "Steam")                                          --> doShift (workspaceAt 6),
+      (className =? "Gimp")                                           --> doShift (workspaceAt 7),
+      (title     =? "Krita")                                          --> doShift (workspaceAt 7),
       (className =? "firefox" <&&> resource =? "Dialog")              --> doFloat,  -- Float Firefox Dialog
       (isFullscreen)                                                  --> doFullFloat
     ]

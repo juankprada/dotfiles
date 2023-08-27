@@ -44,5 +44,6 @@ if [ ! -f $iconfile ]; then
     create_xpm_icon $width $iconfile
 fi
 
+
 # Output the icon tag for xmobar
 echo "<icon=${iconfile}/>"

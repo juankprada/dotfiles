@@ -63,6 +63,10 @@ myKeys =
      ("M-<Return>", spawn myTerminal),
      -- Browser
      ("M-b", spawn myBrowser),
+
+     -- Editor
+     ("M-e", spawn myEditor),
+
      -- Rofi
      ("M-p", spawn "rofi -show drun"),
      ("M-y", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
@@ -129,8 +133,8 @@ myKeys =
 
      -- Xmonad
      ("M-S-r", spawn "xmonad --recompile && xmonad --restart"),    -- Restarts xmonad
-     ("M-S-q", io exitSuccess),              -- Quits xmonad
-     --("M-S-q", spawn "ffplay -nodisp -autoexit /opt/system_sounds/shutdown-01.mp3" >> confirmPrompt def "exit" (io (exitWith ExitSuccess))),
+     --("M-S-q", io exitSuccess),              -- Quits xmonad
+     ("M-S-q", confirmPrompt def "exit" (io (exitWith ExitSuccess)) ),
 
         -- Controls
      ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1.5%"),
@@ -151,6 +155,7 @@ searchEngineMap method =
   M.fromList
     [ ((0, xK_a), method $ S.searchEngine "archwiki" "http://wiki.archlinux.org/index.php/Special:Search?search="),
       ((0, xK_g), method S.google),
+      ((0, xK_d), method S.duckduckgo),
       ((0, xK_h), method S.hoogle),
       ((0, xK_i), method S.imdb),
       ((0, xK_s), method $ S.searchEngine "stackoverflow" "https://stackoverflow.com/search?q="),

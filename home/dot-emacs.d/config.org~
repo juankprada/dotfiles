@@ -1,0 +1,333 @@
+#+TITLE: Juank's Emacs Config
+#+AUTHOR: Juan Camilo Prada
+#+EMAIL: juankprada@gmail.com
+
+* PACKAGE MANAGEMENT
+** Setup package.el to work with MELPA.
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/") t)
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+  (package-initialize)
+
+  (when (not package-archive-contents)
+    (package-refresh-contents))
+
+#+end_src
+
+** Installing use-package
+
+#+begin_src emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+#+end_src
+
+
+** Look & Feel
+
+*** Theme
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+	doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+#+end_src
+
+*** Fonts
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil
+		      :font "Intone Mono Nerd Font Mono 12"
+		      :weight 'medium)
+  (set-face-attribute 'variable-pitch nil
+		      :font "Hack Nerd Font Propo 12"
+		      :weight 'regular)
+  (set-face-attribute 'fixed-pitch nil
+		      :font "Intone Mono Nerd Font Mono 12"
+		      :weight 'medium)
+  ;;(setq-default line-spacing 0.10)
+
+  (add-to-list 'default-frame-alist '(font . "Intone Mono Nerd Font Mono 12"))
+
+  (use-package all-the-icons
+    :ensure t
+    :if (display-graphic-p))
+
+  (use-package nerd-icons
+    :ensure t
+    :custom
+    ;; The Nerd Font you want to use in GUI
+    ;; "Symbols Nerd Font Mono" is the default and is recommended
+    ;; but you can use any other Nerd Font if you want
+    (nerd-icons-font-family "Hack Nerd Font Propo 12")
+    )
+#+end_src
+
+** DASHBOARD
+Emacs Dashboard is an extensible startup screen showing your recent files, bookmars,
+agenda items and an Emacs banner.
+#+begin_src emacs-lisp
+  (use-package dashboard-hackernews
+    :ensure t)
+  (use-package dashboard
+    :ensure t ;; Install dashboard if not installed
+    :init     ;; tweak dashboard config before loading it
+    (setq dashboard-banner-logo-title "Greetings my lord, let us hack today!")
+    (setq dashboard-startup-banner 'logo) ;; use the standrad emacs logo as banner
+    (setq dashboard-set-init-info t)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-center-content nil) ;; set to 't' for centered content
+    (setq dashboard-set-navigator t)
+    ;;(setq dashboard-navigator-buttons '((("" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
+    (setq dashboard-set-week-agenda t)
+    (setq dashboard-week-agenda t)
+    (setq dashboard-items '((recents . 10)
+			    (agenda . 5)
+			    (bookmarks . 5)
+			    (projects . 5)
+			    (registers . 5)
+			    (hackernews . 5)))
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+    :config
+    (dashboard-setup-startup-hook))
+#+end_src
+
+
+
+** Key Bindings
+
+*** Zoom in/Zoom out Text
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-=") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+  (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
+#+end_src
+
+** GUI SETTINGS
+*** Disable Menu, Toolbar and Scroll bars
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+*** Display Line Numbers and Truncated Lines
+#+begin_src emacs-lisp
+  (global-display-line-numbers-mode 1)
+  (global-visual-line-mode -1)
+#+end_src
+
+** HELPFUL SETTINGS
+*** WHICH KEY
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t)
+  (which-key-mode)
+#+end_src
+
+*** MODE LINE
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t)
+  (doom-modeline-mode 1)
+#+end_src
+
+
+
+** FUNCTIONAL PLUGINS
+
+*** Rainboe Mode
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+    :ensure t
+    :config
+    (define-globalized-minor-mode my-global-rainbow-mode rainbow-mode
+      (lambda () (rainbow-mode 1)))
+    (my-global-rainbow-mode 1)
+    )
+#+end_src
+
+*** Projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-global-mode 1))
+#+end_src
+
+*** Magit
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t)
+#+end_src
+
+*** Helm
+Maybe one of the most customizable parts in my setup
+#+begin_src emacs-lisp
+  (use-package helm-projectile
+    :ensure t
+    :config
+    (projectile-mode +1)
+    (helm-projectile-on))
+
+  (use-package helm-system-packages
+    :ensure t)
+
+  (use-package helm
+    :ensure t
+    :after
+    (helm-projectile)
+    :config
+    (helm-mode 1)
+    (helm-autoresize-mode t)
+    (setq projectile-completion-system 'helm)  ;; optional fuzzy matchinf for heml-M-x
+    (setq helm-split-window-in-side-p           t) ;; open helm buffer inside current window, not occupy whole other window
+    (setq helm-move-to-line-cycle-in-source     t) ;; move to end or beginning of source when reaching top or bottom of source.
+    (setq helm-ff-search-library-in-sexp        t) ;; search for library in `require' and `declare-function' sexp.
+    (setq helm-scroll-amount                    8) ;; scroll 8 lines other window using M-<next>/M-<prior>
+    (setq helm-ff-file-name-history-use-recentf t)
+    (setq helm-M-x-fuzzy-match                  t)
+    (setq helm-adaptive-mode                    1)
+    (setq helm-buffers-fuzzy-matching           t)
+    (setq helm-recentf-fuzzy-match              t)
+    )
+
+  (use-package helm-gtags
+    :ensure t
+    :after
+    (helm)
+    :config
+    (setq helm-gtags-ignore-case t)
+    (setq helm-gtags-auto-update t) ; auto update gtags on save
+    (setq helm-gtags-use-input-at-cursor t)
+    (setq helm-gtags-pulse-at-cursor t)
+    (setq helm-gtags-prefix-key "\C-cg")
+    (setq helm-gtags-suggested-key-mapping t)
+    ;; enable helm-gtags-mode
+    (add-hook 'dired-mode-hook 'helm-gtags-mode)
+    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+    (add-hook 'rust-mode-hook 'helm-gtags-mode)
+    )
+#+end_src
+
+
+*** Company Mode
+#+begin_src emacs-lisp
+  (use-package company
+    :init
+    (add-hook 'after-init-hook 'global-company-mode)
+    :ensure t
+    :config
+    ;; Set company completion to begin at once
+    (setq company-idle-delay 0)
+    (setq company-echo-delay 0)
+    ;; (setq company-minimum-prefix-length 3)
+    )
+
+
+  ;; With use-package:
+  (use-package company-box
+    :after
+    (company)
+    :ensure t
+    :hook (company-mode . company-box-mode))
+
+#+end_src
+
+
+*** LSP Mode
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :init
+    ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+    (setq lsp-keymap-prefix "C-c l")
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	   (java-mode . lsp)
+	   ;; if you want which-key integration
+	   (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+
+  ;; optionally
+  (use-package lsp-ui
+    :ensure t
+    :commands lsp-ui-mode)
+
+  ;; Language specific lsp
+  (use-package lsp-java
+    :ensure t)
+  ;; if you are helm user
+  (use-package helm-lsp
+    :after
+    (helm lsp-mode)
+    :commands helm-lsp-workspace-symbol)
+
+  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+  ;; optionally if you want to use debugger
+  (use-package dap-mode
+    :ensure t)
+  (use-package dap-java) ;;to load the dap adapter for your language
+
+  ;; optional if you want which-key integration
+  (use-package which-key
+    :config
+    (which-key-mode))
+#+end_src
+
+** Editing Modes
+
+*** Markdown Mode
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :config
+    (setq markdown-command "/usr/bin/markdown")
+    (setq markdown-css-paths `(,(expand-file-name "Documents/markdown.css")))
+    (add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
+    (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+    )
+#+end_src
+
+*** YAML Mode
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+    (add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
+    )
+#+end_src
+
+*** JSon Mode
+#+begin_src emacs-lisp
+  (use-package json-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
+    )
+#+end_src
+
+*** Typescript Mode
+#+begin_src emacs-lisp
+  (use-package typescript-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
+    )
+#+end_src
+
+*** Haskell Mode
+#+begin_src emacs-lisp
+  (use-package haskell-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+    )
+#+end_src

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if lsmod | grep -q ideapad_laptop; then
+    DRIVER_PATH=/sys/bus/platform/drivers/ideapad_acpi/VPC2004\:00/conservation_mode
+    CONSERVATION_MODE=$(( $(cat $DRIVER_PATH )))
+
+    UPDATED_VALUE=$(( $CONSERVATION_MODE<=0))
+
+    exec echo $UPDATED_VALUE | sudo tee $DRIVER_PATH
+
+    if [ $UPDATED_VALUE -eq 0 ]; then
+        MESSAGE='Charging Mode'
+    else
+        MESSAGE='Conservation Mode'
+    fi
+
+    exec notify-send --urgency=normal --app-name="IdeaPad Battery Manager" "Battery has been set to: ${MESSAGE}"
+fi

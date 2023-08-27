@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Detect (X)Emacs compile mode
+if [ "$EMACS" = "t" ] ; then
+  ANT_ARGS="$ANT_ARGS -emacs"
+  ANT_OPTS="$ANT_OPTS -Dbuild.compiler.emacs=true"
+fi

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+xrdb -merge .Xresources
+
+xsettingsd &
+
+
+xsetroot -cursor_name left_ptr &
+
+xinput set-prop "MSFT0001:00 04F3:31DD Touchpad" "libinput Tapping Enabled" 1 &
+
+[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
+
+/usr/bin/lxpolkit &
+
+# Auto start all XDG defined startup apps
+dex-autostart --autostart --environment Xmonad
+
+# Hide the Mouse when not in use
+unclutter &
+
+# Launch my OS
+emacs --daemon &
+
+# We should aim to replace xscreensaver it looks awefull (better-lock or some other thing)
+xscreensaver -no-splash &
+
+# Detect connected Monitors
+autorandr -c --default horizontal --skip-options crtc
+
+# Notifications, we do want notifications
+dunst &
+
+# Cute sound for startup
+ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
+
+#Actually start our DE: Xmonad
+# systemctl --user import-environment DISPLAY XAUTHORITY
+# dbus-update-activation-environment --systemd --all
+# export $(dbus-launch --exit-with-session xmonad)
+exec xmonad
