@@ -157,6 +157,7 @@
     )
 #+end_src
 
+
 ** HELPFUL SETTINGS
 
 
@@ -178,6 +179,7 @@
 *** Format All
 #+begin_src emacs-lisp
   (use-package format-all
+    :ensure t
     :bind ("C-c C-f" . format-all-buffer))
 #+end_src
 
@@ -185,6 +187,7 @@
 Edit multiple regions simultaneously
 #+begin_src emacs-lisp
   (use-package iedit
+    :ensure t
     :bind ("C-|" . iedit-mode)
     :diminish)
 #+end_src
@@ -225,14 +228,21 @@ Edit multiple regions simultaneously
                                    (lambda () (interactive) (find-alternate-file ".."))))))
 #+end_src
 
+
 ** FUNCTIONAL PLUGINS
 
-*** Popup Kill Ring
+*** Better Compilation Colors
 #+begin_src emacs-lisp
-  (use-package popup-kill-ring
-    :bind ("M-y" . popup-kill-ring)
-    :custom (kill-do-not-save-duplicates t))
+    (use-package fancy-compilation
+      :ensure t
+      :config
+      (setq fancy-compilation-override-colors nil)
+      :commands (fancy-compilation-mode))
+
+  (with-eval-after-load 'compile
+    (fancy-compilation-mode))
 #+end_src
+
 
 *** Undo Tree
 #+begin_src emacs-lisp
@@ -246,12 +256,14 @@ Edit multiple regions simultaneously
     (undo-tree-visualizer-timestamps t))
 #+end_src
 
+
 *** SUDO edit
 #+begin_src emacs-lisp
   (use-package sudo-edit
     :ensure t
     :commands (sudo-edit))
 #+end_src
+
 
 *** AVY
 
@@ -268,6 +280,7 @@ Edit multiple regions simultaneously
     :custom-face
     (avy-lead-face ((t (:background "#51afef" :foreground "#870000" :weight bold)))));
 #+end_src
+
 
 *** Crux
 #+begin_src  emacs-lisp
@@ -299,7 +312,7 @@ agenda items and an Emacs banner.
   (use-package dashboard
     :ensure t ;; Install dashboard if not installed
     :init     ;; tweak dashboard config before loading it
-    (setq dashboard-banner-logo-title "Greetings my lord, let us hack today!")
+    (setq dashboard-banner-logo-title "Greetings master. What are we working on today?")
     ;;(setq dashboard-startup-banner 'logo) ;; use the standrad emacs logo as banner
     (setq dashboard-startup-banner (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")) ;; use the standrad emacs logo as banner
 
@@ -349,9 +362,9 @@ agenda items and an Emacs banner.
                                ("C-c ;" . nil))))
     :custom
     (org-log-done 'time)
-    (calendar-latitude 43.65107) ;; Prerequisite: set it to your location, currently default: Toronto, Canada
-    (calendar-longitude -79.347015) ;; Usable for M-x `sunrise-sunset' or in `org-agenda'
-    (org-export-backends (quote (ascii html icalendar latex md odt)))
+    (calendar-latitude 35.689487) ;; Prerequisite: set it to your location, currently default: Toronto, Canada
+    (calendar-longitude 139.691711) ;; Usable for M-x `sunrise-sunset' or in `org-agenda'
+    (org-export-backends (quote (ascii html icalendar latex md odt pdf)))
     (org-use-speed-commands t)
     (org-confirm-babel-evaluate 'nil)
     (org-latex-listings-options '(("breaklines" "true")))
@@ -516,14 +529,19 @@ Maybe one of the most customizable parts in my setup
 *** Company Mode
 #+begin_src emacs-lisp
   (use-package company
-    :init
-    (add-hook 'after-init-hook 'global-company-mode)
     :ensure t
+    :defer t
+    :init
+    ;;(add-hook 'after-init-hook 'global-company-mode)
     :config
     ;; Set company completion to begin at once
     (setq company-idle-delay 0)
     (setq company-echo-delay 0)
+    (setq company-dabbrev-other-buffers t)
+    (setq company-dabbrev-code-other-buffers t)
     ;; (setq company-minimum-prefix-length 3)
+    :hook
+    (prog-mode . company-mode)
     )
 
 
@@ -545,6 +563,8 @@ Maybe one of the most customizable parts in my setup
 *** LSP Mode
 #+begin_src emacs-lisp
   (use-package lsp-mode
+    :ensure t
+    :defer t
     :init
     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
     (setq lsp-keymap-prefix "C-c l")
@@ -552,18 +572,26 @@ Maybe one of the most customizable parts in my setup
            (java-mode . lsp)
            (typescript-mode . lsp-deferred)
            (javascript-mode . lsp-deferred)
+           (python-mode . lsp-deferred)
            ;; if you want which-key integration
            (lsp-mode . lsp-enable-which-key-integration))
-    :commands lsp)
+    :commands (lsp lsp-deffered))
 
   ;; optionally
   (use-package lsp-ui
     :ensure t
-    :commands lsp-ui-mode)
+    :defer t
+    :config
+    (setq lsp-ui-sideline-enable nil)
+    (setq lsp-ui-doc-delay 2)
+    :hook (lsp-mode . lsp-ui-mode)
+    :bind (:map lsp-ui-mode-map ("C-c i" . lsp-ui-imenu)))
 
   ;; Language specific lsp
   (use-package lsp-java
-    :config (setq lsp-java-bundles (directory-files "/home/juankprada/.jdtls/server/" t ".jar"))
+    :config
+    (setq lsp-java-server-install-dir "~/.emacs.d/lsp-java/")
+    (setq lsp-java-bundles (directory-files "~/.jdtls/server/" t ".jar"))
     :ensure t)
 
   (use-package lsp-java
@@ -632,7 +660,7 @@ Maybe one of the most customizable parts in my setup
             treemacs-max-git-entries                 5000
             treemacs-missing-project-action          'ask
             treemacs-move-forward-on-expand          nil
-            treemacs-no-png-images                   nil
+            treemacs-no-png-images                   t
             treemacs-no-delete-other-windows         t
             treemacs-project-follow-cleanup          nil
             treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
@@ -1076,7 +1104,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 
                                           ; Bright-red TODOs, yellow IMPORTANT and STUDY and green NOTE
-  (setq fixme-modes '(c++-mode c-mode emacs-lisp-mode))
+  (setq fixme-modes '(c++-mode c-mode emacs-lisp-mode java-mode))
   (make-face 'font-lock-fixme-face)
   (make-face 'font-lock-study-face)
   (make-face 'font-lock-important-face)
@@ -1377,6 +1405,92 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 #+end_src
 
+
+*** Python Configuration
+#+begin_src emacs-lisp
+  (use-package python
+    :ensure t
+    :config
+    ;; Remove guess indent python message
+    (setq python-indent-guess-indent-offset-verbose nil)
+    ;; Use IPython when available or fall back to regular Python
+    (cond
+     ((executable-find "ipython")
+      (progn
+        (setq python-shell-buffer-name "IPython")
+        (setq python-shell-interpreter "ipython")
+        (setq python-shell-interpreter-args "-i --simple-prompt")))
+     ((executable-find "python3")
+      (setq python-shell-interpreter "python3"))
+     ((executable-find "python2")
+      (setq python-shell-interpreter "python2"))
+     (t
+      (setq python-shell-interpreter "python"))))
+
+
+  ;; Hide the modeline for inferior python processes
+  (use-package inferior-python-mode
+    :ensure nil
+    :hook (inferior-python-mode . hide-mode-line-mode))
+
+  ;; Required to hide the modeline
+  (use-package hide-mode-line
+    :ensure t
+    :defer t)
+
+
+  ;; Required to easily switch virtual envs
+  ;; via the menu bar or with `pyvenv-workon`
+  ;; Setting the `WORKON_HOME` environment variable points
+  ;; at where the envs are located. I use miniconda.
+  (use-package pyvenv
+    :ensure t
+    :defer t
+    :config
+    ;; Setting work on to easily switch between environments
+    (setenv "WORKON_HOME" (expand-file-name "~/.local/share/virtualenvs/"))
+    ;; Display virtual envs in the menu bar
+    (setq pyvenv-menu t)
+    ;; Restart the python process when switching environments
+    (add-hook 'pyvenv-post-activate-hooks (lambda ()
+                                            (pyvenv-restart-python)))
+    :hook (python-mode . pyvenv-mode))
+
+  (use-package pipenv
+    :ensure t
+    :hook (python-mode . pipenv-mode)
+    :init
+    (setq
+     pipenv-projectile-after-switch-function
+     #'pipenv-projectile-after-switch-extended))
+
+  ;; Language server for Python
+  ;; Read the docs for the different variables set in the config.
+  (use-package lsp-pyright
+    :ensure t
+    :config
+    ;;(setq lsp-clients-python-library-directories '("/usr/" "~/.local/share/pkgs"))
+    (setq lsp-pyright-disable-language-service nil
+          lsp-pyright-disable-organize-imports nil
+          lsp-pyright-auto-import-completions t
+          lsp-pyright-use-library-code-for-types t
+          lsp-pyright-venv-path "~/.local/share/virtualenvs")
+    :hook ((python-mode . (lambda ()
+                            (require 'lsp-pyright) (lsp-deferred)))))
+
+  ;; Format the python buffer following YAPF rules
+  ;; There's also blacken if you like it better.
+  (use-package yapfify
+    :ensure t
+    :defer t
+    :hook (python-mode . yapf-mode))
+
+
+#+end_src
+
+
+
+
 *** Java Configuration
 
 #+begin_src emacs-lisp
@@ -1460,7 +1574,6 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 *** Some useful keybindings
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-c C-g") 'goto-line)
-
   ;; Duplicate a line
   (global-set-key (kbd "C-c C-d") 'duplicate-line)
   ;; execute my-isearch-word-at-point with ctrl+* key binding
@@ -1502,6 +1615,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   (global-set-key (kbd "C-x b") 'helm-mini)
   (global-set-key (kbd "C-x C-f") 'helm-find-files)
   (global-set-key (kbd "C-x C-p") 'helm-projectile)
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
 
   (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
   (define-key helm-gtags-mode-map (kbd "M-j") 'helm-gtags-select)
