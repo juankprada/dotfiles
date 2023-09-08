@@ -560,6 +560,44 @@ Maybe one of the most customizable parts in my setup
 #+end_src
 
 
+*** Eglot
+Emacs LSP mode (different to lsp-mode)
+#+begin_src emacs-lisp
+  ;; (use-package eglot
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :hook ((python-mode . eglot-ensure)
+  ;;          (python-mode . eglot-ensure)
+  ;;          (python-mode . flyspell-prog-mode)
+  ;;          (python-mode . superword-mode)
+  ;;          (python-mode . hs-minor-mode)
+  ;;          (python-mode . (lambda () (set-fill-column 88)))
+  ;;          (python-ts-mode . eglot-ensure)
+  ;;          (python-ts-mode . flyspell-prog-mode)
+  ;;          (python-ts-mode . superword-mode)
+  ;;          (python-ts-mode . hs-minor-mode)
+  ;;          (python-ts-mode . (lambda () (set-fill-column 88))))
+  ;;   :config
+  ;;   (setq-default eglot-workspace-configuration
+  ;;                 '((:pylsp . (:configurationSources ["flake8"]
+  ;;                                                    :plugins (
+  ;;                                                              :pycodestyle (:enabled :json-false)
+  ;;                                                              :mccabe (:enabled :json-false)
+  ;;                                                              :pyflakes (:enabled :json-false)
+  ;;                                                              :flake8 (:enabled :json-false
+  ;;                                                                                :maxLineLength 88)
+  ;;                                                              :ruff (:enabled t
+  ;;                                                                              :lineLength 88)
+  ;;                                                              :pydocstyle (:enabled t
+  ;;                                                                                    :convention "numpy")
+  ;;                                                              :yapf (:enabled :json-false)
+  ;;                                                              :autopep8 (:enabled :json-false)
+  ;;                                                              :black (:enabled t
+  ;;                                                                               :line_length 88
+  ;;                                                                               :cache_config t)))))))
+
+#+end_src
+
 *** LSP Mode
 #+begin_src emacs-lisp
   (use-package lsp-mode
@@ -618,15 +656,32 @@ Maybe one of the most customizable parts in my setup
     :config
     (setq dap-python-debugger 'debugpy))
 
+  ;; Language server for Python
+  ;; Read the docs for the different variables set in the config.
+  (use-package lsp-pyright
+    :ensure t
+    :config
+    ;;(setq lsp-clients-python-library-directories '("/usr/" "~/.local/share/pkgs"))
+    (setq lsp-pyright-disable-language-service nil
+          lsp-pyright-disable-organize-imports nil
+          lsp-pyright-auto-import-completions t
+          lsp-pyright-use-library-code-for-types t
+          lsp-pyright-venv-path "~/.local/share/virtualenvs")
+    :hook ((python-mode . (lambda ()
+                            (require 'lsp-pyright) (lsp-deferred)))))
 
+#+end_src
 
+#+RESULTS:
+
+*** Whichkey
+#+begin_src emacs-listp
   ;; optional if you want which-key integration
   (use-package which-key
     :ensure t
     :config
     (which-key-mode))
 #+end_src
-
 
 *** Treemacs
 #+begin_src emacs-lisp
@@ -1464,19 +1519,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
      pipenv-projectile-after-switch-function
      #'pipenv-projectile-after-switch-extended))
 
-  ;; Language server for Python
-  ;; Read the docs for the different variables set in the config.
-  (use-package lsp-pyright
-    :ensure t
-    :config
-    ;;(setq lsp-clients-python-library-directories '("/usr/" "~/.local/share/pkgs"))
-    (setq lsp-pyright-disable-language-service nil
-          lsp-pyright-disable-organize-imports nil
-          lsp-pyright-auto-import-completions t
-          lsp-pyright-use-library-code-for-types t
-          lsp-pyright-venv-path "~/.local/share/virtualenvs")
-    :hook ((python-mode . (lambda ()
-                            (require 'lsp-pyright) (lsp-deferred)))))
+
 
   ;; Format the python buffer following YAPF rules
   ;; There's also blacken if you like it better.
