@@ -129,17 +129,17 @@
 *** Fonts
 #+begin_src emacs-lisp
   (set-face-attribute 'default nil
-                      :font "Intone Mono Nerd Font Mono 12"
+                      :font "IntoneMono Nerd Font Mono 12"
                       :weight 'medium)
   (set-face-attribute 'variable-pitch nil
-                      :font "Hack Nerd Font Propo 12"
+                      :font "IntoneMono Nerd Font Mono 12"
                       :weight 'regular)
   (set-face-attribute 'fixed-pitch nil
-                      :font "Intone Mono Nerd Font Mono 12"
+                      :font "IntoneMono Nerd Font Mono 12"
                       :weight 'medium)
   ;;(setq-default line-spacing 0.10)
 
-  (add-to-list 'default-frame-alist '(font . "Intone Mono Nerd Font Mono 12"))
+  (add-to-list 'default-frame-alist '(font . "IntoneMono Nerd Font Mono 12"))
 
   (use-package all-the-icons
     :ensure t)
@@ -629,7 +629,7 @@ Emacs LSP mode (different to lsp-mode)
   (use-package lsp-java
     :config
     (setq lsp-java-server-install-dir "~/.emacs.d/lsp-java/")
-    (setq lsp-java-bundles (directory-files "~/.jdtls/server/" t ".jar"))
+    ; (setq lsp-java-bundles (directory-files "~/.jdtls/server/" t ".jar"))
     :ensure t)
 
   (use-package lsp-java
