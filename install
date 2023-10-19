@@ -19,11 +19,17 @@
 # done
 # popd
 
+BASHRC_FILE=$HOME/.bashrc
+if [ -f "$BASHRC_FILE" ]; then
+    echo ">>> Backing up .bashrc file -> .bashrc_bk"
+    mv $BASHRC_FILE ~/.bashrc_bk
+fi
+
 
 
 echo ">>> stow HOME"
 stow -R home/  --target=$HOME --dotfiles -v
-popd
+
 
 echo ">>> stow .local/bin"
 stow -D dot-local/ --target=$HOME/.local --dotfiles
