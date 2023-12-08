@@ -35,26 +35,47 @@
     (eq system-type 'darwin)
     "Are we running on a Mac system?")
 
-  (defconst python-p
-    (or (executable-find "python3")
-        (and (executable-find "python")
-             (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
-    "Do we have python3?")
+  ;; (defconst python-p
+  ;;   (or (executable-find "python3")
+  ;;       (and (executable-find "python")
+  ;;            (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
+  ;;   "Do we have python3?")
 
-  (defconst pip-p
-    (or (executable-find "pip3")
-        (and (executable-find "pip")
-             (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
-    "Do we have pip3?")
+  ;; (defconst pip-p
+  ;;   (or (executable-find "pip3")
+  ;;       (and (executable-find "pip")
+  ;;            (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
+  ;;   "Do we have pip3?")
 
-  (defconst clangd-p
-    (or (executable-find "clangd")  ;; usually
+   (defconst clangd-p
+     (or (executable-find "clangd")  ;; usually
         (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
     "Do we have clangd?")
 
-  (defconst eaf-env-p
-    (and (display-graphic-p) python-p pip-p)
-    "Do we have EAF environment setup?")
+  ;;(defconst eaf-env-p
+  ;;  (and (display-graphic-p) python-p pip-p)
+  ;;  "Do we have EAF environment setup?")
+
+  (setenv "LANG" "en_US.UTF-8")
+  (setenv "LC_CTYPE" "UTF-8")
+  (setenv "LC_ALL" "en_US.UTF-8")
+
+  (setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 #+end_src
 
 
@@ -94,52 +115,76 @@
 ** Look & Feel
 
 
+*** Indent Lines
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (defvaralias 'c-basic-offset 'tab-width)
+  (defvaralias 'cperl-indent-level 'tab-width)
+  (setq indent-line-function 'insert-tab)
+
+
+
+#+end_src
+
 *** Theme
 #+begin_src emacs-lisp
 
-  (use-package doom-themes
-    :ensure t
-    :init
-    (setq doom-themes-enable-bold t)  ; if nil, bold is universally disabled
-    (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    :custom-face
-    (cursor ((t (:background "BlanchedAlmond"))))
-    :config
-    ;; flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    (doom-themes-treemacs-config)
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config)
-    (load-theme 'doom-one t)
-    ;;(setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-    (defun switch-theme ()
-      "An interactive funtion to switch themes."
-      (interactive)
-      (disable-theme (intern (car (mapcar #'symbol-name custom-enabled-themes))))
-      (call-interactively #'load-theme)))
+      (use-package doom-themes
+        :ensure t
+        :init
+        (setq doom-themes-enable-bold t)  ; if nil, bold is universally disabled
+        (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
+        ;:custom-face
+        ;;(cursor ((t (:background "BlanchedAlmond"))))
+        :config
+        ;; flashing mode-line on errors
+        (doom-themes-visual-bell-config)
+        (doom-themes-treemacs-config)
+        ;; Corrects (and improves) org-mode's native fontification.
+        (doom-themes-org-config)
+        (load-theme 'doom-one t)
+        ;;(setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+        (defun switch-theme ()
+          "An interactive funtion to switch themes."
+          (interactive)
+          (disable-theme (intern (car (mapcar #'symbol-name custom-enabled-themes))))
+          (call-interactively #'load-theme)))
 
-  ;; (use-package solaire-mode
-  ;;   :ensure t
-  ;;   :config
-  ;;   (solaire-global-mode +1))
-  ;;   (add-to-list 'solaire-mode-themes-to-face-swap "^doom-"))
+      (use-package solaire-mode
+         :ensure t
+         :config
+         (solaire-global-mode +1))
+
+
+  ;; (defun highlight-selected-window ()
+  ;;   "Highlight selected window with a different background color."
+  ;;   (walk-windows (lambda (w)
+  ;;                   (unless (eq w (selected-window))
+  ;;                     (with-current-buffer (window-buffer w)
+  ;;                       (buffer-face-set '(:background "#111"))))))
+  ;;   (buffer-face-set '(:background "#000")))
+
+  ;; (add-hook 'buffer-list-update-hook 'highlight-selected-window)
+
 #+end_src
 
 
 *** Fonts
 #+begin_src emacs-lisp
   (set-face-attribute 'default nil
-                      :font "IntoneMono Nerd Font Mono 12"
+                      :font "IntoneMono Nerd Font Mono 15"
                       :weight 'medium)
   (set-face-attribute 'variable-pitch nil
-                      :font "IntoneMono Nerd Font Mono 12"
+                      :font "Hack Nerd Font Propo 15"
                       :weight 'regular)
   (set-face-attribute 'fixed-pitch nil
-                      :font "IntoneMono Nerd Font Mono 12"
+                      :font "IntoneMono Nerd Font Mono 15"
                       :weight 'medium)
   ;;(setq-default line-spacing 0.10)
 
-  (add-to-list 'default-frame-alist '(font . "IntoneMono Nerd Font Mono 12"))
+  (add-to-list 'default-frame-alist '(font . "IntoneMono Nerd Font Mono 15"))
+
 
   (use-package all-the-icons
     :ensure t)
@@ -172,8 +217,17 @@
 *** MODE LINE
 #+begin_src emacs-lisp
   (use-package doom-modeline
-    :ensure t)
-  (doom-modeline-mode 1)
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
+    (setq doom-modeline-icon t) ;
+    (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-major-mode-color-icon t)
+    (setq doom-modeline-unicode-fallback t)
+    )
+
+
 #+end_src
 
 *** Format All
@@ -257,6 +311,15 @@ Edit multiple regions simultaneously
 #+end_src
 
 
+*** Indentation Lines
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides
+    :ensure t
+    :hook (prog-mode-hook .  highlight-indent-guides-mode)
+    )
+#+end_src
+
+
 *** SUDO edit
 #+begin_src emacs-lisp
   (use-package sudo-edit
@@ -280,7 +343,6 @@ Edit multiple regions simultaneously
     :custom-face
     (avy-lead-face ((t (:background "#51afef" :foreground "#870000" :weight bold)))));
 #+end_src
-
 
 *** Crux
 #+begin_src  emacs-lisp
@@ -326,7 +388,7 @@ agenda items and an Emacs banner.
 
     ;;(setq dashboard-center-content nil) ;; set to 't' for centered content
     (setq dashboard-set-navigator t)
-    (setq dashboard-navigator-buttons '((("" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
+    ;;(setq dashboard-navigator-buttons '((("" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
     (setq dashboard-set-week-agenda t)
     (setq dashboard-week-agenda t)
     (setq dashboard-heading-icons '((recents   . "history")
@@ -468,63 +530,78 @@ agenda items and an Emacs banner.
       (magit-log-buffer-file t)))
 #+end_src
 
-
-*** Helm
-Maybe one of the most customizable parts in my setup
+*** Ivy, Swiper and Counsel
 #+begin_src emacs-lisp
-  (use-package helm-projectile
+  (setq ivy-disabled nil)
+
+  (use-package counsel
     :ensure t
-    :config
-    (projectile-mode +1)
-    (helm-projectile-on))
+    :after ivy
+    :config (counsel-mode))
 
-  (use-package helm-system-packages
-    :ensure t)
-
-  (use-package helm-lsp
-    :ensure t)
-
-  (use-package helm
+  (use-package ivy
     :ensure t
-    :after
-    (helm-projectile)
+    :diminish
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+                                          ;(setq enable-recursive-minibuffers t)
+    ;; enable this if you want `swiper' to use it
+                                          ;(setq search-default-mode #'char-fold-to-regexp)
     :config
-    (helm-mode 1)
-    (helm-autoresize-mode t)
-    (setq projectile-completion-system 'helm)  ;; optional fuzzy matchinf for heml-M-x
-    (setq helm-split-window-in-side-p           t) ;; open helm buffer inside current window, not occupy whole other window
-    (setq helm-move-to-line-cycle-in-source     t) ;; move to end or beginning of source when reaching top or bottom of source.
-    (setq helm-ff-search-library-in-sexp        t) ;; search for library in `require' and `declare-function' sexp.
-    (setq helm-scroll-amount                    8) ;; scroll 8 lines other window using M-<next>/M-<prior>
-    (setq helm-ff-file-name-history-use-recentf t)
-    (setq helm-M-x-fuzzy-match                  t)
-    (setq helm-adaptive-mode                    1)
-    (setq helm-buffers-fuzzy-matching           t)
-    (setq helm-recentf-fuzzy-match              t)
+    (ivy-mode)
     )
 
-  (use-package helm-gtags
+  (use-package counsel-projectile
     :ensure t
-    :after
-    (helm)
+    :after counsel
+    :init
+    (counsel-projectile-mode))
+
+  (use-package ivy-rich
+    :ensure t
+    :after ivy
+    :custom
+    (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+    (ivy-virtual-abbreviate 'full
+                            ivy-rich-switch-buffer-align-virtual-buffer t
+                            ivy-rich-path-style 'abbrev)
     :config
-    (setq helm-gtags-ignore-case t)
-    (setq helm-gtags-auto-update t) ; auto update gtags on save
-    (setq helm-gtags-use-input-at-cursor t)
-    (setq helm-gtags-pulse-at-cursor t)
-    (setq helm-gtags-prefix-key "\C-cg")
-    (setq helm-gtags-suggested-key-mapping t)
-    ;; enable helm-gtags-mode
-    (add-hook 'dired-mode-hook 'helm-gtags-mode)
-    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-    (add-hook 'c-mode-hook 'helm-gtags-mode)
-    (add-hook 'c++-mode-hook 'helm-gtags-mode)
-    (add-hook 'asm-mode-hook 'helm-gtags-mode)
-    (add-hook 'rust-mode-hook 'helm-gtags-mode)
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer)
+    (ivy-rich-mode 1)
     )
+
+
+  (use-package swiper
+    :ensure t
+    :after ivy)
+
+  (use-package all-the-icons-ivy
+    :ensure t
+    :after ivy)
+
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :after ivy)
+
+  (use-package smex
+    :ensure t)
+
+  (use-package ivy-xref
+    :ensure t
+    :init
+    ;; xref initialization is different in Emacs 27 - there are two different
+    ;; variables which can be set rather than just one
+    (when (>= emacs-major-version 27)
+      (setq xref-show-definitions-function #'ivy-xref-show-defs))
+    ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+    ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+    ;; as well
+    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
 
 #+end_src
-
 
 *** Company Mode
 #+begin_src emacs-lisp
@@ -563,116 +640,126 @@ Maybe one of the most customizable parts in my setup
 *** Eglot
 Emacs LSP mode (different to lsp-mode)
 #+begin_src emacs-lisp
-  ;; (use-package eglot
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :hook ((python-mode . eglot-ensure)
-  ;;          (python-mode . eglot-ensure)
-  ;;          (python-mode . flyspell-prog-mode)
-  ;;          (python-mode . superword-mode)
-  ;;          (python-mode . hs-minor-mode)
-  ;;          (python-mode . (lambda () (set-fill-column 88)))
-  ;;          (python-ts-mode . eglot-ensure)
-  ;;          (python-ts-mode . flyspell-prog-mode)
-  ;;          (python-ts-mode . superword-mode)
-  ;;          (python-ts-mode . hs-minor-mode)
-  ;;          (python-ts-mode . (lambda () (set-fill-column 88))))
-  ;;   :config
-  ;;   (setq-default eglot-workspace-configuration
-  ;;                 '((:pylsp . (:configurationSources ["flake8"]
-  ;;                                                    :plugins (
-  ;;                                                              :pycodestyle (:enabled :json-false)
-  ;;                                                              :mccabe (:enabled :json-false)
-  ;;                                                              :pyflakes (:enabled :json-false)
-  ;;                                                              :flake8 (:enabled :json-false
-  ;;                                                                                :maxLineLength 88)
-  ;;                                                              :ruff (:enabled t
-  ;;                                                                              :lineLength 88)
-  ;;                                                              :pydocstyle (:enabled t
-  ;;                                                                                    :convention "numpy")
-  ;;                                                              :yapf (:enabled :json-false)
-  ;;                                                              :autopep8 (:enabled :json-false)
-  ;;                                                              :black (:enabled t
-  ;;                                                                               :line_length 88
-  ;;                                                                               :cache_config t)))))))
+
+  (defun my-typescript-eglot-hook ()
+    ((js-mode
+    typescript-mode
+    typescriptreact-mode) . eglot-ensure)
+    ;; I'm not sure why this is needed, but it throws an error if I remove it
+    (cl-defmethod project-root ((project (head eglot-project)))
+      (cdr project))
+    (defun my-project-try-tsconfig-json (dir)
+      (when-let* ((found (locate-dominating-file dir "tsconfig.json")))
+        (cons 'eglot-project found)))
+
+    (add-hook 'project-find-functions
+              'my-project-try-tsconfig-json nil nil)
+
+    (add-to-list 'eglot-server-programs
+                 '((typescript-mode) "typescript-language-server" "--stdio"))
+
+    )
+
+  (defun my-ruby-eglot-hook ()
+    (ruby-mode . eglot-ensure)
+    (python-ts-mode . flyspell-prog-mode)
+    )
+
+  (use-package eglot
+    :ensure t
+    :defer t
+    :config
+    (setq-default eglot-workspace-configuration
+                  '((:pylsp . (:configurationSources ["flake8"]
+                                                     :plugins (
+                                                               :pycodestyle (:enabled :json-false)
+                                                               :mccabe (:enabled :json-false)
+                                                               :pyflakes (:enabled :json-false)
+                                                               :flake8 (:enabled :json-false
+                                                                                 :maxLineLength 88)
+                                                               :ruff (:enabled t
+                                                                               :lineLength 88)
+                                                               :pydocstyle (:enabled t
+                                                                                     :convention "numpy")
+                                                               :yapf (:enabled :json-false)
+                                                               :autopep8 (:enabled :json-false)
+                                                               :black (:enabled t
+                                                                                :line_length 88
+                                                                                :cache_config t)))))))
 
 #+end_src
+
+
 
 *** LSP Mode
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :defer t
-    :init
-    ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-    (setq lsp-keymap-prefix "C-c l")
-    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-           (java-mode . lsp)
-           (typescript-mode . lsp-deferred)
-           (javascript-mode . lsp-deferred)
-           (python-mode . lsp-deferred)
-           ;; if you want which-key integration
-           (lsp-mode . lsp-enable-which-key-integration))
-    :commands (lsp lsp-deffered))
+  ;; (use-package lsp-mode
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :init
+  ;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  ;;   (setq lsp-keymap-prefix "C-c l")
+  ;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+  ;;          (java-mode . lsp)
+  ;;          (typescript-mode . lsp-deferred)
+  ;;          (javascript-mode . lsp-deferred)
+  ;;          (add-hook 'python-mode #'lsp-deferred)
+  ;;          ;; if you want which-key integration
+  ;;          (lsp-mode . lsp-enable-which-key-integration))
+  ;;   :commands (lsp lsp-deffered))
 
-  ;; optionally
-  (use-package lsp-ui
-    :ensure t
-    :defer t
-    :config
-    (setq lsp-ui-sideline-enable nil)
-    (setq lsp-ui-doc-delay 2)
-    :hook (lsp-mode . lsp-ui-mode)
-    :bind (:map lsp-ui-mode-map ("C-c i" . lsp-ui-imenu)))
+  ;; ;; optionally
+  ;; (use-package lsp-ui
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :config
+  ;;   (setq lsp-ui-sideline-enable nil)
+  ;;   (setq lsp-ui-doc-delay 2)
+  ;;   :hook (lsp-mode . lsp-ui-mode)
+  ;;   :bind (:map lsp-ui-mode-map ("C-c i" . lsp-ui-imenu)))
+  ;; ;; Language specific lsp
+  ;; (use-package lsp-java
+  ;;   :config
+  ;;   (setq lsp-java-server-install-dir "~/.emacs.d/lsp-java/")
+  ;;   (setq lsp-java-bundles (directory-files "~/.jdtls/server/" t ".jar"))
+  ;;   :ensure t)
+  ;; (use-package lsp-java
+  ;;   :ensure t)
+  ;; ;; if you are helm user
+  ;; (use-package helm-lsp
+  ;;   :after
+  ;;   (helm lsp-mode)
+  ;;   :commands helm-lsp-workspace-symbol)
+  ;; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+  ;; ;; optionally if you want to use debugger
+  ;; (use-package dap-mode
+  ;;   :after lsp-mode
+  ;;   :ensure t
+  ;;   :config
+  ;;   (dap-auto-configure-mode)
+  ;;   )
+  ;; (use-package dap-java) ;;to load the dap adapter for your language
+  ;; (use-package dap-python
+  ;;   :config
+  ;;   (setq dap-python-debugger 'debugpy))
 
-  ;; Language specific lsp
-  (use-package lsp-java
-    :config
-    (setq lsp-java-server-install-dir "~/.emacs.d/lsp-java/")
-    ; (setq lsp-java-bundles (directory-files "~/.jdtls/server/" t ".jar"))
-    :ensure t)
-
-  (use-package lsp-java
-    :ensure t)
-
-  ;; if you are helm user
-  (use-package helm-lsp
-    :after
-    (helm lsp-mode)
-    :commands helm-lsp-workspace-symbol)
-
-  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-
-  ;; optionally if you want to use debugger
-  (use-package dap-mode
-    :after lsp-mode
-    :ensure t
-    :config
-    (dap-auto-configure-mode)
-    )
-
-  (use-package dap-java) ;;to load the dap adapter for your language
-  (use-package dap-python
-    :config
-    (setq dap-python-debugger 'debugpy))
-
-  ;; Language server for Python
-  ;; Read the docs for the different variables set in the config.
-  (use-package lsp-pyright
-    :ensure t
-    :config
-    ;;(setq lsp-clients-python-library-directories '("/usr/" "~/.local/share/pkgs"))
-    (setq lsp-pyright-disable-language-service nil
-          lsp-pyright-disable-organize-imports nil
-          lsp-pyright-auto-import-completions t
-          lsp-pyright-use-library-code-for-types t
-          lsp-pyright-venv-path "~/.local/share/virtualenvs")
-    :hook ((python-mode . (lambda ()
-                            (require 'lsp-pyright) (lsp-deferred)))))
+  ;; ;; Language server for Python
+  ;; ;; Read the docs for the different variables set in the config.
+  ;; (use-package lsp-pyright
+  ;;   :ensure t
+  ;;   :config
+  ;;   ;;(setq lsp-clients-python-library-directories '("/usr/" "~/.local/share/pkgs"))
+  ;;   (setq lsp-pyright-disable-language-service nil
+  ;;         lsp-pyright-disable-organize-imports nil
+  ;;         lsp-pyright-auto-import-completions t
+  ;;         lsp-pyright-use-library-code-for-types t
+  ;;         lsp-pyright-venv-path "~/.local/share/virtualenvs")
+  ;;   :hook ((add-hook 'python-mode #'(lambda ()
+  ;;                           (require 'lsp-pyright) (lsp-deferred)))))
 
 #+end_src
 
-#+RESULTS:
+
 
 *** Whichkey
 #+begin_src emacs-listp
@@ -693,63 +780,9 @@ Emacs LSP mode (different to lsp-mode)
       (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
     :config
     (progn
-      (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
-            treemacs-deferred-git-apply-delay        0.5
-            treemacs-directory-name-transformer      #'identity
-            treemacs-display-in-side-window          t
-            treemacs-eldoc-display                   'simple
-            treemacs-file-event-delay                2000
-            treemacs-file-extension-regex            treemacs-last-period-regex-value
-            treemacs-file-follow-delay               0.2
-            treemacs-file-name-transformer           #'identity
-            treemacs-follow-after-init               t
-            treemacs-expand-after-init               t
-            treemacs-find-workspace-method           'find-for-file-or-pick-first
-            treemacs-git-command-pipe                ""
-            treemacs-goto-tag-strategy               'refetch-index
-            treemacs-header-scroll-indicators        '(nil . "^^^^^^")
-            treemacs-hide-dot-git-directory          t
-            treemacs-indentation                     2
-            treemacs-indentation-string              " "
-            treemacs-is-never-other-window           nil
-            treemacs-max-git-entries                 5000
-            treemacs-missing-project-action          'ask
-            treemacs-move-forward-on-expand          nil
-            treemacs-no-png-images                   t
-            treemacs-no-delete-other-windows         t
-            treemacs-project-follow-cleanup          nil
-            treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-            treemacs-position                        'left
-            treemacs-read-string-input               'from-child-frame
-            treemacs-recenter-distance               0.1
-            treemacs-recenter-after-file-follow      nil
-            treemacs-recenter-after-tag-follow       nil
-            treemacs-recenter-after-project-jump     'always
-            treemacs-recenter-after-project-expand   'on-distance
-            treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-            treemacs-project-follow-into-home        nil
-            treemacs-show-cursor                     nil
-            treemacs-show-hidden-files               t
-            treemacs-silent-filewatch                nil
-            treemacs-silent-refresh                  nil
-            treemacs-sorting                         'alphabetic-asc
-            treemacs-select-when-already-in-treemacs 'move-back
-            treemacs-space-between-root-nodes        t
-            treemacs-tag-follow-cleanup              t
-            treemacs-tag-follow-delay                1.5
-            treemacs-text-scale                      nil
-            treemacs-user-mode-line-format           nil
-            treemacs-user-header-line-format         nil
-            treemacs-wide-toggle-width               70
-            treemacs-width                           35
-            treemacs-width-increment                 1
-            treemacs-width-is-initially-locked       t
-            treemacs-workspace-switch-cleanup        nil)
-
       ;; The default width and height of the icons is 22 pixels. If you are
       ;; using a Hi-DPI display, uncomment this to double the icon size.
       ;;(treemacs-resize-icons 44)
-
       (treemacs-follow-mode t)
       (treemacs-filewatch-mode t)
       (treemacs-fringe-indicator-mode 'always)
@@ -762,8 +795,9 @@ Emacs LSP mode (different to lsp-mode)
          (treemacs-git-mode 'deferred))
         (`(t . _)
          (treemacs-git-mode 'simple)))
+      (treemacs-hide-gitignored-files-mode nil)
+      )
 
-      (treemacs-hide-gitignored-files-mode nil))
     :bind
     (:map global-map
           ("M-0"       . treemacs-select-window)
@@ -782,12 +816,36 @@ Emacs LSP mode (different to lsp-mode)
     :hook (dired-mode . treemacs-icons-dired-enable-once)
     :ensure t)
 
+  (use-package treemacs-all-the-icons
+    :ensure t)
+
+  (use-package treemacs-nerd-icons
+    :ensure t)
+
+  (use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
+    :after (treemacs persp-mode) ;;or perspective vs. persp-mode
+    :ensure t
+    :config (treemacs-set-scope-type 'Perspectives))
+
+  (use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
+    :after (treemacs)
+    :ensure t
+    :config (treemacs-set-scope-type 'Tabs))
+
   (use-package treemacs-magit
     :after (treemacs magit)
     :ensure t)
 
 #+end_src
 
+
+*** Indication of VCS changes
+#+begin_src emacs-lisp
+        (use-package diff-hl
+          :ensure t
+          :hook
+          (prog-mode-hook . diff-hl-mode))
+#+end_src
 
 *** String Inflection
 #+begin_src emacs-lisp
@@ -799,22 +857,22 @@ Emacs LSP mode (different to lsp-mode)
 
     ;; for ruby
     (add-hook 'ruby-mode-hook
-              '(lambda ()
+              #'(lambda ()
                  (local-set-key (kbd "C-c C-u") 'string-inflection-ruby-style-cycle)))
 
     ;; for elixir
     (add-hook 'elixir-mode-hook
-              '(lambda ()
+              #'(lambda ()
                  (local-set-key (kbd "C-c C-u") 'string-inflection-elixir-style-cycle)))
 
     ;; for java
     (add-hook 'java-mode-hook
-              '(lambda ()
+              #'(lambda ()
                  (local-set-key (kbd "C-c C-u") 'string-inflection-java-style-cycle)))
 
     ;; for python
     (add-hook 'python-mode-hook
-              '(lambda ()
+              #'(lambda ()
                  (local-set-key (kbd "C-c C-u") 'string-inflection-python-style-cycle)))
     )
 #+end_src
@@ -847,6 +905,11 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
     )
 #+end_src
 
+*** AG Search Tool
+#+begin_src emacs-lisp
+    (use-package ag
+      :ensure t)
+#+end_src
 
 *** Yasnippet
 #+begin_src emacs-lisp
@@ -874,7 +937,8 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 *** Docker Files
 #+begin_src emacs-lisp
-  (use-package dockerfile-mode :defer t
+  (use-package dockerfile-mode
+    :defer t
     :ensure t)
 #+end_src
 
@@ -908,6 +972,42 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 #+end_src
 
 
+
+*** Additional Lisp support
+#+begin_src emacs-lisp
+  (use-package sly
+    :ensure t)
+#+end_src
+
+
+*** Rust Mode
+#+begin_src emacs-lisp
+  (use-package rust-mode
+    :ensure t)
+#+end_src
+
+
+*** PHP Mode
+#+begin_src emacs-lisp
+  (use-package php-mode
+    :ensure t)
+#+end_src
+
+
+*** Kotlin Mode
+#+begin_src emacs-lisp
+  (use-package kotlin-mode
+    :ensure t)
+#+end_src
+
+
+
+*** Golang Mode
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :ensure t)
+#+end_src
+
 *** JSon Mode
 #+begin_src emacs-lisp
   (use-package json-mode
@@ -920,9 +1020,49 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 *** Typescript Mode
 #+begin_src emacs-lisp
+  (use-package prettier-js
+    :ensure t)
+
+  (use-package add-node-modules-path
+    :ensure t)
+
+  (defun web-mode-init-hook ()
+    "Hooks for Web mode.  Adjust indent."
+    (setq web-mode-markup-indent-offset 2)
+    (add-node-modules-path)
+    (prettier-js-mode))
+
+  (use-package web-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode)) ;; auto-enable for .js/.jsx files
+    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+    ;; Enable eslint checker for web-mode
+    (flycheck-add-mode 'javascript-eslint 'web-mode)
+    ;; Enable flycheck globally
+    (add-hook 'after-init-hook #'global-flycheck-mode)
+    :hook ((web-mode-hook . web-mode-init-hook))
+    :after (prettier-js-mode add-node-modules-path )
+    )
+
+
+
+
+  ;; if you use treesitter based typescript-ts-mode (emacs 29+)
+  (use-package tide
+    :ensure t
+    :after (company flycheck)
+    :hook ((typescript-ts-mode . tide-setup)
+           (tsx-ts-mode . tide-setup)
+           (typescript-ts-mode . tide-hl-identifier-mode)
+           (before-save . tide-format-before-save)))
+
   (use-package typescript-mode
     :ensure t
     :config
+    (setq web-mode-markup-indent-offset 2)
+    (add-node-modules-path)
+    (prettier-js-mode)
     (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
     )
 #+end_src
@@ -951,6 +1091,25 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 * GENERAL SETTINGS
 
+** ENVRC
+If this is failing it is quite likeyly `direnv` is not installed in the system. Install i using Distro Package Manager or Homebrew
+#+begin_src emacs-lisp
+  (use-package envrc
+    :ensure t
+    :config
+    (envrc-global-mode)
+    (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)
+    )
+#+end_src
+
+
+** ASDF Setting
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/extras/asdf.el/")
+
+  (require 'asdf)
+  (asdf-enable) ;; This ensures Emacs has the correct paths to asdf shims and bin
+#+end_src
 
 ** GUI SETTINGS
 
@@ -965,187 +1124,190 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 *** Display Line Numbers
 #+begin_src emacs-lisp
-  (defun my-display-numbers-hook ()
-    (display-line-numbers-mode 1)
-    )
-  (add-hook 'prog-mode-hook 'my-display-numbers-hook)
-  (add-hook 'text-mode-hook 'my-display-numbers-hook)
-  ;;(global-display-line-numbers-mode 1)
-  (global-visual-line-mode -1)
-  (global-hl-line-mode t)
+    (defun my-display-numbers-hook ()
+      (display-line-numbers-mode 1)
+      (setq display-line-numbers-type 'relative)
+      )
+    (add-hook 'prog-mode-hook 'my-display-numbers-hook)
+    (add-hook 'text-mode-hook 'my-display-numbers-hook)
+    ;;(global-display-line-numbers-mode 1)
+    (global-visual-line-mode -1)
+    (global-hl-line-mode t)
 #+end_src
 
 ** Behavioural settings
 
 #+begin_src emacs-lisp
 
-  (setq max-lisp-eval-depth 10000)
-  (setq max-specpdl-size 32000)
-  ;; Determine the underlying operating system
-  (if (eq system-type 'darwin) (setq juank-aquamacs t))
-  (if (eq system-type 'gnu/linux) (setq juank-linux t))
-  (if (eq system-type 'windows-nt)(setq juank-win32 t))
+        (setq max-lisp-eval-depth 10000)
+        (setq max-specpdl-size 32000)
+        ;; Determine the underlying operating system
+        (if (eq system-type 'darwin) (setq juank-aquamacs t))
+        (if (eq system-type 'gnu/linux) (setq juank-linux t))
+        (if (eq system-type 'windows-nt)(setq juank-win32 t))
 
-  ;; Enable electric pair mode by default
-  (electric-pair-mode t)
+        ;; Enable electric pair mode by default
+        (electric-pair-mode t)
 
-  (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
+        (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 
-  ;; start full screen
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
-  ;; set default coding of buffers
-  (unless *sys/win32*
-    (set-selection-coding-system 'utf-8)
-    (prefer-coding-system 'utf-8)
-    (set-language-environment "UTF-8")
-    (set-default-coding-systems 'utf-8)
-    (set-terminal-coding-system 'utf-8)
-    (set-keyboard-coding-system 'utf-8)
-    (setq locale-coding-system 'utf-8))
-  ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
-  (when (display-graphic-p)
-    (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+        ;; start full screen
+        (add-to-list 'default-frame-alist '(fullscreen . maximized))
+        ;; set default coding of buffers
+        (unless *sys/win32*
+          (set-selection-coding-system 'utf-8)
+          (prefer-coding-system 'utf-8)
+          (set-language-environment "UTF-8")
+          (set-default-coding-systems 'utf-8)
+          (set-terminal-coding-system 'utf-8)
+          (set-keyboard-coding-system 'utf-8)
+          (setq locale-coding-system 'utf-8))
+        ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+        (when (display-graphic-p)
+          (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-  (setq default-buffer-file-coding-system 'utf-8-unix)
+        (setq default-buffer-file-coding-system 'utf-8-unix)
 
-  ;; switched from tabs to spaces for indentation
-  (setq-default indent-tabs-mode nil)
-  ;; also set the indentation level to 4.
-  (setq-default tab-width 4)
-  ;; Don't autosave.
-  (setq auto-save-default nil)
-  ;; make copy and paste use the same clipboard as emacs.
-  (setq select-enable-primary t)
-  (setq select-enable-clipboard t)
+        ;; switched from tabs to spaces for indentation
+        (setq-default indent-tabs-mode nil)
+        ;; also set the indentation level to 4.
+        (setq-default tab-width 4)
+        ;; Don't autosave.
+        (setq auto-save-default nil)
+        ;; make copy and paste use the same clipboard as emacs.
+        (setq select-enable-primary t)
+        (setq select-enable-clipboard t)
 
-  ;; Ensure I can use paste from the Mac OS X clipboard ALWAYS (or close)
-  (when (memq window-system '(mac ns))
-    (setq interprogram-paste-function (lambda () (shell-command-to-string "pbpaste"))))
+        ;; Ensure I can use paste from the Mac OS X clipboard ALWAYS (or close)
+        (when (memq window-system '(mac ns))
+          (setq interprogram-paste-function (lambda () (shell-command-to-string "pbpaste"))))
 
-  ;; sets Sunday to be the first day of the week in calendar
-  (setq calendar-week-start-day 0 )
+        ;; sets Sunday to be the first day of the week in calendar
+        (setq calendar-week-start-day 0 )
 
-  (recentf-mode 1)
-  (setq-default recent-save-file "~/.emacs.d/recentf")
-  ;; save emacs backups in a different directory
-  ;; (some build-systems build automatically all files with a prefix, and .#something.someending breakes that)
-  (setq backup-directory-alist '(("." . "~/.emacsbackups")))
-  ;; Don't create lockfiles. Many build systems that continously monitor the file system get confused by them (e.g, Quarkus). This sometimes causes the build systems to not work anymore before restarting
-  (setq create-lockfiles nil)
-  ;; Enable show-paren-mode (to visualize paranthesis) and make it possible to delete things we have marked
-  (show-paren-mode 1)
-  (delete-selection-mode 1)
-  ;; don't use version numbers for backup files
-  (setq version-control 'never)
-  ;; open unidentified files in text mode
-  (setq default-major-mode 'text-mode)
-  ;; don't wrap long lines.
-  (set-default 'truncate-lines t)
-  ;; make the region visible (but only up to the next operation on it)
-  (setq transient-mark-mode t)
+        (recentf-mode 1)
+        (setq-default recent-save-file "~/.emacs.d/recentf")
+        ;; save emacs backups in a different directory
+        ;; (some build-systems build automatically all files with a prefix, and .#something.someending breakes that)
+        (setq backup-directory-alist '(("." . "~/.emacsbackups")))
+        ;; Don't create lockfiles. Many build systems that continously monitor the file system get confused by them (e.g, Quarkus). This sometimes causes the build systems to not work anymore before restarting
+        (setq create-lockfiles nil)
+        ;; Enable show-paren-mode (to visualize paranthesis) and make it possible to delete things we have marked
+        (show-paren-mode 1)
+        (delete-selection-mode 1)
+        ;; don't use version numbers for backup files
+        (setq version-control 'never)
+        ;; open unidentified files in text mode
+        (setq default-major-mode 'text-mode)
+        ;; don't wrap long lines.
+        (set-default 'truncate-lines t)
+        ;; make the region visible (but only up to the next operation on it)
+        (setq transient-mark-mode t)
 
-  ;; don't add new lines to the end of a file when using down-arrow key
-  (setq next-line-add-newlines nil)
+        ;; don't add new lines to the end of a file when using down-arrow key
+        (setq next-line-add-newlines nil)
 
-  ;; make find-file and buffer switch case insensitive
-  (setq read-file-name-completion-ignore-case t)
-  (setq read-buffer-completion-ignore-case t)
+        ;; make find-file and buffer switch case insensitive
+        (setq read-file-name-completion-ignore-case t)
+        (setq read-buffer-completion-ignore-case t)
 
-  ;; use y or n instead of yes or no
-  (defalias 'yes-or-no-p 'y-or-n-p)
+        ;; use y or n instead of yes or no
+        (defalias 'yes-or-no-p 'y-or-n-p)
 
-  ;; winne-mode helper mode to restore window layout
-  (when (fboundp 'winner-mode)
-    (winner-mode 1))
+        ;; winne-mode helper mode to restore window layout
+        (when (fboundp 'winner-mode)
+          (winner-mode 1))
 
-  (setq split-height-threshold 20)
-  (setq split-width-threshold nil)
+        (setq split-height-threshold 20)
+        (setq split-width-threshold nil)
 
-  ;; This only works in Mac
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier nil)
+        ;; This only works in Mac
+        (setq mac-command-modifier 'meta)
+        (setq mac-option-modifier nil)
 
 
 
-  ;; Stop Emacs from losing undo information by
-  ;; setting very high limits for undo buffers
-  (setq undo-limit 20000000)
-  (setq undo-strong-limit 40000000)
+        ;; Stop Emacs from losing undo information by
+        ;; setting very high limits for undo buffers
+        (setq undo-limit 20000000)
+        (setq undo-strong-limit 40000000)
 
-  ;; Automatically remove trailing whitespace.
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+        ;; Automatically remove trailing whitespace.
+        (add-hook 'prog-mode-hook
+                  (lambda()
+                   (unless (derived-mode-p 'markdown-mode)
+                     (add-hook 'before-save-hook
+                               #'cleanup-buffer t t))))
 
-  ;; ignore bell alarm completely
-  (setq ring-bell-function 'ignore)
+        ;; ignore bell alarm completely
+        (setq ring-bell-function 'ignore)
 
-  ;; Always start Emacs with a split view
-  ;; TODO: We may want to check if its possible to start splitted only under certain conditins
-  ;; like passing a parameter to Emacs or Emacs Client
-  ;; (split-window-horizontally)
+        ;; Always start Emacs with a split view
+        (split-window-horizontally)
 
-  ;; Colours ("Colors" in some other languages)
-  ;; Give me colours in major editing modes!
-  (require 'font-lock)
-  (global-font-lock-mode t)
+        ;; Colours ("Colors" in some other languages)
+        ;; Give me colours in major editing modes!
+        (require 'font-lock)
+        (global-font-lock-mode t)
 
-  ;; Dont show the GNU splash screen
-  (setq inhibit-startup-message t)
+        ;; Dont show the GNU splash screen
+        (setq inhibit-startup-message t)
 
-  ;; highlight region between point and mark
-  (transient-mark-mode t)
+        ;; highlight region between point and mark
+        (transient-mark-mode t)
 
-  ;; highlight during query
-  (setq query-replace-highlight t)
+        ;; highlight during query
+        (setq query-replace-highlight t)
 
-  ;; highlight incremental search
-  (setq search-highlight t)
+        ;; highlight incremental search
+        (setq search-highlight t)
 
-  ;; Don’t compact font caches during GC.
-  (setq inhibit-compacting-font-caches t)
+        ;; Don’t compact font caches during GC.
+        (setq inhibit-compacting-font-caches t)
 
-  ;; Show Keystrokes in Progress Instantly
-  (setq echo-keystrokes 0.1)
+        ;; Show Keystrokes in Progress Instantly
+        (setq echo-keystrokes 0.1)
 
-  ;; Move Custom-Set-Variables to Different File
-  (setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
-  (load custom-file 'noerror)
+        ;; Move Custom-Set-Variables to Different File
+        (setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
+        (load custom-file 'noerror)
 
-  ;; So Long mitigates slowness due to extremely long lines.
-  ;; Currently available in Emacs master branch *only*!
-  (when (fboundp 'global-so-long-mode)
-    (global-so-long-mode))
+        ;; So Long mitigates slowness due to extremely long lines.
+        ;; Currently available in Emacs master branch *only*!
+        (when (fboundp 'global-so-long-mode)
+          (global-so-long-mode))
 
-  ;; Enable `erase-buffer' function
-  (put 'erase-buffer 'disabled nil)
+        ;; Enable `erase-buffer' function
+        (put 'erase-buffer 'disabled nil)
 
-  ;; Default .args, .in, .out files to text-mode
-  (add-to-list 'auto-mode-alist '("\\.in\\'" . text-mode))
-  (add-to-list 'auto-mode-alist '("\\.out\\'" . text-mode))
-  (add-to-list 'auto-mode-alist '("\\.args\\'" . text-mode))
-  (add-to-list 'auto-mode-alist '("\\.bb\\'" . shell-script-mode))
-  (add-to-list 'auto-mode-alist '("\\.bbclass\\'" . shell-script-mode))
-  (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . markdown-mode))
+        ;; Default .args, .in, .out files to text-mode
+        (add-to-list 'auto-mode-alist '("\\.in\\'" . text-mode))
+        (add-to-list 'auto-mode-alist '("\\.out\\'" . text-mode))
+        (add-to-list 'auto-mode-alist '("\\.args\\'" . text-mode))
+        (add-to-list 'auto-mode-alist '("\\.bb\\'" . shell-script-mode))
+        (add-to-list 'auto-mode-alist '("\\.bbclass\\'" . shell-script-mode))
+        (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . markdown-mode))
 
-  ;; Smooth Scrolling
-  ;; Vertical Scroll
-  (setq scroll-step 1)
-  (setq scroll-margin 1)
-  (setq scroll-conservatively 101)
-  (setq scroll-up-aggressively 0.01)
-  (setq scroll-down-aggressively 0.01)
-  (setq auto-window-vscroll nil)
-  (setq fast-but-imprecise-scrolling nil)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-  (setq mouse-wheel-progressive-speed nil)
-  ;; Horizontal Scroll
-  (setq hscroll-step 1)
-  (setq hscroll-margin 1)
+        ;; Smooth Scrolling
+        ;; Vertical Scroll
+        (setq scroll-step 1)
+        (setq scroll-margin 1)
+        (setq scroll-conservatively 101)
+        (setq scroll-up-aggressively 0.01)
+        (setq scroll-down-aggressively 0.01)
+        (setq auto-window-vscroll nil)
+        (setq fast-but-imprecise-scrolling nil)
+        (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+        (setq mouse-wheel-progressive-speed nil)
+        ;; Horizontal Scroll
+        (setq hscroll-step 1)
+        (setq hscroll-margin 1)
 
-  ;; Titlebar
-  (setq-default frame-title-format '("Emacs - " user-login-name "@" system-name " - %b"))
+        ;; Titlebar
+        (setq-default frame-title-format '("Emacs - " user-login-name "@" system-name " - %b"))
 
-  (when (version<= "29.1" emacs-version)
-    (pixel-scroll-precision-mode 1))
+        (when (version<= "29.1" emacs-version)
+          (pixel-scroll-precision-mode 1))
 
 #+end_src
 
@@ -1320,7 +1482,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
                                         (brace-list-open       .  0)
                                         (brace-list-intro      .  4)))
         (c-echo-syntactic-information-p . t))
-      "Casey's Big Fun C++ Style")
+      "Juank's Big Fun C++ Style")
 
     (c-add-style "BigFun" juank-big-fun-c-style t)
 
@@ -1341,7 +1503,6 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
     (setq dabbrev-case-replace t)
     (setq dabbrev-case-fold-search t)
     (setq dabbrev-upcase-means-case-search t)
-    (setq split-window-preferred-function 'juank-never-split-a-window)
     ;; Abbrevation expansion
     (abbrev-mode 1)
 
@@ -1460,39 +1621,102 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 #+end_src
 
+*** VTerm Configuration
+#+begin_src emacs-lisp
+  (use-package vterm
+    :ensure t
+    :config
+     (defun vterm-counsel-yank-pop-action (orig-fun &rest args)
+        (if (equal major-mode 'vterm-mode)
+            (let ((inhibit-read-only t)
+                  (yank-undo-function (lambda (_start _end) (vterm-undo))))
+              (cl-letf (((symbol-function 'insert-for-yank)
+                     (lambda (str) (vterm-send-string str t))))
+                  (apply orig-fun args)))
+          (apply orig-fun args)))
+
+      (advice-add 'counsel-yank-pop-action :around #'vterm-counsel-yank-pop-action)
+    )
+
+
+#+end_src
+
+*** Ruby Configuration
+#+begin_src emacs-lisp
+  (use-package rspec-mode
+    :ensure t
+    :config
+    (rspec-install-snippets)
+    )
+
+  (use-package inf-ruby
+    :ensure t
+    :config
+    (add-hook 'after-init-hook 'inf-ruby-switch-setup)
+    (add-hook 'compilation-filter-hook 'inf-ruby-auto-enter-and-focus)
+    (add-hook 'ruby-base-mode 'inf-ruby-minor-mode)
+    (inf-ruby-enable-auto-breakpoint))
+#+end_src
 
 *** Python Configuration
 #+begin_src emacs-lisp
+
+  (defun my-python-repl-command ()
+    (interactive)
+    (call-interactively 'pipenv-activate)
+    (call-interactively 'run-python)
+    )
+
+
+
+  (defun my-python-eglot-hook ()
+    (add-hook 'python-mode-hook 'eglot-ensure)
+    (add-hook 'python-mode #'flyspell-prog-mode)
+    (add-hook 'python-mode #'superword-mode)
+    (add-hook 'python-mode #'hs-minor-mode)
+    (add-hook 'python-mode #'(lambda () (set-fill-column 88)))
+    (add-hook 'python-ts-mode #'eglot-ensure)
+    (add-hook 'python-ts-mode #'flyspell-prog-mode)
+    (add-hook 'python-ts-mode #'superword-mode)
+    (add-hook 'python-ts-mode #'hs-minor-mode)
+    (add-hook 'python-ts-mode #'(lambda () (set-fill-column 88)))
+    (add-hook 'python-mode-hook
+              (lambda () (local-set-key (kbd "<f7>") #'my-python-repl-command)))
+    )
+
+
   (use-package python
     :ensure t
+    :defer t
     :config
+    (my-python-eglot-hook)
     ;; Remove guess indent python message
-    (setq python-indent-guess-indent-offset-verbose nil)
-    ;; Use IPython when available or fall back to regular Python
-    (cond
-     ((executable-find "ipython")
-      (progn
-        (setq python-shell-buffer-name "IPython")
-        (setq python-shell-interpreter "ipython")
-        (setq python-shell-interpreter-args "-i --simple-prompt")))
-     ((executable-find "python3")
-      (setq python-shell-interpreter "python3"))
-     ((executable-find "python2")
-      (setq python-shell-interpreter "python2"))
-     (t
-      (setq python-shell-interpreter "python"))))
+    (setq python-indent-guess-indent-offset-verbose nil))
+  ;; Use IPython when available or fall back to regular Python
+  ;; (cond
+  ;;    ((executable-find "ipython")
+  ;;     (progn
+  ;;       (setq python-shell-buffer-name "IPython")
+  ;;       (setq python-shell-interpreter "ipython")
+  ;;       (setq python-shell-interpreter-args "-i --simple-prompt")))
+  ;;    ((executable-find "python3")
+  ;;     (setq python-shell-interpreter "python3"))
+  ;;    ((executable-find "python2")
+  ;;     (setq python-shell-interpreter "python2"))
+  ;;    (t
+  ;;     (setq python-shell-interpreter "python")))
+  ;;   )
 
-
-  ;; Hide the modeline for inferior python processes
+  ;; ;; Hide the modeline for inferior python processes
   (use-package inferior-python-mode
     :ensure nil
     :hook (inferior-python-mode . hide-mode-line-mode))
+
 
   ;; Required to hide the modeline
   (use-package hide-mode-line
     :ensure t
     :defer t)
-
 
   ;; Required to easily switch virtual envs
   ;; via the menu bar or with `pyvenv-workon`
@@ -1519,19 +1743,50 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
      pipenv-projectile-after-switch-function
      #'pipenv-projectile-after-switch-extended))
 
+  ;; Buffer formatting on save
+  (use-package blacken
+    :ensure t
+    :defer t
+    :custom
+    (blacken-allow-py36 t)
+    (blacken-skip-string-normalization t)
+    :hook (python-mode . blacken-mode))
+
+
+  ;; numpy docstring for python
+  (use-package numpydoc
+    :ensure t
+    :defer t
+    :custom
+    (numpydoc-insert-examples-block nil)
+    (numpydoc-template-long nil)
+    :bind (:map python-mode-map
+                ("C-c C-n" . numpydoc-generate)))
 
 
   ;; Format the python buffer following YAPF rules
   ;; There's also blacken if you like it better.
-  (use-package yapfify
-    :ensure t
-    :defer t
-    :hook (python-mode . yapf-mode))
+  ;; (use-package yapfify
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :hook (python-mode . yapf-mode))
 
 
 #+end_src
 
+#+RESULTS:
+: numpydoc-generate
 
+*** DAP Mode (For debugging)
+#+begin_src emacs-lisp
+  ;; Debugger
+  (use-package dap-mode
+    :ensure t
+    :defer t
+    :after lsp-mode
+    :config
+    (dap-auto-configure-mode))
+#+end_src
 
 
 *** Java Configuration
@@ -1567,7 +1822,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
     (setq dabbrev-case-replace t)
     (setq dabbrev-case-fold-search t)
     (setq dabbrev-upcase-means-case-search t)
-    (setq split-window-preferred-function 'juank-never-split-a-window)
+
 
     (abbrev-mode 1)
     (turn-on-font-lock)
@@ -1651,21 +1906,41 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   (define-key global-map [C-prior] 'scroll-other-window-down)
 #+end_src
 
+*** Make Ivy the default
+#+begin_src emacs-lisp
+  (global-set-key "\C-s" 'swiper)
+  (global-set-key "\C-r" 'swiper-backward)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "C-x C-p") 'counsel-projectile)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+end_src
 
 *** Make HELM the default
 #+begin_src emacs-lisp
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-x b") 'helm-mini)
-  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (global-set-key (kbd "C-x C-p") 'helm-projectile)
-  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  ;; (global-set-key (kbd "M-x") 'helm-M-x)
+  ;; (global-set-key (kbd "C-x b") 'helm-mini)
+  ;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  ;; (global-set-key (kbd "C-x C-p") 'helm-projectile)
+  ;; (global-set-key (kbd "M-y") 'helm-show-kill-ring)
 
-  (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
-  (define-key helm-gtags-mode-map (kbd "M-j") 'helm-gtags-select)
-  (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
-  (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
-  (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-  (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+  ;; (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+  ;; (define-key helm-gtags-mode-map (kbd "M-j") 'helm-gtags-select)
+  ;; (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+  ;; (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+  ;; (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+  ;; (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
 
 #+end_src
 
@@ -1702,6 +1977,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 #+begin_src emacs-lisp
   (global-set-key [f3] 'juank-replace-string)
   (global-set-key [f8] 'eshell)
+
 #+end_src
 
 
@@ -1722,7 +1998,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
 * MY FUNCTIONS
 #+begin_src emacs-lisp
-
+  (setq split-window-preferred-function 'juank-never-split-a-window)
   (defun juank-never-split-a-window
       ;; "Never, ever split a window.  Why would anyone EVER want you to do that??"
       nil)
@@ -1776,12 +2052,12 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; function to call a command at a specific directory
   (defun in-directory ()
     "reads a directory name (using ido), then runs
-                  execute-extended-command with default-directory in the given
-                  directory."
+                    execute-extended-command with default-directory in the given
+                    directory."
     (interactive)
     (let ((default-directory
-            (read-directory-name "in directory: "
-                                 nil nil t)))
+           (read-directory-name "in directory: "
+                                nil nil t)))
       (call-interactively 'execute-extended-command)))
 
 
@@ -1864,12 +2140,12 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; Function used to call the compile command at a specific dir
   (defun project-compile ()
     "reads a directory name (using ido), then runs
-                  execute-extended-command with default-directory in the given
-                  directory."
+                    execute-extended-command with default-directory in the given
+                    directory."
     (interactive)
     (let ((default-directory
-            (read-directory-name "compile in directory: "
-                                 nil nil t)))
+           (read-directory-name "compile in directory: "
+                                nil nil t)))
       (call-interactively 'compile)))
 
                                           ;(global-set-key [f2] 'compile-in-directory)
@@ -1877,7 +2153,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   ;; custom grep tool
   (defun my-grep ()
     "grep recursively for something.  defaults to item at cursor
-                    position and current directory."
+                      position and current directory."
     (interactive)
     (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
     )
@@ -1905,7 +2181,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
   (defun cleanup-buffer ()
     "Perform a bunch of operations on the whitespace content of a buffer."
     (interactive)
-    (indent-buffer)
+                                          ;(indent-buffer)
     (untabify-buffer)
     (delete-trailing-whitespace))
 
@@ -1986,9 +2262,9 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
   (defun save-and-update-includes ()
     "Update the line numbers of #+INCLUDE:s in current buffer.
-    Only looks at INCLUDEs that have either :range-begin or :range-end.
-    This function does nothing if not in `org-mode', so you can safely
-    add it to `before-save-hook'."
+      Only looks at INCLUDEs that have either :range-begin or :range-end.
+      This function does nothing if not in `org-mode', so you can safely
+      add it to `before-save-hook'."
     (interactive)
     (when (derived-mode-p 'org-mode)
       (save-excursion
@@ -2014,7 +2290,7 @@ Check [[https://www.flycheck.org/en/latest/user/quickstart.html][Flycheck's Offi
 
   (defun decide-line-range (file begin end)
     "Visit FILE and decide which lines to include.
-    BEGIN and END are regexps which define the line range to use."
+      BEGIN and END are regexps which define the line range to use."
     (let (l r)
       (save-match-data
         (with-temp-buffer
