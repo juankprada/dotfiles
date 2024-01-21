@@ -96,6 +96,10 @@ shopt -s checkwinsize # checks term size when bash regains control
 bind "set completion-ignore-case on"
 
 
+## MY ART SETUP
+
+export JUANKPRADA_PORTFOLIO_DIR="~/Manga-Studio/portfolio/"
+
 ### FUNCTIONS
 
 ### COUNTDOWN
@@ -158,11 +162,22 @@ commitDotFiles() {
 
 
 ### ALIASES ###
+if lsb_release -a | grep -q "Debian"; then
+    alias bat='batcat'
+    alias eza='exa'
+    ### "bat" as manpager
+    export MANPAGER="sh -c 'col -bx | batcat -l man -p'"
+else
+    ### "bat" as manpager
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
 alias work="cd ~/Documents/work"
 alias personal="cd ~/Documents/Projects/"
 
 alias dotFileInstall="$DOTFILES/install"
 
+alias connect_to_vps="ssh juankprada@153.92.1.75"
 
 # vim and emacs
 alias vim="nvim"
@@ -170,6 +185,7 @@ alias em="/usr/bin/emacs -nw"
 alias emacs="emacsclient -c -a 'emacs'"
 
 alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
+
 
 
 # Changing "ls" to "exa"
@@ -248,6 +264,9 @@ eval "$(pyenv init -)"
 # Load pyenv automatically
 eval "$(pyenv virtualenv-init -)"
 
+
+# Ruby Environment (rbenv)
+eval "$(rbenv init -)"
 
 eval "$(starship init bash)"
 
