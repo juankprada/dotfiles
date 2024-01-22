@@ -79,7 +79,7 @@ We set some personal information
 #+begin_src emacs-lisp
 
   ;; Treat custom themes as safe
-  (setq custom-safe-themes t)
+  ;;(setq custom-safe-themes t)
 
   (use-package gcmh
     :ensure t
@@ -199,7 +199,7 @@ giving a try to Protesilaos' packages ([[http://protesilaos.com][Prot]]’s webs
              :bold-weight extrabold)
             (t
              ;; Following Prot’s example, keeping these for for didactic purposes.
-             :default-family "Iosevka Comfy Motion Fixed"
+             :default-family "Iosevka Comfy Wide Fixed"
              :default-weight regular
              :default-height 140
              :fixed-pitch-family nil ; falls back to :default-family
@@ -230,7 +230,7 @@ giving a try to Protesilaos' packages ([[http://protesilaos.com][Prot]]’s webs
     ;; The Nerd Font you want to use in GUI
     ;; "Symbols Nerd Font Mono" is the default and is recommended
     ;; but you can use any other Nerd Font if you want
-    (nerd-icons-font-family "Hack Nerd Font Propo 12")
+    (nerd-icons-font-family "Symbols Nerd Font Mono")
     )
   (use-package nerd-icons-completion
     :after marginalia
@@ -248,7 +248,21 @@ giving a try to Protesilaos' packages ([[http://protesilaos.com][Prot]]’s webs
 
 All of this was taken from Protesilaos' configuration [[https://github.com/protesilaos/dotfiles][Protesilaos' Dotfiles]]
 #+begin_src emacs-lisp
-  
+
+
+  (use-package notmuch-indicator
+    :config
+    (setq notmuch-indicator-args
+          '((:terms "tag:unread and tag:inbox" :label "U" :label-face success)
+            (:terms "tag:unread and tag:package" :label "P" :label-face warning :counter-face inherit)
+            (:terms "tag:unread and tag:coach" :label "C" :label-face bold :counter-face error))
+
+          notmuch-indicator-refresh-count (* 60 3)
+          notmuch-indicator-hide-empty-counters t
+          notmuch-indicator-force-refresh-commands '(notmuch-refresh-this-buffer))
+    (notmuch-indicator-mode 1)
+    )
+
 #+end_src
 
 
@@ -2382,20 +2396,21 @@ Bellow are all configuration related specifically to each Programming mode.
       (setq truncate-lines t)
       (which-function-mode)))
 
-
-  (use-package turbo-log
-    ;; Debug by logging on steroids
-    :quelpa (turbo-log :fetcher github :repo "artawower/turbo-log.el")
-    :bind (("C-s-l" . turbo-log-print)
-           ("C-s-i" . turbo-log-print-immediately)
-           ("C-s-h" . turbo-log-comment-all-logs)
-           ("C-s-s" . turbo-log-uncomment-all-logs)
-           ("C-s-[" . turbo-log-paste-as-logger)
-           ("C-s-]" . turbo-log-paste-as-logger-immediately)
-           ("C-s-d" . turbo-log-delete-all-logs))
-    :config
-    (setq turbo-log-msg-format-template "\"🚀: %s\"")
-    (setq turbo-log-allow-insert-without-tree-sitter-p t))
+  ;; Commenting this as It seems to have issues with Emacs on other platforms
+  ;; STUDY: Need to investifate further
+  ;; (use-package turbo-log
+  ;;   ;; Debug by logging on steroids
+  ;;   :quelpa (turbo-log :fetcher github :repo "artawower/turbo-log.el")
+  ;;   :bind (("C-s-l" . turbo-log-print)
+  ;;          ("C-s-i" . turbo-log-print-immediately)
+  ;;          ("C-s-h" . turbo-log-comment-all-logs)
+  ;;          ("C-s-s" . turbo-log-uncomment-all-logs)
+  ;;          ("C-s-[" . turbo-log-paste-as-logger)
+  ;;          ("C-s-]" . turbo-log-paste-as-logger-immediately)
+  ;;          ("C-s-d" . turbo-log-delete-all-logs))
+  ;;   :config
+  ;;   (setq turbo-log-msg-format-template "\"🚀: %s\"")
+  ;;   (setq turbo-log-allow-insert-without-tree-sitter-p t))
 #+end_src
 
 
