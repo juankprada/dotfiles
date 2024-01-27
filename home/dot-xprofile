@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+# Turn off system bell!!!
 xset -b

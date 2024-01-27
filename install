@@ -25,8 +25,6 @@ if [ -f "$BASHRC_FILE" ]; then
     mv $BASHRC_FILE ~/.bashrc_bk
 fi
 
-
-
 echo ">>> stow HOME"
 stow -R home/  --target=$HOME --dotfiles -v
 
@@ -40,12 +38,10 @@ echo ">>> stow .config"
 stow -D dot-config --target=$HOME/.config  --dotfiles
 stow dot-config --target=$HOME/.config --dotfiles
 
-
-
-
 echo ">>> stow wallpapers"
 stow -D Pictures --target=$HOME/Pictures
 stow Pictures --target=$HOME/Pictures
+
 #mkdir -p ~/.local/bin
 
 

@@ -1,0 +1,12 @@
+[Unit]
+Description=battery-watch
+PartOf=graphical-session.target
+Wants=dunst.service
+After=dunst.service
+
+[Service]
+ExecStart=%h/bin/battery-watch
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target

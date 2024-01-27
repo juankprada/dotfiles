@@ -1,0 +1,20 @@
+Config { font    = "Hack Nerd Font Mono 11"
+       , additionalFonts = [ "Font Awesome 5 Free Solid 11"
+                           , "Font Awesome 5 Brands 11"
+                           ]
+       , bgColor = "#282c34"
+       , fgColor = "#ff6c6b"
+       , position = TopSize L 100 24
+       , lowerOnStart = True
+       , hideOnStart = False
+       , allDesktops = True
+       , persistent = True
+       -- , iconRoot = "~/.xmonad/xpm/"  -- default: "."
+       , commands = [
+                        -- Prints out the left side items such as workspaces, layout, etc.
+                    Run XPropertyLog "_XMONAD_LOG_3"
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = " %_XMONAD_LOG_3%}{"
+       }
