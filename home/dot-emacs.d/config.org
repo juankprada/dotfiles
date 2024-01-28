@@ -53,6 +53,8 @@
   (setq load-prefer-newer t)
 #+end_src
 
+
+
 #+RESULTS:
 
 ** Exec PATH from shell
@@ -263,6 +265,37 @@ All of this was taken from Protesilaos' configuration [[https://github.com/prote
     (notmuch-indicator-mode 1)
     )
 
+#+end_src
+
+
+** DIRED
+I am hoping to use Dired as my default File Manager. We will see how it goes.
+
+#+begin_src emacs-lisp
+  (use-package dired-previe
+    :config
+    ;; Default values for demo purposes
+    (setq dired-preview-delay 0.7)
+    (setq dired-preview-max-size (expt 2 20))
+    (setq dired-preview-ignored-extensions-regexp
+          (concat "\\."
+                  "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
+                  "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
+                  "\\|iso\\|epub\\|pdf\\)"))
+
+    ;; Enable `dired-preview-mode' in a given Dired buffer or do it
+    ;; globally:
+    (dired-preview-global-mode 1)
+
+
+    (defun my-dired-preview-to-the-right ()
+      "My preferred `dired-preview-display-action-alist-function'."
+      '((display-buffer-in-side-window)
+        (side . right)
+        (width . 0.3)))
+
+    (setq dired-preview-display-action-alist-function #'my-dired-preview-to-the-right)
+    )
 #+end_src
 
 
@@ -477,13 +510,13 @@ agenda items and an Emacs banner.
     ;;(setq dashboard-navigator-buttons '((("" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
     (setq dashboard-set-week-agenda t)
     (setq dashboard-week-agenda t)
-    ;; (setq dashboard-heading-icons '((recents   . "history")
-    ;;                                 (bookmarks . "bookmark")
-    ;;                                 (agenda    . "calendar")
-    ;;                                 (projects  . "rocket")
-    ;;                                 (registers . "database")
-    ;;                                 (hackernews . "newspaper-o")
-    ;;                                 ))
+    (setq dashboard-heading-icons '((recents   . "history")
+                                     (bookmarks . "bookmark")
+                                     (agenda    . "calendar")
+                                     (projects  . "rocket")
+                                     (registers . "database")
+                                     (hackernews . "newspaper-o")
+                                     ))
     (setq dashboard-week-agenda t)
     (setq dashboard-items '((recents . 10)
                             (agenda . 5)
@@ -627,7 +660,7 @@ agenda items and an Emacs banner.
     (vertico-mode)
 
     ;; Different scroll margin
-    ;; (setq vertico-scroll-margin 0)
+    (setq vertico-scroll-margin 0)
 
     ;; Show more candidates
     ;; (setq vertico-count 20)
@@ -637,7 +670,45 @@ agenda items and an Emacs banner.
 
     ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
     (setq vertico-cycle t)
+
+    (defun my/vertico-insert ()
+      (interactive)
+      (let* ((mb (minibuffer-contents-no-properties))
+             (lc (if (string= mb "") mb (substring mb -1))))
+        (cond ((string-match-p "^[/~:]" lc) (self-insert-command 1 ?/))
+              ((file-directory-p (vertico--candidate)) (vertico-insert))
+              (t (self-insert-command 1 ?/)))))
+    :bind (:map vertico-map
+                ("/" . #'my/vertico-insert))
+    :config
+    (setq vertico-preselect 'directory)
+    (defun +vertico-restrict-to-matches ()
+      (interactive)
+      (let ((inhibit-read-only t))
+        (goto-char (point-max))
+        (insert " ")
+        (add-text-properties (minibuffer-prompt-end) (point-max)
+                             '(invisible t read-only t cursor-intangible t rear-nonsticky t))))
+    (define-key vertico-map (kbd "S-/") #'+vertico-restrict-to-matches)
+
+    (defvar +vertico-current-arrow t)
+    (cl-defmethod vertico--format-candidate :around
+      (cand prefix suffix index start &context ((and +vertico-current-arrow
+                                                     (not (bound-and-true-p vertico-flat-mode)))
+                                                (eql t)))
+      (setq cand (cl-call-next-method cand prefix suffix index start))
+      (if (bound-and-true-p vertico-grid-mode)
+          (if (= vertico--index index)
+              (concat #("▶" 0 1 (face vertico-current)) cand)
+            (concat #("_" 0 1 (display " ")) cand))
+        (if (= vertico--index index)
+            (concat
+             #(" " 0 1 (display (left-fringe right-triangle vertico-current)))
+             cand)
+          cand)))
+
     )
+
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
@@ -678,10 +749,11 @@ agenda items and an Emacs banner.
     ;; `completion-list-mode-map'.
     :bind (:map minibuffer-local-map
                 ("M-A" . marginalia-cycle))
-
+    :custom
+    (marginalia-max-relative-age 0)
+    (marginalia-align 'right)
     ;; The :init section is always executed.
     :init
-
     ;; Marginalia must be activated in the :init section of use-package such that
     ;; the mode gets enabled right away. Note that this forces loading the
     ;; package.
@@ -796,16 +868,16 @@ agenda items and an Emacs banner.
 
     ;; By default `consult-project-function' uses `project-root' from project.el.
     ;; Optionally configure a different project root function.
-      ;;;; 1. project.el (the default)
+        ;;;; 1. project.el (the default)
     ;; (setq consult-project-function #'consult--default-project--function)
-      ;;;; 2. vc.el (vc-root-dir)
+        ;;;; 2. vc.el (vc-root-dir)
     ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-      ;;;; 3. locate-dominating-file
+        ;;;; 3. locate-dominating-file
     ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-      ;;;; 4. projectile.el (projectile-project-root)
+        ;;;; 4. projectile.el (projectile-project-root)
     ;; (autoload 'projectile-project-root "projectile")
     ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-      ;;;; 5. No project support
+        ;;;; 5. No project support
     ;; (setq consult-project-function nil)
     )
 
@@ -849,58 +921,58 @@ agenda items and an Emacs banner.
 
 
   (use-package consult-dir
-  ;; This package helps ease traveling across directories by providing directory
-  ;; candidates related to current buffers, bookmarks, and projects.  Further,
-  ;; like other ~consult.el~ functions, you can use narrowing keys.  See
-  ;; https://github.com/karthink/consult-dir.
-  :after (consult)
-  :bind (("C-x C-d" . consult-dir)
-          :map minibuffer-local-completion-map
-          ("C-x C-d" . consult-dir)
-          ("C-x C-j" . consult-dir-jump-file)))
+    ;; This package helps ease traveling across directories by providing directory
+    ;; candidates related to current buffers, bookmarks, and projects.  Further,
+    ;; like other ~consult.el~ functions, you can use narrowing keys.  See
+    ;; https://github.com/karthink/consult-dir.
+    :after (consult)
+    :bind (("C-x C-d" . consult-dir)
+           :map minibuffer-local-completion-map
+           ("C-x C-d" . consult-dir)
+           ("C-x C-j" . consult-dir-jump-file)))
 
 
   (use-package consult-projectile
-  ;; package provides a function I use everyday: ~M-x consult-projectile~.  When
-  ;; I invoke ~consult-projectile~, I have the file completion for the current
-  ;; project.  I can also type =b= + =SPACE= to narrow my initial search to open
-  ;; buffers in the project.  Or =p= + =space= to narrow to other projects; and
-  ;; then select a file within that project.
-  :commands (consult-projectile)
-  :config
-  ;; I want recent files as well as project files as well as recent project
-  ;; files...Hence the override fb
-  (setq juank/consult--source-recent-file consult--source-recent-file)
-  (plist-put juank/consult--source-recent-file :narrow ?R)
-  (plist-put juank/consult--source-recent-file :name "Recent File")
-  (setq consult-projectile-sources
-    '( ;; key b
-       consult-projectile--source-projectile-buffer
-       ;; key f
-       consult-projectile--source-projectile-file
-       ;; key p
-       consult-projectile--source-projectile-project
-       ;; key d
-       consult-projectile--source-projectile-dir
-       ;; key m
-       consult--source-bookmark
-       ;; key r
-       consult-projectile--source-projectile-recentf
-       ;; key R
-       juank/consult--source-recent-file
-       ;; key *
-       consult--source-modified-buffer))
+    ;; package provides a function I use everyday: ~M-x consult-projectile~.  When
+    ;; I invoke ~consult-projectile~, I have the file completion for the current
+    ;; project.  I can also type =b= + =SPACE= to narrow my initial search to open
+    ;; buffers in the project.  Or =p= + =space= to narrow to other projects; and
+    ;; then select a file within that project.
+    :commands (consult-projectile)
+    :config
+    ;; I want recent files as well as project files as well as recent project
+    ;; files...Hence the override fb
+    (setq juank/consult--source-recent-file consult--source-recent-file)
+    (plist-put juank/consult--source-recent-file :narrow ?R)
+    (plist-put juank/consult--source-recent-file :name "Recent File")
+    (setq consult-projectile-sources
+          '( ;; key b
+            consult-projectile--source-projectile-buffer
+            ;; key f
+            consult-projectile--source-projectile-file
+            ;; key p
+            consult-projectile--source-projectile-project
+            ;; key d
+            consult-projectile--source-projectile-dir
+            ;; key m
+            consult--source-bookmark
+            ;; key r
+            consult-projectile--source-projectile-recentf
+            ;; key R
+            juank/consult--source-recent-file
+            ;; key *
+            consult--source-modified-buffer))
 
-  (defun consult-find-file-with-preview (prompt &optional dir default mustmatch initial pred)
-    (interactive)
-    (let ((default-directory (or dir default-directory)))
-      (consult--read #'read-file-name-internal :state (consult--file-preview)
-        :prompt prompt
-        :initial initial
-        :require-match mustmatch
-        :predicate pred)))
-  :bind ("C-x C-p" . consult-projectile)
-  )
+    (defun consult-find-file-with-preview (prompt &optional dir default mustmatch initial pred)
+      (interactive)
+      (let ((default-directory (or dir default-directory)))
+        (consult--read #'read-file-name-internal :state (consult--file-preview)
+                       :prompt prompt
+                       :initial initial
+                       :require-match mustmatch
+                       :predicate pred)))
+    :bind ("C-x C-p" . consult-projectile)
+    )
 
 
   (use-package orderless
@@ -924,24 +996,16 @@ agenda items and an Emacs banner.
     ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
     ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
     ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-    ;; Enable Corfu only for certain modes.
-    :hook ((prog-mode . corfu-mode)
-           (shell-mode . corfu-mode)
-           (eshell-mode . corfu-mode))
-
     ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
     ;; be used globally (M-/).  See also the customization variable
     ;; `global-corfu-modes' to exclude certain modes.
-    :init
+    :config
     (global-corfu-mode))
 
   ;; A few more useful configurations...
   (use-package emacs
     :init
-    ;; TAB cycle if there are only few candidates
-    (setq completion-cycle-threshold 3)
-
+    
     ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
     ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
     (setq read-extended-command-predicate
@@ -949,7 +1013,37 @@ agenda items and an Emacs banner.
 
     ;; Enable indentation+completion using the TAB key.
     ;; `completion-at-point' is often bound to M-TAB.
-    (setq tab-always-indent 'complete))
+    (setq tab-always-indent 'complete)
+    (setq completion-cycle-threshold nil)      ; Always show all candidates in popup menu
+    )
+
+  
+#+end_src
+
+*** Spacious Padding
+#+begin_src emacs-lisp
+  (use-package spacious-padding
+    :init
+    (setq spacious-padding-widths
+          '( :internal-border-width 5
+             :header-line-width 4
+             :mode-line-width 8
+             :tab-width 4
+             :right-divider-width 20
+             :scroll-bar-width 0))
+
+    ;; Read the doc string of `spacious-padding-subtle-mode-line' as it
+    ;; is very flexible and provides several examples.
+    (setq spacious-padding-subtle-mode-line
+          `( :mode-line-active 'default
+             :mode-line-inactive vertical-border))
+    ;(setq spacious-padding-subtle-mode-line t)
+
+    (spacious-padding-mode 1)
+
+    ;; Set a key binding if you need to toggle spacious padding.
+    ;;(define-key global-map (kbd "<f8>") #'spacious-padding-mode)
+    )
 #+end_src
 
 *** Treesitter and Coding Highlights
@@ -1030,6 +1124,8 @@ agenda items and an Emacs banner.
                                           ;:straight (:host github :repo "jeremyf/scopeline.el")
     :hook (prog-mode-hook . scopeline-mode))
 #+end_src
+
+
 
 *** Eglot
 Emacs LSP mode (different to lsp-mode). Eglot uses
@@ -1325,7 +1421,7 @@ Install i using Distro Package Manager or Homebrew
   (add-hook 'text-mode-hook 'my-display-numbers-hook)
   ;;(global-display-line-numbers-mode 1)
   (global-visual-line-mode -1)
-  (global-hl-line-mode t)
+  (global-hl-line-mode -1)
 #+end_src
 
 ** Behavioural settings
@@ -1907,47 +2003,47 @@ Install i using Distro Package Manager or Homebrew
 
 *** Some useful keybindings
 #+begin_src emacs-lisp
-  ;;(global-set-key (kbd "C-c C-g") 'goto-line)
+  (global-set-key (kbd "C-c C-g") 'goto-line)
   ;; Duplicate a line
-  ;;(global-set-key (kbd "C-c C-d") 'duplicate-line)
+  (global-set-key (kbd "C-c C-d") 'duplicate-line)
   ;; execute my-isearch-word-at-point with ctrl+* key binding
-  ;;(global-set-key (kbd "C-*") 'my-isearch-word-at-point)
+  (global-set-key (kbd "C-*") 'my-isearch-word-at-point)
   ;; String Inflection
   ;;(global-set-key (kbd "C-<return>") 'company-complete)
   ;; activate whitespace-mode to view all whitespace characters
-  ;;(global-set-key (kbd "C-c C-w") 'whitespace-mode)
+  (global-set-key (kbd "C-c C-w") 'whitespace-mode)
   ;; Save all buffers
-  ;;(global-set-key (kbd "C-x C-a") #'save-all-buffers)
+  (global-set-key (kbd "C-x C-a") #'save-all-buffers)
 #+end_src
 
 
 *** Lets Make Movement sane
 #+begin_src emacs-lisp
-  ;; (define-key global-map [M-right] 'forward-word)
-  ;; (define-key global-map [M-left] 'backward-word)
-  ;; (define-key global-map [M-up] 'previous-blank-line)
-  ;; (define-key global-map [M-down] 'next-blank-line)
-  ;; (define-key global-map [C-right] 'forward-word)
-  ;; (define-key global-map [C-left] 'backward-word)
-  ;; (define-key global-map [C-up] 'previous-blank-line)
-  ;; (define-key global-map [C-down] 'next-blank-line)
-  ;; (define-key global-map [home] 'beginning-of-line)
-  ;; (define-key global-map [end] 'end-of-line)
-  ;; (define-key global-map [pgup] 'forward-page)
-  ;; (define-key global-map [pgdown] 'backward-page)
-  ;; (define-key global-map [C-next] 'scroll-other-window)
-  ;; (define-key global-map [C-prior] 'scroll-other-window-down)
+   (define-key global-map [M-right] 'forward-word)
+   (define-key global-map [M-left] 'backward-word)
+   (define-key global-map [M-up] 'previous-blank-line)
+   (define-key global-map [M-down] 'next-blank-line)
+   (define-key global-map [C-right] 'forward-word)
+   (define-key global-map [C-left] 'backward-word)
+   (define-key global-map [C-up] 'previous-blank-line)
+   (define-key global-map [C-down] 'next-blank-line)
+   (define-key global-map [home] 'beginning-of-line)
+   (define-key global-map [end] 'end-of-line)
+   (define-key global-map [pgup] 'forward-page)
+   (define-key global-map [pgdown] 'backward-page)
+   (define-key global-map [C-next] 'scroll-other-window)
+   (define-key global-map [C-prior] 'scroll-other-window-down)
 #+end_src
 
 *** Make Ivy the default
 #+begin_src emacs-lisp
-                                          ;(global-set-key "\C-s" 'swiper)
-                                          ;(global-set-key "\C-r" 'swiper-backward)
-                                          ;(global-set-key (kbd "M-x") 'counsel-M-x)
-                                          ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-                                          ;(global-set-key (kbd "C-x C-p") 'counsel-projectile)
-                                          ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
-                                          ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key "\C-s" 'consult-line)
+;(global-set-key "\C-r" 'swiper-backward)
+;(global-set-key (kbd "M-x") 'counsel-M-x)
+ ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  ;(global-set-key (kbd "C-x C-p") 'counsel-projectile)
+   ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+    ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
   ;; (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
   ;; (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
   ;; (global-set-key (kbd "<f1> l") 'counsel-find-library)
