@@ -1,7 +1,6 @@
 configuration {
     modi: "window,run,drun";
     max-history-size: 500;
-    run-command: "needsterminal-auto {cmd}";
     show-icons: true;
 }
 

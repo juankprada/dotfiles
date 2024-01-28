@@ -272,7 +272,7 @@ All of this was taken from Protesilaos' configuration [[https://github.com/prote
 I am hoping to use Dired as my default File Manager. We will see how it goes.
 
 #+begin_src emacs-lisp
-  (use-package dired-previe
+  (use-package dired-preview
     :config
     ;; Default values for demo purposes
     (setq dired-preview-delay 0.7)
