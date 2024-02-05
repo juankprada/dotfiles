@@ -13,11 +13,12 @@ myStartupHook = do
       wallpaperCmd = "nitrogen --restore"
       trayerCmd = "killall -9 trayer; trayer --edge bottom --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 22 --iconspacing 6 --monitor primary &"
       ibusCmd = "ibus-daemon -drxR &"
+      autorandr = "autorandr -c --default horizontal --skip-options crtc"
       --startSoundCmd = (mySoundPlayer ++ startupSound)
 
   sequence_ [ spawn wallpaperCmd
             , spawn trayerCmd
-            --, spawn picomCmd
+            , spawn autorandr
             --, spawn volumeIconCmd
             --, spawn shutterCmd
             --, spawnOnce ibusCmd

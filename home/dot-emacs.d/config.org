@@ -502,20 +502,20 @@ agenda items and an Emacs banner.
     ;;(setq dashboard-icon-type 'all-the-icons) ;; use `all-the-icons' package
 
     (setq dashboard-set-init-info t)
-                                          ;(setq dashboard-set-heading-icons t)
-                                          ;(setq dashboard-set-file-icons t)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
 
     ;;(setq dashboard-center-content nil) ;; set to 't' for centered content
     (setq dashboard-set-navigator t)
     ;;(setq dashboard-navigator-buttons '((("" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
     (setq dashboard-set-week-agenda t)
     (setq dashboard-week-agenda t)
-    (setq dashboard-heading-icons '((recents   . "history")
-                                     (bookmarks . "bookmark")
-                                     (agenda    . "calendar")
-                                     (projects  . "rocket")
-                                     (registers . "database")
-                                     (hackernews . "newspaper-o")
+    (setq dashboard-heading-icons '((recents   . "nf-oct-history")
+                                     (bookmarks . "nf-oct-bookmark")
+                                     (agenda    . "nf-oct-calendar")
+                                     (projects  . "nf-oct-rocket")
+                                     (registers . "nf-oct-database")
+                                     (hackernews . "nf-oct-log")
                                      ))
     (setq dashboard-week-agenda t)
     (setq dashboard-items '((recents . 10)
@@ -1128,6 +1128,12 @@ agenda items and an Emacs banner.
 
 
 *** Eglot
+*TODO:* Move back to lsp-mode. For Ruby it seems LSP-Mode is way better
+supported than Eglot. Provides more features and integrates better with Ruby-ts-mode
+
+*STUDY:* Maybe it would be good to keep both and set Eglot mode to some prog-modes
+while using LSP-mode for others.
+
 Emacs LSP mode (different to lsp-mode). Eglot uses
 way less packages and relies on external LSP servers. This way
 it may be easier to actually integrat JAVA LSP into Emacs correctly with
@@ -1154,31 +1160,31 @@ ANT (still not something I'm sure how to handle).
 
   (use-package eglot
     :defer t
-    :hook ((css-mode css-ts-mode
-                     ruby-mode ruby-ts-mode
-                     python-mode python-ts-mode
-                     yaml-mode yaml-ts-mode
-                     html-mode html-ts-mode
-                     js-mode js-ts-mode
-                     json-mode json-ts-mode
-                     scss-mode scss-ts-mode)
-           . eglot-ensure)
-    :hook ((eglot-managed-mode . juank/eglot-eldoc)
-           (eglot-managed-mode . juank/eglot-capf)
-)
+    :hook
+    ((css-mode css-ts-mode
+               ruby-mode ruby-ts-mode
+               python-mode python-ts-mode
+               yaml-mode yaml-ts-mode
+               html-mode html-ts-mode
+               js-mode js-ts-mode
+               json-mode json-ts-mode
+               scss-mode scss-ts-mode)
+     . eglot-ensure)
+
+    ((eglot-managed-mode . juank/eglot-eldoc)
+     (eglot-managed-mode . juank/eglot-capf)
+     )
     :preface
     (defun juank/eglot-eldoc ()
       ;; https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
       (setq eldoc-documentation-strategy
             'eldoc-documentation-compose-eagerly))
     :config
+    (add-to-list 'eglot-server-programs
+                 '((ruby-mode ruby-ts-mode)  "ruby-lsp"))
     (setq eglot-events-buffer-size 0)
     (add-to-list 'eglot-stay-out-of 'flycheck)
     (setq completion-category-overrides '((eglot (styles orderless))))
-    (add-to-list 'eglot-server-programs
-                 `(ruby-mode . ("solargraph" "socket" "--port" :autoport)))
-    (add-to-list 'eglot-server-programs
-                 `(ruby-ts-mode . ("solargraph" "socket" "--port" :autoport)))
     (setq-default eglot-workspace-configuration
                   '((:pylsp . (:configurationSources ["flake8"]
                                                      :plugins (
@@ -1206,11 +1212,14 @@ ANT (still not something I'm sure how to handle).
                          #'juank/version-control/project-capf
                          #'juank/version-control/issue-capf
                          #'eglot-completion-at-point
-                         #'tempel-expand
+
                          #'cape-keyword))))
     )
 
 #+end_src
+
+#+RESULTS:
+| doom-modeline-override-eglot | doom-modeline-update-eglot | juank/eglot-capf | juank/eglot-eldoc |
 
 *** eldoc
 
@@ -2526,47 +2535,58 @@ try to setup an environment that will provide coding with ruby and rails
 as easy and simple as the language and framework seem to be.
 
 #+begin_src emacs-lisp
-  (use-package ruby-mode
+  (use-package ruby-ts-mode
+    :mode "\\.rb\\'"
+    :mode "Rakefile\\'"
+    :mode "GemFile\\'"
     :bind
     (:map ruby-mode-map (("C-M-h" . juank/treesit/function-select)
-			 ("C-c y f" . juank/treesit/yank-qualified-method-fname)
-			 ))
-    :hook ((ruby-mode ruby-ts-mode) .
-	   (lambda ()
-	     (eldoc-mode)
-	     (setq fill-column 100))))
+                         ("C-c y f" . juank/treesit/yank-qualified-method-fname)
+                         ))
+    :hook
+    ((ruby-mode ruby-ts-mode) .
+           (lambda ()
+             (eldoc-mode)
+             (setq fill-column 100)))
+    (ruby-ts-mode . subword-mode)
+    (ruby-mode . subword-mode)
+    :custom
+    (ruby-indent-level 2)
+    (ruby-indent-tabs-mode nil)
+    )
 
-  (use-package rspec-mode
-    ;; For ruby I write my tests using rspec. This tool helps managing tests
-    :after ruby-mode
-    :config
-    ;;(rspec-docker-container "web")
-    ;;(rspec-use-spring-when-possible t)
-    ;;(rspec-use-docker-when-possible t)
-    ;;(rspec-docker-cwd "./")
-    ;;(rspec-docker-command "docker compose exec")
-    ;;(rspec-install-snippets)
-    :hook ((dired-mode . rspec-dired-mode)
-	   (ruby-mode . rspec-mode)
-	   (ruby-ts-mode . rspec-mode))
-    ;; Dear reader, make sure that you can jump from spec and definition.  And in
-    ;; Ruby land when you have lib/my_file.rb, the corresponding spec should be in
-    ;; spec/my_file_spec.rb; and when you have app/models/my_file.rb, the spec
-    ;; should be in spec/models/my_file_spec.rb
-    :bind (:map rspec-mode-map (("s-." . 'rspec-toggle-spec-and-target)))
-    :bind (:map ruby-mode-map (("s-." . 'rspec-toggle-spec-and-target)))
-    :init
-    (defun juank/ruby/rspec-spring-p ()
-      "Check the project for spring as part of the Gemfile.lock."
-      (let ((gemfile-lock (f-join (projectile-project-root) "Gemfile.lock")))
-	(and (f-exists? gemfile-lock)
-	     (s-present?
-	      (shell-command-to-string
-	       (concat "rg \"^ +spring-commands-rspec \" " gemfile-lock))))))
-    ;; Out of the box, for my typical docker ecosystem, the `rspec-spring-p'
-    ;; function does not work.  So I'm overriding the default behavior to match my
-    ;; ecosystem.
-    (advice-add #'rspec-spring-p :override #'juank/ruby/rspec-spring-p))
+  ;; (use-pac
+  kage rspec-mode
+  ;; For ruby I write my tests using rspec. This tool helps managing tests
+  :after ruby-mode
+  :config
+  ;;(rspec-docker-container "web")
+  ;;(rspec-use-spring-when-possible t)
+  ;;(rspec-use-docker-when-possible t)
+  ;;(rspec-docker-cwd "./")
+  ;;(rspec-docker-command "docker compose exec")
+  ;;(rspec-install-snippets)
+  :hook ((dired-mode . rspec-dired-mode)
+         (ruby-mode . rspec-mode)
+         (ruby-ts-mode . rspec-mode))
+  ;; Dear reader, make sure that you can jump from spec and definition.  And in
+  ;; Ruby land when you have lib/my_file.rb, the corresponding spec should be in
+  ;; spec/my_file_spec.rb; and when you have app/models/my_file.rb, the spec
+  ;; should be in spec/models/my_file_spec.rb
+  :bind (:map rspec-mode-map (("C-a s" . 'rspec-toggle-spec-and-target)))
+  :bind (:map ruby-mode-map (("C-a s" . 'rspec-toggle-spec-and-target)))
+  :init
+  (defun juank/ruby/rspec-spring-p ()
+    "Check the project for spring as part of the Gemfile.lock."
+    (let ((gemfile-lock (f-join (projectile-project-root) "Gemfile.lock")))
+      (and (f-exists? gemfile-lock)
+           (s-present?
+            (shell-command-to-string
+             (concat "rg \"^ +spring-commands-rspec \" " gemfile-lock))))))
+  ;; Out of the box, for my typical docker ecosystem, the `rspec-spring-p'
+  ;; function does not work.  So I'm overriding the default behavior to match my
+  ;; ecosystem.
+  (advice-add #'rspec-spring-p :override #'juank/ruby/rspec-spring-p))
 
   (use-package inf-ruby
     :config
@@ -2586,24 +2606,24 @@ as easy and simple as the language and framework seem to be.
     "determine the correct debugger based on the gemfile"
     (let ((gemfile_lock (f_join (projectile_project_root) "gemfile_lock")))
       (if_let* ((f_exists? gemfile_lock)
-		(debuggers
-		 (s_split "\n"
-			  (shell_command_to_string
-			   (concat
-			    "rg \"^ +(byebug|debugger|pry_byebug|debug) \" "
-			    gemfile_lock
-			    " r '$1' only_matching | uniq")))))
-	       (cond
-		((member "byebug" debuggers) "require 'byebug'; byebug")
-		((member "debug" debuggers) "require 'debug'; binding_break")
-		((member "debugger" debuggers) "require 'debugger'; debugger")
-		((member "pry_byebug" debuggers) "require 'pry_byebug'; binding_pry")
-		(t "require 'debug'; binding_break"))
-	       "require 'debug'; binding_break")))
+                (debuggers
+                 (s_split "\n"
+                          (shell_command_to_string
+                           (concat
+                            "rg \"^ +(byebug|debugger|pry_byebug|debug) \" "
+                            gemfile_lock
+                            " r '$1' only_matching | uniq")))))
+               (cond
+                ((member "byebug" debuggers) "require 'byebug'; byebug")
+                ((member "debug" debuggers) "require 'debug'; binding_break")
+                ((member "debugger" debuggers) "require 'debugger'; debugger")
+                ((member "pry_byebug" debuggers) "require 'pry_byebug'; binding_pry")
+                (t "require 'debug'; binding_break"))
+               "require 'debug'; binding_break")))
 
   ;;(use-package yard-mode
-    ;; Preferred Ruby documentation syntax
-    ;;:hook ((ruby-mode ruby-ts-mode ) . yard-mode)
+  ;; Preferred Ruby documentation syntax
+  ;;:hook ((ruby-mode ruby-ts-mode ) . yard-mode)
   ;;:hook ((ruby-mode ruby-ts-mode) . eldoc-mode))
 
 
@@ -2871,3 +2891,169 @@ but require little to no configuration.
 #+end_src
 
 
+
+
+** EMAIL AND NEWS FEED
+I wanted to give it a try at getting rid of gmail. I thought it was
+also a good opportunity to try to use emacs as my mail and news reader
+and avoid using websites as much as possible.
+
+*** Notmuch
+Dispite it's name *Notmuch* seems to be a very featureful email indexer
+#+begin_src emacs-lisp
+  (use-package notmuch
+    :defer t
+    :config
+      ;;;; General UI
+    (setq notmuch-show-logo nil
+          notmuch-column-control 1.0
+          notmuch-hello-auto-refresh t
+          notmuch-hello-recent-searches-max 20
+          notmuch-hello-thousands-separator "."
+          notmuch-hello-sections '(notmuch-hello-insert-saved-searches)
+          notmuch-show-all-tags-list t))
+
+#+end_src
+
+
+*** GNUS
+I still need to decide if Gnus, Mu4e or Notmuch. This would be the GNUS
+configuration
+#+begin_src emacs-lisp
+
+  (setq smtpmail-smtp-server "smtp.zoho.com"    ; $SMTPSERVER
+        send-mail-function   'smtpmail-send-it     ;
+        smtpmail-smtp-service 587                  ; SMTP port
+        gnus-select-method '(nntp "foo.bar.com"))  ; Connect to an NNTP server
+
+
+  (use-package gnus
+    :config
+    (setq gnus-select-method '(nnnil ""))
+    (setq gnus-secondary-select-methods
+          '((nntp "news.gwene.org")
+            (nnmaildir "zohomail" (directory "~/.mail/zoho")
+                       (gnus-search-engine gnus-search-notmuch ; this feature is from Emacs 28
+                                           (remove-prefix "~/.mail/zoho")))
+
+            ))
+
+    (setq gnus-search-use-parsed-queries nil) ; Emacs 28
+
+    ;; (setq gnus-parameters
+    ;;       '((".*"                         ; fallback option
+    ;;          (posting-style
+    ;;           (gcc "nnmaildir+inf:Sent")
+    ;;           (From
+    ;;            (format "%s <%s>" user-full-name
+    ;;                    (prot-mail-auth-get-field "inf" :user)))))
+    ;;         ("prv"
+    ;;          (posting-style
+    ;;           (gcc "nnmaildir+prv:Sent")
+    ;;           (From
+    ;;            (format "%s <%s>" user-full-name
+    ;;                    (prot-mail-auth-get-field "prv" :user)))))
+    ;;         ("pub"
+    ;;          (posting-style               ; Uses default name+mail
+    ;;           (gcc "nnmaildir+pub:Sent"))))
+    ;;       )
+    (setq gnus-gcc-mark-as-read t)
+    (setq gnus-agent t)
+    (setq gnus-novice-user nil)           ; careful with this
+    ;; checking sources
+    (setq gnus-check-new-newsgroups 'ask-server)
+    (setq gnus-read-active-file 'some)
+    ;; dribble
+    (setq gnus-use-dribble-file t)
+    (setq gnus-always-read-dribble-file t)
+  ;;; agent
+    (setq gnus-agent-article-alist-save-format 1)  ; uncompressed
+    (setq gnus-agent-cache t)
+    (setq gnus-agent-confirmation-function 'y-or-n-p)
+    (setq gnus-agent-consider-all-articles nil)
+    (setq gnus-agent-directory "~/News/agent/")
+    (setq gnus-agent-enable-expiration 'ENABLE)
+    (setq gnus-agent-expire-all nil)
+    (setq gnus-agent-expire-days 30)
+    (setq gnus-agent-mark-unread-after-downloaded t)
+    (setq gnus-agent-queue-mail t)        ; queue if unplugged
+    (setq gnus-agent-synchronize-flags nil)
+  ;;; article
+    (setq gnus-article-browse-delete-temp 'ask)
+    (setq gnus-article-over-scroll nil)
+    (setq gnus-article-show-cursor t)
+    (setq gnus-article-sort-functions
+          '((not gnus-article-sort-by-number)
+            (not gnus-article-sort-by-date)))
+    (setq gnus-article-truncate-lines nil)
+    (setq gnus-html-frame-width 80)
+    (setq gnus-html-image-automatic-caching t)
+    (setq gnus-inhibit-images t)
+    (setq gnus-max-image-proportion 0.7)
+    (setq gnus-treat-display-smileys nil)
+    (setq gnus-article-mode-line-format "%G %S %m")
+    (setq gnus-visible-headers
+          '("^From:" "^To:" "^Cc:" "^Subject:" "^Newsgroups:" "^Date:"
+            "Followup-To:" "Reply-To:" "^Organization:" "^X-Newsreader:"
+            "^X-Mailer:"))
+    (setq gnus-sorted-header-list gnus-visible-headers)
+    (setq gnus-article-x-face-too-ugly ".*") ; all images in headers are outright annoying---disabled!
+  ;;; async
+    (setq gnus-asynchronous t)
+    (setq gnus-use-article-prefetch 15)
+  ;;; group
+    (setq gnus-level-subscribed 6)
+    (setq gnus-level-unsubscribed 7)
+    (setq gnus-level-zombie 8)
+    (setq gnus-activate-level 1)
+    (setq gnus-list-groups-with-ticked-articles nil)
+    (setq gnus-group-sort-function
+          '((gnus-group-sort-by-unread)
+            (gnus-group-sort-by-alphabet)
+            (gnus-group-sort-by-rank)))
+    (setq gnus-group-line-format "%M%p%P%5y:%B%(%g%)\n")
+    (setq gnus-group-mode-line-format "%%b")
+    (setq gnus-topic-display-empty-topics nil)
+  ;;; summary
+    (setq gnus-auto-select-first nil)
+    (setq gnus-summary-ignore-duplicates t)
+    (setq gnus-suppress-duplicates t)
+    (setq gnus-save-duplicate-list t)
+    (setq gnus-summary-goto-unread nil)
+    (setq gnus-summary-make-false-root 'adopt)
+    (setq gnus-summary-thread-gathering-function
+          'gnus-gather-threads-by-subject)
+    (setq gnus-summary-gather-subject-limit 'fuzzy)
+    (setq gnus-thread-sort-functions
+          '((not gnus-thread-sort-by-date)
+            (not gnus-thread-sort-by-number)))
+    (setq gnus-subthread-sort-functions
+          'gnus-thread-sort-by-date)
+    (setq gnus-thread-hide-subtree nil)
+    (setq gnus-thread-ignore-subject nil)
+    (setq gnus-user-date-format-alist
+          '(((gnus-seconds-today) . "Today at %R")
+            ((+ (* 60 60 24) (gnus-seconds-today)) . "Yesterday, %R")
+            (t . "%Y-%m-%d %R")))
+
+    ;; When the %f specifier in `gnus-summary-line-format' matches my
+    ;; name, this will use the contents of the "To:" field, prefixed by
+    ;; the string I specify.  Useful when checking your "Sent" summary or
+    ;; a mailing list you participate in.
+    (setq gnus-ignored-from-addresses "Protesilaos Stavrou")
+    (setq gnus-summary-to-prefix "To: ")
+
+    (setq gnus-summary-line-format "%U%R %-18,18&user-date; %4L:%-25,25f %B%s\n")
+    (setq gnus-summary-mode-line-format "[%U] %p")
+    (setq gnus-sum-thread-tree-false-root "")
+    (setq gnus-sum-thread-tree-indent " ")
+    (setq gnus-sum-thread-tree-single-indent "")
+    (setq gnus-sum-thread-tree-leaf-with-other "+-> ")
+    (setq gnus-sum-thread-tree-root "")
+    (setq gnus-sum-thread-tree-single-leaf "\\-> ")
+    (setq gnus-sum-thread-tree-vertical "|")
+
+    )
+
+
+#+end_src
