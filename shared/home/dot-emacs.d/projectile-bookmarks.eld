@@ -1,1 +1,1 @@
-("~/Documents/dotfiles/" "~/Development/kakeibo/" "~/Development/emacs/")
+("~/Documents/dotfiles/" "~/Development/kakeibo/")

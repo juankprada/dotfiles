@@ -93,24 +93,6 @@
 (setenv "LC_CTYPE" "UTF-8")
 (setenv "LC_ALL" "en_US.UTF-8")
 
-;; NOTE: I may not need this but we need to check.
-;; (setq treesit-language-source-alist
-;;       '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-;;         (cmake "https://github.com/uyha/tree-sitter-cmake")
-;;         (css "https://github.com/tree-sitter/tree-sitter-css")
-;;         (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-;;         (go "https://github.com/tree-sitter/tree-sitter-go")
-;;         (html "https://github.com/tree-sitter/tree-sitter-html")
-;;         (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-;;         (json "https://github.com/tree-sitter/tree-sitter-json")
-;;         (make "https://github.com/alemuller/tree-sitter-make")
-;;         (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-;;         (python "https://github.com/tree-sitter/tree-sitter-python")
-;;         (toml "https://github.com/tree-sitter/tree-sitter-toml")
-;;         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-;;         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-;;         (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
-
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 (defvaralias 'c-basic-offset 'tab-width)
@@ -954,6 +936,7 @@
             (concat module_space method_type method_name)))
       (let ((current-node (treesit-node-at (point))))
         (s-join "::" (juank/treesit/module_space current-node)))))
+
   ;; Handles the following Ruby code:
   ;;
   ;;   module A::B
@@ -981,8 +964,10 @@
       acc)))
 
 (use-package treesit-auto
-  ;;:straight (:host github :repo "renzmann/treesit-auto")
-  :config (setq treesit-auto-install 'prompt)
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
 (use-package scopeline
