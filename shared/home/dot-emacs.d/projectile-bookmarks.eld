@@ -1,0 +1,1 @@
+("~/Documents/dotfiles/" "~/Development/kakeibo/" "~/Development/emacs/")

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+ZSHRC_FILE=$HOME/.zshrc
+if [ -f "$ZSHRC_FILE" ]; then
+    echo ">>> Backing up .zshrc file -> .zshrc_bk"
+    mv $ZSHRC_FILE ~/.zshrc_bk
+fi
+
+echo ">>> stow HOME specific files"
+stow -R home/  --target=$HOME --dotfiles -v
+
+
+echo ">>> stow wallpapers"
+stow -D Pictures --target=$HOME/Pictures
+stow Pictures --target=$HOME/Pictures

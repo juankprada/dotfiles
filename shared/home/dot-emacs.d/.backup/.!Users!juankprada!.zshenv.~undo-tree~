@@ -1,0 +1,48 @@
+(undo-tree-save-format-version . 1)
+"da39a3ee5e6b4b0d3255bfef95601890afd80709"
+[nil nil nil nil (26072 3626 189021 0) 0 nil]
+([nil current ((#("export TERM=\"xterm-256color\"                      # getting proper colors
+export HISTCONTROL=ignoredups:erasedups           # no duplicate entries
+export ALTERNATE_EDITOR=\"\"                        # setting for emacsclient
+export EDITOR=\"emacsclient -t -a ''\"              # $EDITOR use Emacs in terminal
+export VISUAL=\"emacsclient -c -a emacs\"           # $VISUAL use Emacs in GUI mode
+export LANG=\"en_US.UTF-8\"
+
+
+### PATH
+if [ -d \"$HOME/bin\" ] ;
+  then PATH=\"$HOME/bin:$PATH\"
+fi
+
+if [ -d \"$HOME/.bin\" ] ;
+  then PATH=\"$HOME/.bin:$PATH\"
+fi
+
+if [ -d \"$HOME/.local/bin\" ] ;
+  then PATH=\"$HOME/.local/bin:$PATH\"
+fi
+
+if [ -d \"$HOME/.emacs.d/bin\" ] ;
+  then PATH=\"$HOME/.emacs.d/bin:$PATH\"
+fi
+
+if [ -d \"$HOME/Applications\" ] ;
+  then PATH=\"$HOME/Applications:$PATH\"
+fi
+
+if [ -d \"/var/lib/flatpak/exports/bin/\" ] ;
+  then PATH=\"/var/lib/flatpak/exports/bin/:$PATH\"
+fi
+
+if [ -d \"$HOME/.config/emacs/bin/\" ] ;
+  then PATH=\"$HOME/.config/emacs/bin/:$PATH\"
+fi
+
+# Specific setting for Flutter SDK
+export PATH=$HOME/Development/flutter/bin:$PATH
+
+# Let's ge tht Gems rolling
+export PATH=$HOME/.gem/bin:$PATH
+" 0 6 (face font-lock-keyword-face fontified t) 6 7 (fontified t) 7 11 (face font-lock-variable-name-face fontified t) 11 12 (fontified t) 12 28 (face font-lock-string-face fontified t) 28 50 (fontified t) 50 73 (face font-lock-comment-face fontified t) 73 74 (fontified t) 74 80 (face font-lock-keyword-face fontified t) 80 81 (fontified t) 81 92 (face font-lock-variable-name-face fontified t) 92 124 (fontified t) 124 146 (face font-lock-comment-face fontified t) 146 147 (fontified t) 147 153 (face font-lock-keyword-face fontified t) 153 154 (fontified t) 154 170 (face font-lock-variable-name-face fontified t) 170 171 (fontified t) 171 173 (face font-lock-string-face fontified t) 173 197 (fontified t) 197 222 (face font-lock-comment-face fontified t) 222 223 (fontified t) 223 229 (face font-lock-keyword-face fontified t) 229 230 (fontified t) 230 236 (face font-lock-variable-name-face fontified t) 236 237 (fontified t) 237 259 (face font-lock-string-face fontified t) 259 273 (fontified t) 273 304 (face font-lock-comment-face fontified t) 304 305 (fontified t) 305 311 (face font-lock-keyword-face fontified t) 311 312 (fontified t) 312 318 (face font-lock-variable-name-face fontified t) 318 319 (fontified t) 319 344 (face font-lock-string-face fontified t) 344 355 (fontified t) 355 386 (face font-lock-comment-face fontified t) 386 387 (fontified t) 387 393 (face font-lock-keyword-face fontified t) 393 394 (fontified t) 394 398 (face font-lock-variable-name-face fontified t) 398 399 (fontified t) 399 412 (face font-lock-string-face fontified t) 412 415 (fontified t) 415 416 (face font-lock-comment-face fontified t) 416 418 (face font-lock-comment-face fontified t syntax-table (3)) 418 423 (face font-lock-comment-face fontified t) 423 424 (fontified t) 424 426 (face font-lock-keyword-face fontified t) 426 427 (fontified t) 427 428 (face font-lock-bracket-face fontified t) 428 432 (fontified t) 432 443 (face font-lock-string-face fontified t) 443 444 (fontified t) 444 445 (face font-lock-bracket-face fontified t) 445 446 (fontified t) 446 447 (face font-lock-delimiter-face fontified t) 447 450 (fontified t) 450 454 (face font-lock-keyword-face fontified t) 454 455 (fontified t) 455 459 (face font-lock-variable-name-face fontified t) 459 460 (fontified t) 460 477 (face font-lock-string-face fontified t) 477 478 (fontified t) 478 480 (face font-lock-keyword-face fontified t) 480 482 (fontified t) 482 484 (face font-lock-keyword-face fontified t) 484 485 (fontified t) 485 486 (face font-lock-bracket-face fontified t) 486 490 (fontified t) 490 502 (face font-lock-string-face fontified t) 502 503 (fontified t) 503 504 (face font-lock-bracket-face fontified t) 504 505 (fontified t) 505 506 (face font-lock-delimiter-face fontified t) 506 509 (fontified t) 509 513 (face font-lock-keyword-face fontified t) 513 514 (fontified t) 514 518 (face font-lock-variable-name-face fontified t) 518 519 (fontified t) 519 537 (face font-lock-string-face fontified t) 537 538 (fontified t) 538 540 (face font-lock-keyword-face fontified t) 540 542 (fontified t) 542 544 (face font-lock-keyword-face fontified t) 544 545 (fontified t) 545 546 (face font-lock-bracket-face fontified t) 546 550 (fontified t) 550 568 (face font-lock-string-face fontified t) 568 569 (fontified t) 569 570 (face font-lock-bracket-face fontified t) 570 571 (fontified t) 571 572 (face font-lock-delimiter-face fontified t) 572 575 (fontified t) 575 579 (face font-lock-keyword-face fontified t) 579 580 (fontified t) 580 584 (face font-lock-variable-name-face fontified t) 584 585 (fontified t) 585 609 (face font-lock-string-face fontified t) 609 610 (fontified t) 610 612 (face font-lock-keyword-face fontified t) 612 614 (fontified t) 614 616 (face font-lock-keyword-face fontified t) 616 617 (fontified t) 617 618 (face font-lock-bracket-face fontified t) 618 622 (fontified t) 622 642 (face font-lock-string-face fontified t) 642 643 (fontified t) 643 644 (face font-lock-bracket-face fontified t) 644 645 (fontified t) 645 646 (face font-lock-delimiter-face fontified t) 646 649 (fontified t) 649 653 (face font-lock-keyword-face fontified t) 653 654 (fontified t) 654 658 (face font-lock-variable-name-face fontified t) 658 659 (fontified t) 659 685 (face font-lock-string-face fontified t) 685 686 (fontified t) 686 688 (face font-lock-keyword-face fontified t) 688 690 (fontified t) 690 692 (face font-lock-keyword-face fontified t) 692 693 (fontified t) 693 694 (face font-lock-bracket-face fontified t) 694 698 (fontified t) 698 718 (face font-lock-string-face fontified t) 718 719 (fontified t) 719 720 (face font-lock-bracket-face fontified t) 720 721 (fontified t) 721 722 (face font-lock-delimiter-face fontified t) 722 725 (fontified t) 725 729 (face font-lock-keyword-face fontified t) 729 730 (fontified t) 730 734 (face font-lock-variable-name-face fontified t) 734 735 (fontified t) 735 761 (face font-lock-string-face fontified t) 761 762 (fontified t) 762 764 (face font-lock-keyword-face fontified t) 764 766 (fontified t) 766 768 (face font-lock-keyword-face fontified t) 768 769 (fontified t) 769 770 (face font-lock-bracket-face fontified t) 770 774 (fontified t) 774 805 (face font-lock-string-face fontified t) 805 806 (fontified t) 806 807 (face font-lock-bracket-face fontified t) 807 808 (fontified t) 808 809 (face font-lock-delimiter-face fontified t) 809 812 (fontified t) 812 816 (face font-lock-keyword-face fontified t) 816 817 (fontified t) 817 821 (face font-lock-variable-name-face fontified t) 821 822 (fontified t) 822 859 (face font-lock-string-face fontified t) 859 860 (fontified t) 860 862 (face font-lock-keyword-face fontified t) 862 864 (fontified t) 864 866 (face font-lock-keyword-face fontified t) 866 867 (fontified t) 867 868 (face font-lock-bracket-face fontified t) 868 872 (fontified t) 872 898 (face font-lock-string-face fontified t) 898 899 (fontified t) 899 900 (face font-lock-bracket-face fontified t) 900 901 (fontified t) 901 902 (face font-lock-delimiter-face fontified t) 902 905 (fontified t) 905 909 (face font-lock-keyword-face fontified t) 909 910 (fontified t) 910 914 (face font-lock-variable-name-face fontified t) 914 915 (fontified t) 915 947 (face font-lock-string-face fontified t) 947 948 (fontified t) 948 950 (face font-lock-keyword-face fontified t) 950 952 (fontified t) 952 986 (face font-lock-comment-face fontified t) 986 987 (fontified t) 987 993 (face font-lock-keyword-face fontified t) 993 994 (fontified t) 994 998 (face font-lock-variable-name-face fontified t) 998 999 (fontified t) 999 1000 (face font-lock-misc-punctuation-face fontified t) 1000 1004 (face font-lock-variable-name-face fontified t) 1004 1029 (fontified t) 1029 1030 (face font-lock-misc-punctuation-face fontified t) 1030 1034 (face font-lock-variable-name-face fontified t) 1034 1036 (fontified t) 1036 1063 (face font-lock-comment-face fontified t) 1063 1064 (fontified t) 1064 1070 (face font-lock-keyword-face fontified t) 1070 1071 (fontified t) 1071 1075 (face font-lock-variable-name-face fontified t) 1075 1076 (fontified t) 1076 1077 (face font-lock-misc-punctuation-face fontified t) 1077 1081 (face font-lock-variable-name-face fontified t) 1081 1091 (fontified t) 1091 1092 (face font-lock-misc-punctuation-face fontified t) 1092 1096 (face font-lock-variable-name-face fontified t) 1096 1097 (fontified t)) . 1) (undo-tree-id1 . -1097) (undo-tree-id2 . -1097) (undo-tree-id3 . -613) (undo-tree-id4 . -1036) (undo-tree-id5 . -1035) (undo-tree-id6 . -387) (undo-tree-id7 . -413) (undo-tree-id8 . -1034) (undo-tree-id9 . -809) (undo-tree-id10 . -424) (undo-tree-id11 . -74) (undo-tree-id12 . -1097) 1098 (t 26072 74 92289 212000)) nil (26072 3978 234394 0) 0 nil] [nil nil ((75 . 76) (t 26072 74 92289 212000)) ((#("ん" 0 1 (face font-lock-function-name-face fontified t)) . 75) (undo-tree-id0 . -1)) (26072 3626 188867 0) 0 nil])
+nil
+nil
