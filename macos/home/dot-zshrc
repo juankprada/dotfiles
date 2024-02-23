@@ -123,8 +123,10 @@ alias connect_to_vps="ssh juankprada@153.92.1.75"
 
 
 # vim and emacs
+
+
 alias vim="nvim"
-alias em="/opt/homebrew/bin/emacs -nw"
+alias em="emacs -nw"
 alias emacs="emacsclient -c -a 'emacs'" 
 
 alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
