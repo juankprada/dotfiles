@@ -776,6 +776,12 @@ information for several packages to work with.
       :custom (exec-path-from-shell-arguments '("-l"))
       :init (exec-path-from-shell-initialize)))
 
+(use-package envrc
+  :init
+  (envrc-global-mode)
+  (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)
+  )
+  
 #+end_src
 
 I want consistant behaviour in our keyboard between all different operating systems.
@@ -2422,6 +2428,24 @@ instead of forcing the remap like I'm doing here
   ;; Get the most out of treesitter
   (setq treesit-font-lock-level 4)
 
+ (setq treesit-language-source-alist
+       '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+         (cmake "https://github.com/uyha/tree-sitter-cmake")
+         (css "https://github.com/tree-sitter/tree-sitter-css")
+         (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+         (go "https://github.com/tree-sitter/tree-sitter-go")
+         (html "https://github.com/tree-sitter/tree-sitter-html")
+         (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+         (json "https://github.com/tree-sitter/tree-sitter-json")
+         (make "https://github.com/alemuller/tree-sitter-make")
+         (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+         (python "https://github.com/tree-sitter/tree-sitter-python")
+         (toml "https://github.com/tree-sitter/tree-sitter-toml")
+         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+         (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+
   ;; Add additional remaps to force treesiter-mode
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
@@ -2429,15 +2453,7 @@ instead of forcing the remap like I'm doing here
   (provide 'init-highlight)
 #+end_src
 
-
-** Programming and Coding settings
-
-I thought about making a separate section for Programming related
-settings as programmin is the main goal of using Emacs.
-
-
 *** =init-LSP.el= LSP Generalities
-
 
 There are two options to handle LSP integration within Emacs.
 =lsp-mode= and =eglot=. The later is part of emacs (at least in the latest versions)
@@ -2596,45 +2612,46 @@ done for each programming language I plan to use are stored in their own config 
 
 
 
-We define an assortment of programming modes that are usually in-use
-along with major programming modes.
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-prog.el"
+  We define an assortment of programming modes that are usually in-use
+  along with major programming modes.
+  #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-prog.el"
 
-  ;; Misc. programming modes
-  (use-package csv-mode)
-  (unless emacs/>=29p
-    (use-package csharp-mode))
-  (use-package cask-mode)
-  (use-package cmake-mode)
-  (use-package dart-mode) ; Welcome Flutter!
-  (use-package julia-mode)
-  (use-package lua-mode)
-  (use-package mermaid-mode)
-  (use-package powershell)
-  (use-package scala-mode)
-  (use-package swift-mode)
-  (use-package v-mode)
-  (use-package vimrc-mode)
-  (use-package yaml-mode)
+    ;; Misc. programming modes
+    (use-package csv-mode)
+    (unless emacs/>=29p
+      (use-package csharp-mode))
+    (use-package cask-mode)
+    (use-package cmake-mode)
+    (use-package dart-mode) ; Welcome Flutter!
+    (use-package julia-mode)
+    (use-package lua-mode)
+    (use-package mermaid-mode)
+    (use-package powershell)
+    (use-package scala-mode)
+    (use-package swift-mode)
+    (use-package v-mode)
+    (use-package vimrc-mode)
+    (use-package yaml-mode)
 
-  ;; checkout https://github.com/protocolbuffers/protobuf
-  (use-package protobuf-mode
-    :hook (protobuf-mode . (lambda ()
-                             (setq imenu-generic-expression
-                                   '((nil "^[[:space:]]*\\(message\\|service\\|enum\\)[[:space:]]+\\([[:alnum:]]+\\)" 2))))))
+    ;; checkout https://github.com/protocolbuffers/protobuf
+    (use-package protobuf-mode
+      :hook (protobuf-mode . (lambda ()
+                               (setq imenu-generic-expression
+                                     '((nil "^[[:space:]]*\\(message\\|service\\|enum\\)[[:space:]]+\\([[:alnum:]]+\\)" 2))))))
 
-  (use-package nxml-mode
-    :ensure nil
-    :mode (("\\.xaml$" . xml-mode)))
+    (use-package nxml-mode
+      :ensure nil
+      :mode (("\\.xaml$" . xml-mode)))
 
-  ;; Fish shell
-  (use-package fish-mode
-    :hook (fish-mode . (lambda ()
-                         (add-hook 'before-save-hook
-                                   #'fish_indent-before-save))))
+    ;; Fish shell
+    (use-package fish-mode
+      :hook (fish-mode . (lambda ()
+                           (add-hook 'before-save-hook
+                                     #'fish_indent-before-save))))
 
-  (provide 'init-prog)  
+    (provide 'init-prog)  
 #+end_src
+
 
 *** =init-python.el= Python specific settings
 
@@ -2671,7 +2688,7 @@ making it sane.
       (exec-path-from-shell-copy-env "PYTHONPATH")))
 
 
-  ;; ;; Required to easily switch virtual envs
+    ;; ;; Required to easily switch virtual envs
   ;; via the menu bar or with `pyvenv-workon`
   ;; Setting the `WORKON_HOME` environment variable points
   ;; at where the envs are located. I use miniconda.
@@ -2710,12 +2727,12 @@ making it sane.
     (numpydoc-insert-examples-block nil)
     (numpydoc-template-long nil)
     :bind (:map python-mode-map
-                ("C-c C-n" . numpydoc-generate)))
+		("C-c C-n" . numpydoc-generate)))
 
   (provide 'init-python)
 #+end_src
 
-*** TODO =init-python.el= Python specific settings
+*** TODO =init-ruby.el= Python specific settings
 
 Ruby is my language of choice these days for anything web-development related.
 Here are the settings that I consider (or have found to be so far) the best for
@@ -2767,12 +2784,12 @@ Ruby and Ruby on Rails development.
   (provide 'init-ruby)
 #+end_src
 
+*** =init-web.el= Web, JavaScript and Typescript related settings
 
-*** =init-web.el= Web, Javascript and Typescript settings
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ruby.el"
-  ;; init-web.el --- Initialize web configurations.	-*- lexical-binding: t -*-
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-web.el"
+    ;; init-web.el --- Initialize web configurations.	-*- lexical-binding: t -*-
 
-  ;; CSS
+    ;; CSS
   (use-package css-mode
     :init (setq css-indent-offset 2))
 
@@ -2801,16 +2818,14 @@ Ruby and Ruby on Rails development.
            (js2-mode . js2-highlight-unused-variables-mode))
     :config
     ;; Use default keybindings for lsp
-    (when centaur-lsp
-      (unbind-key "M-." js2-mode-map)))
-
+    (unbind-key "M-." js2-mode-map))
 
   ;; Format HTML, CSS and JavaScript/JSON
   ;; Install: npm -g install prettier
   (when (executable-find "prettier")
     (use-package prettier
       :diminish
-      :hook ((js-mode js2-mode css-mode sgml-mode web-mode) . prettier-mode)
+      :hook ((js-mode js2-mode css-mode sgml-mode web-mode typescript-mode) . prettier-mode)
       :init (setq prettier-pre-warm 'none)))
 
   ;; Live browser JavaScript, CSS, and HTML interaction
@@ -2828,7 +2843,10 @@ Ruby and Ruby on Rails development.
       (diminish 'skewer-html-mode)))
 
   (use-package typescript-mode
-    :mode ("\\.ts[x]\\'" . typescript-mode))
+    :mode ( "\\.ts[x]\\'" . typescript-mode))
+  ;;   :config
+  ;;   (add-node-modules-path))
+
 
   ;; Run Mocha or Jasmine tests
   (use-package mocha
@@ -2861,7 +2879,9 @@ Ruby and Ruby on Rails development.
       :diminish
       :hook (restclient-mode . restclient-test-mode)))
 
-  (provide 'init-web)
+    (provide 'init-web)
 #+end_src
+
+
 
 ** Next
