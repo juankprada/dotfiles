@@ -232,7 +232,7 @@ this config works are degined within these modules and here is the place where t
   (require 'init-prog)
   (require 'init-python)
   (require 'init-ruby)
-  ;; (require 'init-web)
+  (require 'init-web)
   ;; (require 'init-elixir)
   ;; (require 'init-elisp)
   ;; (require 'init-c)
@@ -2429,7 +2429,15 @@ instead of forcing the remap like I'm doing here
   (provide 'init-highlight)
 #+end_src
 
+
+** Programming and Coding settings
+
+I thought about making a separate section for Programming related
+settings as programmin is the main goal of using Emacs.
+
+
 *** =init-LSP.el= LSP Generalities
+
 
 There are two options to handle LSP integration within Emacs.
 =lsp-mode= and =eglot=. The later is part of emacs (at least in the latest versions)
@@ -2588,44 +2596,44 @@ done for each programming language I plan to use are stored in their own config 
 
 
 
-  We define an assortment of programming modes that are usually in-use
-  along with major programming modes.
-  #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-prog.el"
+We define an assortment of programming modes that are usually in-use
+along with major programming modes.
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-prog.el"
 
-    ;; Misc. programming modes
-    (use-package csv-mode)
-    (unless emacs/>=29p
-      (use-package csharp-mode))
-    (use-package cask-mode)
-    (use-package cmake-mode)
-    (use-package dart-mode) ; Welcome Flutter!
-    (use-package julia-mode)
-    (use-package lua-mode)
-    (use-package mermaid-mode)
-    (use-package powershell)
-    (use-package scala-mode)
-    (use-package swift-mode)
-    (use-package v-mode)
-    (use-package vimrc-mode)
-    (use-package yaml-mode)
+  ;; Misc. programming modes
+  (use-package csv-mode)
+  (unless emacs/>=29p
+    (use-package csharp-mode))
+  (use-package cask-mode)
+  (use-package cmake-mode)
+  (use-package dart-mode) ; Welcome Flutter!
+  (use-package julia-mode)
+  (use-package lua-mode)
+  (use-package mermaid-mode)
+  (use-package powershell)
+  (use-package scala-mode)
+  (use-package swift-mode)
+  (use-package v-mode)
+  (use-package vimrc-mode)
+  (use-package yaml-mode)
 
-    ;; checkout https://github.com/protocolbuffers/protobuf
-    (use-package protobuf-mode
-      :hook (protobuf-mode . (lambda ()
-                               (setq imenu-generic-expression
-                                     '((nil "^[[:space:]]*\\(message\\|service\\|enum\\)[[:space:]]+\\([[:alnum:]]+\\)" 2))))))
+  ;; checkout https://github.com/protocolbuffers/protobuf
+  (use-package protobuf-mode
+    :hook (protobuf-mode . (lambda ()
+                             (setq imenu-generic-expression
+                                   '((nil "^[[:space:]]*\\(message\\|service\\|enum\\)[[:space:]]+\\([[:alnum:]]+\\)" 2))))))
 
-    (use-package nxml-mode
-      :ensure nil
-      :mode (("\\.xaml$" . xml-mode)))
+  (use-package nxml-mode
+    :ensure nil
+    :mode (("\\.xaml$" . xml-mode)))
 
-    ;; Fish shell
-    (use-package fish-mode
-      :hook (fish-mode . (lambda ()
-                           (add-hook 'before-save-hook
-                                     #'fish_indent-before-save))))
+  ;; Fish shell
+  (use-package fish-mode
+    :hook (fish-mode . (lambda ()
+                         (add-hook 'before-save-hook
+                                   #'fish_indent-before-save))))
 
-    (provide 'init-prog)  
+  (provide 'init-prog)  
 #+end_src
 
 *** =init-python.el= Python specific settings
@@ -2663,7 +2671,7 @@ making it sane.
       (exec-path-from-shell-copy-env "PYTHONPATH")))
 
 
-    ;; ;; Required to easily switch virtual envs
+  ;; ;; Required to easily switch virtual envs
   ;; via the menu bar or with `pyvenv-workon`
   ;; Setting the `WORKON_HOME` environment variable points
   ;; at where the envs are located. I use miniconda.
@@ -2702,7 +2710,7 @@ making it sane.
     (numpydoc-insert-examples-block nil)
     (numpydoc-template-long nil)
     :bind (:map python-mode-map
-		("C-c C-n" . numpydoc-generate)))
+                ("C-c C-n" . numpydoc-generate)))
 
   (provide 'init-python)
 #+end_src
@@ -2759,5 +2767,101 @@ Ruby and Ruby on Rails development.
   (provide 'init-ruby)
 #+end_src
 
+
+*** =init-web.el= Web, Javascript and Typescript settings
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ruby.el"
+  ;; init-web.el --- Initialize web configurations.	-*- lexical-binding: t -*-
+
+  ;; CSS
+  (use-package css-mode
+    :init (setq css-indent-offset 2))
+
+  ;; SCSS
+  (use-package scss-mode
+    :init (setq scss-compile-at-save nil))
+
+  ;; LESS
+  (unless (fboundp 'less-css-mode)
+    (use-package less-css-mode))
+
+  ;; JSON
+  (unless (fboundp 'js-json-mode)
+    (use-package json-mode))
+
+  ;; JavaScript
+  (use-package js
+    :init (setq js-indent-level 2))
+
+  (use-package js2-mode
+    :mode (("\\.js\\'" . js2-mode)
+           ("\\.jsx\\'" . js2-jsx-mode))
+    :interpreter (("node" . js2-mode)
+                  ("node" . js2-jsx-mode))
+    :hook ((js2-mode . js2-imenu-extras-mode)
+           (js2-mode . js2-highlight-unused-variables-mode))
+    :config
+    ;; Use default keybindings for lsp
+    (when centaur-lsp
+      (unbind-key "M-." js2-mode-map)))
+
+
+  ;; Format HTML, CSS and JavaScript/JSON
+  ;; Install: npm -g install prettier
+  (when (executable-find "prettier")
+    (use-package prettier
+      :diminish
+      :hook ((js-mode js2-mode css-mode sgml-mode web-mode) . prettier-mode)
+      :init (setq prettier-pre-warm 'none)))
+
+  ;; Live browser JavaScript, CSS, and HTML interaction
+  (use-package skewer-mode
+    :diminish
+    :functions diminish
+    :hook (((js-mode js2-mode)   . skewer-mode)
+           (css-mode             . skewer-css-mode)
+           ((html-mode web-mode) . skewer-html-mode))
+    :init
+    ;; diminish
+    (with-eval-after-load 'skewer-css
+      (diminish 'skewer-css-mode))
+    (with-eval-after-load 'skewer-html
+      (diminish 'skewer-html-mode)))
+
+  (use-package typescript-mode
+    :mode ("\\.ts[x]\\'" . typescript-mode))
+
+  ;; Run Mocha or Jasmine tests
+  (use-package mocha
+    :config (use-package mocha-snippets))
+
+  ;; Major mode for CoffeeScript code
+  (use-package coffee-mode
+    :config (setq coffee-tab-width 2))
+
+  ;; Major mode for editing web templates
+  (use-package web-mode
+    :mode "\\.\\(phtml\\|php\\|[gj]sp\\|as[cp]x\\|erb\\|djhtml\\|html?\\|hbs\\|ejs\\|jade\\|swig\\|tm?pl\\|vue\\)$"
+    :config
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2))
+
+  ;; Adds node_modules/.bin directory to `exec_path'
+  (use-package add-node-modules-path
+    :hook ((web-mode js-mode js2-mode) . add-node-modules-path))
+
+  (use-package haml-mode)
+  (use-package php-mode)
+
+  ;; REST
+  (use-package restclient
+    :mode ("\\.http\\'" . restclient-mode)
+    :config
+    (use-package restclient-test
+      :diminish
+      :hook (restclient-mode . restclient-test-mode)))
+
+  (provide 'init-web)
+#+end_src
 
 ** Next
