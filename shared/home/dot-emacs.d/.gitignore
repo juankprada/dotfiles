@@ -1,0 +1,9 @@
+# ignore everything
+*
+
+# Except for these...
+!.gitignore
+!config.org
+!logos/**
+!juank-emacs-modules/**
+!juank-lisp/**
