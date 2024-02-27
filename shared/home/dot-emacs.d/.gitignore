@@ -7,3 +7,6 @@
 !logos/**
 !juank-emacs-modules/**
 !juank-lisp/**
+
+# ...even if they are in subdirectories
+!*/
