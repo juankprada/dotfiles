@@ -1,6 +1,0 @@
-(undo-tree-save-format-version . 1)
-"2f97eb3f8e0f0e2700095d19d9afa41ba1bd67da"
-[nil nil nil nil (26072 18152 205487 0) 0 nil]
-([nil nil ((2793 . 2794) (t 26072 11716 410802 623000)) nil (26072 18152 205486 0) 0 nil])
-([nil current ((#("#alias emacs=\"emacsclient -c -a 'emacs'\"" 0 13 (fontified t) 13 40 (face font-lock-string-face fontified t)) . 2793) (undo-tree-id0 . -11) (undo-tree-id1 . -11) (undo-tree-id2 . -1) (undo-tree-id3 . -1) (undo-tree-id4 . -1) (undo-tree-id5 . -1) (undo-tree-id6 . -1) (undo-tree-id7 . -1) (undo-tree-id8 . -1) (undo-tree-id9 . -1) (undo-tree-id10 . -1) (undo-tree-id11 . 34) (undo-tree-id12 . -1) (undo-tree-id13 . -40)) nil (26072 18152 205483 0) 0 nil])
-nil

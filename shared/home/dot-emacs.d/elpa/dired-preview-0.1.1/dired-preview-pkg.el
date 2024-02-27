@@ -1,2 +1,0 @@
-;; Generated package description from dired-preview.el  -*- no-byte-compile: t -*-
-(define-package "dired-preview" "0.1.1" "Automatically preview file at point in Dired" '((emacs "27.1")) :commit "63f6d9a2daff031554bf3321d00a8a361e98bc01" :authors '(("Protesilaos Stavrou" . "info@protesilaos.com")) :maintainer '("Protesilaos Stavrou" . "info@protesilaos.com") :keywords '("files" "convenience") :url "https://git.sr.ht/~protesilaos/dired-preview")

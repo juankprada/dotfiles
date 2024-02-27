@@ -126,8 +126,9 @@ alias connect_to_vps="ssh juankprada@153.92.1.75"
 
 
 alias vim="nvim"
-alias em="emacs -nw"
-alias emacs="emacsclient -c -a 'emacs'" 
+alias emacsbin="/Applications/Emacs.app/Contents/MacOS/Emacs"
+alias emacs="emacsclient -n -r -a 'emacsbin'"
+alias em="emacsclient -nw"
 
 alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
 
