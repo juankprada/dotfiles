@@ -21,12 +21,12 @@ pushd -q shared
 stow -R home --target=$HOME --dotfiles -v --ignore='.DS_Store'
 popd -q
 
-echo ""
-echo ">>> stow Auto Start specific files"
-mkdir -p $HOME/Library/LaunchAgents
-pushd -q macos
-stow -R LaunchAgents --target=$HOME/Library/LaunchAgents --ignore='.DS_Store'
-popd -q
+#echo ""
+#echo ">>> stow Auto Start specific files"
+#mkdir -p $HOME/Library/LaunchAgents
+#pushd -q macos
+#stow -R LaunchAgents --target=$HOME/Library/LaunchAgents --ignore='.DS_Store'
+#popd -q
 
 
 MACOS_CONFIG_DIR="${WORKING_DIR}/macos/dot-config"
