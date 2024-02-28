@@ -5,9 +5,8 @@
 !.gitignore
 !config.org
 !logos/**
-!juank-emacs-modules/**
-!juank-lisp/**
+!juank-emacs-modules/.keep
+!juank-lisp/.keep
 
 # ...even if they are in subdirectories
 !*/
-/shared/home/dot-emacs.d/juank-emacs-modules/**
