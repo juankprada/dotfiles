@@ -10,4 +10,4 @@
 
 # ...even if they are in subdirectories
 !*/
-/shared/home/dot-emacs.d/juank-emacs-modules/init-dict.el
+/shared/home/dot-emacs.d/juank-emacs-modules/**
