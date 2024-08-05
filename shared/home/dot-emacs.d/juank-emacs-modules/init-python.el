@@ -4,7 +4,7 @@
   :ensure nil
   :hook (inferior-python-mode . (lambda ()
                                   (process-query-on-exit-flag
-                                   (get-process "Python"))))
+                                   (get-process "python"))))
   :init
   ;; Disable readline based native completion
   (setq python-shell-completion-native-enable nil)
@@ -27,7 +27,7 @@
     (exec-path-from-shell-copy-env "PYTHONPATH")))
 
 
-  ;; ;; Required to easily switch virtual envs
+;; ;; Required to easily switch virtual envs
 ;; via the menu bar or with `pyvenv-workon`
 ;; Setting the `WORKON_HOME` environment variable points
 ;; at where the envs are located. I use miniconda.
@@ -66,6 +66,6 @@
   (numpydoc-insert-examples-block nil)
   (numpydoc-template-long nil)
   :bind (:map python-mode-map
-	      ("C-c C-n" . numpydoc-generate)))
+              ("C-c C-n" . numpydoc-generate)))
 
 (provide 'init-python)

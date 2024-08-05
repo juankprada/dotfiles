@@ -234,6 +234,13 @@
                    goto-last-change))
       (advice-add cmd :after #'my-recenter-and-pulse))))
 
+
+;; highlight during query
+(setq query-replace-highlight t)
+
+;; highlight incremental search
+(setq search-highlight t)
+
 ;; Download treesitter language 
 (use-package treesit-auto
   :hook (after-init . global-treesit-auto-mode)

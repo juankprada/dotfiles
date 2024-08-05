@@ -1363,42 +1363,6 @@ or a custom defined rectangular region. iedit achieves this.
            ("M-Z" . avy-zap-up-to-char-dwim)))
 #+end_src 
 
-**** Code always indented
-
-Let's try this out first. Be default Emacs kind of indents code automatically
-but it's worth to try something that will make it consistant.
-
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-edit.el"
-  ;; Minor mode to aggressively keep your code always indented
-  (use-package aggressive-indent
-    :diminish
-    :hook ((after-init . global-aggressive-indent-mode)
-           ;; NOTE: Disable in large files due to the performance issues
-           ;; https://github.com/Malabarba/aggressive-indent-mode/issues/73
-                                          ;(find-file . (lambda ()
-                                          ;               (when (too-long-file-p)
-                                          ;                 (aggressive-indent-mode -1))))
-           )
-    :config
-    ;; Disable in some modes
-    (dolist (mode '(gitconfig-mode
-                    asm-mode web-mode html-mode css-mode
-                    go-mode scala-mode
-                    shell-mode term-mode vterm-mode
-                    prolog-inferior-mode))
-      (add-to-list 'aggressive-indent-excluded-modes mode))
-    ;; Disable in some commands
-    (add-to-list 'aggressive-indent-protected-commands #'delete-trailing-whitespace t)
-
-    ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
-    (add-to-list 'aggressive-indent-dont-indent-if
-                 '(and (derived-mode-p 'c-mode 'c++-mode 'csharp-mode
-                                       'java-mode 'go-mode 'swift-mode)
-                       (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                                           (thing-at-point 'line))))))
-
-#+end_src 
-
 **** Ediff A decent Diff tool
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-edit.el"
@@ -1935,10 +1899,10 @@ this package seems to be simpler and easier to maintain than =company.el=
   (use-package corfu
     :custom
     (corfu-auto t)
-    (corfu-auto-prefix 2)
+    (corfu-auto-prefix 3)
     (corfu-preview-current nil)
-    (corfu-auto-delay 0.2)
-    (corfu-popupinfo-delay '(0.4 . 0.2))
+    (corfu-auto-delay 1)
+    (corfu-popupinfo-delay '(2.0 . 1.0))
     :custom-face
     (corfu-border ((t (:inherit region :background unspecified))))
     :bind ("M-/" . completion-at-point)
@@ -1964,7 +1928,6 @@ this package seems to be simpler and easier to maintain than =company.el=
     (add-to-list 'completion-at-point-functions #'eglot-completion-at-point)
     (add-to-list 'completion-at-point-functions #'cape-keyword)
     (add-to-list 'completion-at-point-functions #'cape-abbrev)
-
     (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 #+end_src
 
@@ -2499,7 +2462,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
   ;; highlight during query
   (setq query-replace-highlight t)
 
-                                          ; highlight incremental search
+  ;; highlight incremental search
   (setq search-highlight t)
 #+end_src
 
@@ -2675,8 +2638,8 @@ instead of forcing the remap like I'm doing here
            ("C-x t b"   . treemacs-bookmark)
            ("C-x t C-t" . treemacs-find-file)
            ("C-x t M-t" . treemacs-find-tag)
-           :map treemacs-mode-map
-           ([mouse-1]   . treemacs-single-click-expand-action))
+           :map treemacs-mode-map)
+           ;;([mouse-1]   . treemacs-single-click-expand-action))
     :config
     (setq treemacs-collapse-dirs           (if treemacs-python-executable 3 0)
           treemacs-missing-project-action  'remove
@@ -3325,10 +3288,10 @@ it is possible to add the following snippet to the =:config= section of the eglo
     (setq eglot-autoshutdown t
           eglot-send-changes-idle-time 0.5)
     :config
-
     (use-package consult-eglot
       :bind (:map eglot-mode-map
-                  ("C-M-." . consult-eglot-symbols))))
+                  ("C-M-." . consult-eglot-symbols)))
+    )
 
 
   (provide 'init-lsp)
@@ -3513,6 +3476,28 @@ along with major programming modes.
   (provide 'init-prog)  
 #+end_src
 
+*** =init-java.el= Java specific settings
+
+I still use and prefere JAVA for most code intensive and performant code when Ruby is not enough. This is
+my atempt at making Emacs a decent Java Editor for my needs.
+
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-java.el"
+  ;; init-java.el --- Initialize Java configurations.	-*- lexical-binding: t -*-
+
+  (use-package eglot-java
+    :hook (java-mode-hook . eglot-java-mode)
+    :bind (
+           ("C-c l n" . eglot-java-file-new)
+           ("C-c l x" . eglot-java-run-main)
+           ("C-c l t" . eglot-java-run-test)
+           ("C-c l N" . eglot-java-project-new)
+           ("C-c l T" . eglot-java-project-build-task)
+           ("C-c l R" . eglot-java-project-build-refresh)
+           )
+
+    )
+#+end_src
+
 *** =init-python.el= Python specific settings
 
 Python is very used lately even if I hate the tooling. Here is my attempt at
@@ -3525,7 +3510,7 @@ making it sane.
     :ensure nil
     :hook (inferior-python-mode . (lambda ()
                                     (process-query-on-exit-flag
-                                     (get-process "Python"))))
+                                     (get-process "python"))))
     :init
     ;; Disable readline based native completion
     (setq python-shell-completion-native-enable nil)

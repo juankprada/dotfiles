@@ -11,10 +11,10 @@
   (setq eglot-autoshutdown t
         eglot-send-changes-idle-time 0.5)
   :config
-
   (use-package consult-eglot
     :bind (:map eglot-mode-map
-                ("C-M-." . consult-eglot-symbols))))
+                ("C-M-." . consult-eglot-symbols)))
+  )
 
 
 (provide 'init-lsp)

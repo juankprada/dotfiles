@@ -33,6 +33,12 @@
     :custom (exec-path-from-shell-arguments '("-l"))
     :init (exec-path-from-shell-initialize)))
 
+(use-package envrc
+  :init
+  (envrc-global-mode)
+  (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)
+  )
+
 (with-no-warnings
   ;; Key Modifiers
   (cond
@@ -96,5 +102,68 @@
 (setq duplicate-line-final-position -1 ; both are Emacs 29
       duplicate-region-final-position -1)
 (setq scroll-error-top-bottom t)
+
+                                        ; Don't autosave.
+(setq auto-save-default nil)
+;; make copy and paste use the same clipboard as emacs.
+(setq select-enable-primary t)
+(setq select-enable-clipboard t)
+
+;; Ensure I can use paste from the Mac OS X clipboard ALWAYS (or close)
+(when (memq window-system '(mac ns))
+  (setq interprogram-paste-function (lambda () (shell-command-to-string "pbpaste"))))
+
+;; sets Sunday to be the first day of the week in calendar
+(setq calendar-week-start-day 0 )
+
+(recentf-mode 1)
+(setq-default recent-save-file "~/.emacs.d/recentf")
+;; save emacs backups in a different directory
+;; (some build-systems build automatically all files with a prefix, and .#something.someending breakes that)
+;; I'm looking at you Yarn!
+(setq backup-directory-alist '(("." . "~/.emacsbackups")))
+
+;; Don't create lockfiles. Many build systems that continously monitor the file system get confused by them (e.g, Quarkus). This sometimes causes the build systems to not work anymore before restarting
+(setq create-lockfiles nil)
+
+;; don't use version numbers for backup files
+(setq version-control 'never)
+
+;; open unidentified files in text mode
+(setq default-major-mode 'text-mode)
+
+;; truncate, truncate truncate!
+(set-default 'truncate-lines t)
+
+;; make the region visible (but only up to the next operation on it)
+(setq transient-mark-mode t)		
+
+;; don't add new lines to the end of a file when using down-arrow key
+(setq next-line-add-newlines nil)
+
+;; use y or n instead of yes or no
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Use visible bell instead of an annoying beep
+(setq visible-bell t)
+
+;; Lets make buffers having unique names and  show path if names are repeated
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
+;; Don’t compact font caches during GC
+(setq inhibit-compacting-font-caches t)  
+
+;; Deleting files go to OS's trash folder
+(setq delete-by-moving-to-trash t)       
+
+(setq adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*")
+(setq adaptive-fill-first-line-regexp "^* *$")
+(setq sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*")
+(setq sentence-end-double-space nil)
+(setq word-wrap-by-category t)
+
+;; Move Custom-Set-Variables to Different File
+(setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
+(load custom-file 'noerror)
 
 (provide 'init-base)

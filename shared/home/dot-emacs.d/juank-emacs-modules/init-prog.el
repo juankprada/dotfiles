@@ -18,8 +18,8 @@
       :hook ((eglot-managed-mode . eldoc-box-hover-at-point-mode))
       :config
       ;; Prettify `eldoc-box' frame
-      (setf (alist-get 'left-fringe eldoc-box-frame-parameters) 8
-            (alist-get 'right-fringe eldoc-box-frame-parameters) 8))))
+      (setf (alist-get 'left-fringe eldoc-box-frame-parameters) 12
+            (alist-get 'right-fringe eldoc-box-frame-parameters) 12))))
 
 
 
@@ -103,6 +103,16 @@ Install the doc if it's not installed."
     ;; Lookup the symbol at point
     (devdocs-lookup nil (thing-at-point 'symbol t))))
 
+;; Better Compilation
+;; kill compilation process before starting another
+(setq-default compilation-always-kill t)
+;; save all buffers on `compile'
+(setq-default compilation-ask-about-save nil)
+;; Get compilation buffer to autoscroll. Always!!!
+(setq-default compilation-scroll-output t)
+
+(setq mode-compile-always-save-buffer-p nil)
+
 ;; Misc. programming modes
 (use-package csv-mode)
 (unless emacs/>=29p
@@ -135,5 +145,18 @@ Install the doc if it's not installed."
   :hook (fish-mode . (lambda ()
                        (add-hook 'before-save-hook
                                  #'fish_indent-before-save))))
+
+
+(use-package docker
+  :defines docker-image-run-arguments
+  :bind ("C-c D" . docker)
+  :init (setq docker-image-run-arguments '("-i" "-t" "--rm")
+              docker-container-shell-file-name "/bin/bash"))
+
+;;`tramp-container' is builtin since 29
+(unless emacs/>=29p
+  (use-package docker-tramp))
+
+(use-package dockerfile-mode)
 
 (provide 'init-prog)
