@@ -119,6 +119,26 @@ tool-bars, etc are disabled as early as possible.
 This is where all individual modules are loaded and custom macros and definitions are set.
 
 
+*** =init.el= Set 'exec-path'
+#+begin_src emacs-lisp :tangle "init.el"
+
+  (defun set-exec-path-from-shell-PATH ()
+    "Set up Emacs' `exec-path' and PATH environment variable to match
+  that used by the user's shell.
+
+  This is particularly useful under Mac OS X and macOS, where GUI
+  apps are not started from a shell."
+    (interactive)
+    (let ((path-from-shell (replace-regexp-in-string
+  			  "[ \t\n]*$" "" (shell-command-to-string
+  					  "$SHELL --login -c 'echo $PATH'"
+  					  ))))
+      (setenv "PATH" path-from-shell)
+      (setq exec-path (split-string path-from-shell path-separator))))
+
+  (set-exec-path-from-shell-PATH)
+#+end_src
+
 *** =init.el= Disable native-compilation verbosity
 I usually compile emacs with =--with-native-compilation=yes= option which enables native compilation
 of Emacs Lisp. But by default, this compilation proces is very verbose and clutters the Emacs compile buffer/messages.
@@ -229,7 +249,6 @@ this config works are degined within these modules and here is the place where t
 
 
 #+end_src
-
 
 
 ** Juank Emacs Modules - Custom settings defined in =juank-emacs-modules/=.
@@ -1014,21 +1033,21 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
           ;; I'm naming the presets as "actions"; the mindset that I'm using when
           ;; wanting that font.
           '((compact
-             :default-height 140)
+             :default-height 100)
             (default
-             :default-height 150)
+             :default-height 120)
             (comfy
-             :default-height 170)
+             :default-height 140)
             (coding
-             :default-height 150)
+             :default-height 120)
             (presenting
              :default-weight semilight
-             :default-height 230
+             :default-height 200
              :bold-weight extrabold)
             (reading
              :default-weight semilight
              :default-family "Hack Nerd Font "
-             :default-height 150
+             :default-height 140
              :bold-weight extrabold)
             (t
              ;; Following Prot’s example, keeping these for for didactic purposes.
@@ -3325,7 +3344,8 @@ it is possible to add the following snippet to the =:config= section of the eglo
     (setq eglot-autoshutdown t
           eglot-send-changes-idle-time 0.5)
     :config
-
+    (add-to-list 'eglot-server-programs
+               '((ruby-mode ruby-ts-mode) "ruby-lsp"))
     (use-package consult-eglot
       :bind (:map eglot-mode-map
                   ("C-M-." . consult-eglot-symbols))))

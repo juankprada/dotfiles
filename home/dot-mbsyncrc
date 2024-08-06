@@ -1,0 +1,22 @@
+## Zohomail
+IMAPStore zoho-remote
+Host imap.zoho.com
+SSLType IMAPS
+Port 993
+User juankprada@zohomail.com
+Pass Fr3y4L3d4
+
+
+
+MaildirStore zoho-local
+Path ~/.mail/zoho/
+Inbox ~/.mail/zoho/INBOX
+Subfolders verbatim
+
+Channel zoho
+Master :zoho-remote:
+Slave :zoho-local:
+Create Both
+Expunge Both
+Patterns *
+SyncState *

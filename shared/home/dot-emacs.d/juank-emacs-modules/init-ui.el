@@ -76,21 +76,21 @@
         ;; I'm naming the presets as "actions"; the mindset that I'm using when
         ;; wanting that font.
         '((compact
-           :default-height 140)
+           :default-height 100)
           (default
-           :default-height 150)
+           :default-height 120)
           (comfy
-           :default-height 170)
+           :default-height 140)
           (coding
-           :default-height 150)
+           :default-height 120)
           (presenting
            :default-weight semilight
-           :default-height 230
+           :default-height 200
            :bold-weight extrabold)
           (reading
            :default-weight semilight
            :default-family "Hack Nerd Font "
-           :default-height 150
+           :default-height 140
            :bold-weight extrabold)
           (t
            ;; Following Prot’s example, keeping these for for didactic purposes.
@@ -207,7 +207,7 @@
 ;; Mouse & Smooth Scroll
 ;; Scroll one line at a time (less "jumpy" than defaults)
 (when (display-graphic-p)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . hscroll))
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
         mouse-wheel-scroll-amount-horizontal 1
         mouse-wheel-progressive-speed nil))
 (setq scroll-step 1

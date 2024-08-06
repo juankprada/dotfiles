@@ -4,7 +4,7 @@
 ;; Define constants.
 ;;
 
-      ;;; Code:
+  ;;; Code:
 
 
 ;; Delete selection if you insert
@@ -23,6 +23,16 @@
   :ensure nil
   :hook (after-init . electric-pair-mode)
   :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
+
+;; Show number of matches in mode-line while searching
+(use-package anzu
+  :diminish
+  :bind (([remap query-replace] . anzu-query-replace)
+         ([remap query-replace-regexp] . anzu-query-replace-regexp)
+         :map isearch-mode-map
+         ([remap isearch-query-replace] . anzu-isearch-query-replace)
+         ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
+  :hook (after-init . global-anzu-mode))
 
 ;; Edit multiple regions in the same way simultaneously
 (use-package iedit
@@ -113,6 +123,32 @@
       (set-mark node-end)
       (goto-char node-start)))
   (add-to-list 'er/try-expand-list 'treesit-mark-bigger-node))
+
+;; Goto last change
+(use-package goto-chg
+  :bind ("C-," . goto-last-change))
+
+(use-package crux
+  :bind
+  (("C-a" . crux-move-beginning-of-line)
+   ("C-x 4 t" . crux-transpose-windows)
+   ("C-x K" . crux-kill-other-buffers)
+   ("C-k" . crux-smart-kill-line))
+  :config
+  (crux-with-region-or-buffer indent-region)
+  (crux-with-region-or-buffer untabify)
+  (crux-with-region-or-point-to-eol kill-ring-save)
+  (defalias 'rename-file-and-buffer #'crux-rename-file-and-buffer))
+
+(setq kill-ring-max 200)
+
+;; Save clipboard contents into kill-ring before replace them
+(setq save-interprogram-paste-before-kill t)
+
+;; Kill & Mark things easily
+(use-package easy-kill
+  :bind (([remap kill-ring-save] . easy-kill)
+         ([remap mark-sexp] . easy-mark)))
 
 (if emacs/>=28p
     (use-package vundo

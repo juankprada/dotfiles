@@ -11,7 +11,8 @@
   (setq eglot-autoshutdown t
         eglot-send-changes-idle-time 0.5)
   :config
-
+  (add-to-list 'eglot-server-programs
+             '((ruby-mode ruby-ts-mode) "ruby-lsp"))
   (use-package consult-eglot
     :bind (:map eglot-mode-map
                 ("C-M-." . consult-eglot-symbols))))

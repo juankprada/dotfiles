@@ -22,7 +22,9 @@
 
 (setq resize-mini-windows t)
 (setq read-answer-short t) ; also check `use-short-answers' for Emacs28
-(setq echo-keystrokes 0.25)
+
+;; show keystrokes in Progress instantly
+(setq echo-keystrokes 0.1)
 (setq kill-ring-max 60) ; Keep it small
 
 
