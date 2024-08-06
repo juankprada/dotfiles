@@ -57,6 +57,10 @@ if [ -d "$HOME/.config/emacs/bin/" ] ;
   then PATH="$HOME/.config/emacs/bin/:$PATH"
 fi
 
+if [ -d "$HOME/.kiex/bin/" ] ;
+then PATH="$HOME/.kiex/bin/:$PATH"
+fi
+
 ### SETTING OTHER ENVIRONMENT VARIABLES
 if [ -z "$XDG_CONFIG_HOME" ] ; then
     export XDG_CONFIG_HOME="$HOME/.config"
@@ -267,15 +271,19 @@ eval "$(pyenv init -)"
 # Load pyenv automatically
 eval "$(pyenv virtualenv-init -)"
 
-
-# Ruby Environment (rbenv)
-eval "$(rbenv init -)"
-
 eval "$(starship init bash)"
+
+. "$HOME/.cargo/env"
+source ~/.bash_completion/alacritty
+
+# Added by `rbenv init` on Sun Aug  4 12:36:26 AM JST 2024
+eval "$(~/.rbenv/bin/rbenv init - --no-rehash bash)"
+
+# elixir
+[[ -s "$HOME/.kiex/scripts/kiex" ]] && source "$HOME/.kiex/scripts/kiex"
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-. "$HOME/.cargo/env"
-source ~/.bash_completion/alacritty
+

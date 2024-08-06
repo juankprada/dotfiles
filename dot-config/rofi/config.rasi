@@ -1,0 +1,11 @@
+configuration {
+    modi: "window,run,drun";
+    max-history-size: 500;
+    show-icons: true;
+}
+
+@theme "DarkBlue"
+
+listview {
+    lines: 20;    
+}

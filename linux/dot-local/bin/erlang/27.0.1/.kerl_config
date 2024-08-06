@@ -1,0 +1,5 @@
+This is kerl's control file for build configuration.
+Please don't edit it manually!
+CFLAGS: 
+KERL_CONFIGURE_OPTIONS: 
+uname -r: 6.1.0-23-amd64
