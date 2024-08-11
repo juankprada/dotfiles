@@ -161,6 +161,10 @@ alias pscpu='ps aux | sort -nr -k 3'
 ### Custom Shells and environment settings
 ### ========================================
 
+# Fuzy Finder
+source <(fzf --zsh)
+
+
 # Startship for Zsh
 eval "$(starship init zsh)"
 
