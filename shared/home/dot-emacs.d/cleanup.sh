@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+rm -rf .cache
+rm -rf auto-save-list
 rm -rf auto-save-alist
 rm -rf eln-cache
 rm -rf elpa

@@ -22,7 +22,7 @@ his, the *.el* files are generated only after evaluating the following line from
 emacs ( by running  =C-c C-v C-t= )
 
 
-#+begin_src emacs-lisp :tangle no :results none
+#+begin_src emacs-lisp 
   (org-babel-tangle)
 #+end_src
 
@@ -47,14 +47,14 @@ and generating the =config.org= several files are generated for easy maintenance
 
 
 
-** Early Initialization of emacs (=init.el=)
+** Early Initialization of emacs (=early-init.el=)
 
 This is the first file that emacs will load and evaluates when starting up.  Code here
 is intended to set up basic grounds for a fast startup before delegating
 the rest of the configuration to the standard =init.el= file.
 
 
-*** =init.el= The Garbage Collection and startup time improvements
+*** =early-init.el= The Garbage Collection and startup time improvements
 
 Garbage collection seems to be a pretty important part of improving emacs'
 startup time. By increasing the amount of memory before the garbage collector
@@ -66,14 +66,23 @@ Packages should be compiles ahead-of-time when they are installed and site files
 are supposed to be compile when gccemacs is installed.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (setq gc-cons-threshold most-positive-fixnum)
+    ;(setq gc-cons-threshold most-positive-fixnum)
+  (defvar default-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  (setq gc-cons-threshold 80000000)
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              "Restore defalut values after init."
+              (setq file-name-handler-alist default-file-name-handler-alist)
+              (setq gc-cons-threshold 800000)
+              (add-hook 'focus-out-hook 'garbage-collect)))
 
-  (setq native-comp-deferred-compilation nil ;; obsolete since 29.1
-        native-comp-jit-compilation nil)
+    (setq native-comp-deferred-compilation nil ;; obsolete since 29.1
+          native-comp-jit-compilation nil)
 
 #+end_src
 
-*** =init.el= Disabling package initialization
+*** =early-init.el= Disabling package initialization
 
 *NOTE:* This setting here is experimental. The idea is to
 still rely on =package.el= but we will see how disabling it at startup works.
@@ -90,7 +99,7 @@ be lazy-loaded.
   (setq use-package-enable-imenu-support t)
 #+end_src
 
-*** =init.el= Custom GUI settings
+*** =early-init.el= Custom GUI settings
 
 We really dont want UI elements distracting us from the things
 we want to do in emacs (coding). Thus things like scroll-bars,
@@ -201,6 +210,7 @@ this config works are degined within these modules and here is the place where t
   (require 'init-dashboard)
   (require 'init-highlight)
   (require 'init-dired)
+  (require 'init-flymake)
 
   (require 'init-ibuffer)
   (require 'init-treemacs)
@@ -220,13 +230,13 @@ this config works are degined within these modules and here is the place where t
   ;; (require 'init-dap)
 
   (require 'init-prog)
+  (require 'init-clojure)
+  (require 'init-java)
   (require 'init-python)
   (require 'init-ruby)
   (require 'init-web)
 
   ;; (require 'init-elisp)
-
-
 
 #+end_src
 
@@ -398,12 +408,40 @@ I may need to add comments to several sub-sections of this file.
     (error (substitute-command-keys "To exit emacs: \\[kill-emacs]")))
 
 
+  ;; Delete the current file
+  (defun juank-delete-this-file ()
+    "Delete the current file, and kill the buffer."
+    (interactive)
+    (unless (buffer-file-name)
+      (error "No file is currently being edited"))
+    (when (yes-or-no-p (format "Really delete '%s'?"
+                               (file-name-nondirectory buffer-file-name)))
+      (delete-file (buffer-file-name))
+      (kill-this-buffer)))
+
+
+  ;; Rename the current file
+  (if (fboundp 'rename-visited-file)
+      (defalias 'juank-rename-this-file-and-buffer 'rename-visited-file)
+    (defun juank-rename-this-file-and-buffer (new-name)
+      "Renames both current buffer and file it's visiting to NEW-NAME."
+      (interactive "sNew name: ")
+      (let ((name (buffer-name))
+            (filename (buffer-file-name)))
+        (unless filename
+          (error "Buffer '%s' is not visiting a file!" name))
+        (progn
+          (when (file-exists-p filename)
+            (rename-file filename new-name 1))
+          (set-visited-file-name new-name)
+          (rename-buffer new-name)))))
+
 
   ;; function to call a command at a specific directory
   (defun juank-at-directory-do ()
     "reads a directory name (using ido), then runs
-                                      execute-extended-command with default-directory in the given
-                                      directory."
+                                          execute-extended-command with default-directory in the given
+                                          directory."
     (interactive)
     (let ((default-directory
            (read-directory-name "in directory: "
@@ -465,8 +503,8 @@ I may need to add comments to several sub-sections of this file.
   ;; Function used to call the compile command at a specific dir
   (defun juank-project-compile ()
     "reads a directory name then runs
-                                      execute-extended-command with default-directory in the given
-                                      directory."
+                                          execute-extended-command with default-directory in the given
+                                          directory."
     (interactive)
     (let ((default-directory
            (read-directory-name "compile in directory: "
@@ -476,7 +514,7 @@ I may need to add comments to several sub-sections of this file.
   ;; custom grep tool
   (defun juank-my-grep ()
     "grep recursively for something.  defaults to item at cursor
-                                        position and current directory."
+                                            position and current directory."
     (interactive)
     (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
     )
@@ -500,7 +538,7 @@ I may need to add comments to several sub-sections of this file.
   (defun juank-cleanup-buffer ()
     "Perform a bunch of operations on the whitespace content of a buffer."
     (interactive)
-                                          ;(indent-buffer)
+  					;(indent-buffer)
     ;;(untabify-buffer)
     (delete-trailing-whitespace))
 
@@ -577,9 +615,9 @@ I may need to add comments to several sub-sections of this file.
 
   (defun juank-save-and-update-includes ()
     "Update the line numbers of #+INCLUDE:s in current buffer.
-                        Only looks at INCLUDEs that have either :range-begin or :range-end.
-                        This function does nothing if not in `org-mode', so you can safely
-                        add it to `before-save-hook'."
+                            Only looks at INCLUDEs that have either :range-begin or :range-end.
+                            This function does nothing if not in `org-mode', so you can safely
+                            add it to `before-save-hook'."
     (interactive)
     (when (derived-mode-p 'org-mode)
       (save-excursion
@@ -611,7 +649,7 @@ I may need to add comments to several sub-sections of this file.
   ;; WORKAROUND: fix blank screen issue on macOS.
   (defun juank-fix-fullscreen-cocoa ()
     "Address blank screen issue with child-frame in fullscreen.
-      This issue has been addressed in 28."
+          This issue has been addressed in 28."
     (and sys/mac-cocoa-p
          (not emacs/>=28p)
          (bound-and-true-p ns-use-native-fullscreen)
@@ -656,6 +694,7 @@ We start by setting the repositories that we will use.
     (require 'init-funcs)
     (require 'package))
 
+  ;; NOTE: Possible cause of issues
   (setq package-vc-register-as-project nil) ; Emacs 30
 
   (add-hook 'package-menu-mode-hook #'hl-line-mode)
@@ -676,7 +715,7 @@ We start by setting the repositories that we will use.
   ;; NOTE 2023-08-21: I build Emacs from source, so I always get the
   ;; latest version of built-in packages.  However, this is a good
   ;; solution to set to non-nil if I ever switch to a stable release.
-  (setq package-install-upgrade-built-in nil)
+  (setq package-install-upgrade-built-in t)
 
 
 #+end_src
@@ -691,12 +730,15 @@ I still need to investigate more about it and how to better tweak it.
     (setq package-enable-at-startup nil)          ; To prevent initializing twice
     (package-initialize))
 
-
-
   ;; Setup `use-package'
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
+
+  ;; Update GPG keyring for GNU ELPA
+  ;; NOTE: This package broke my latest installation on MACOS Be sure to check this
+  ;; on future releases and remove it if not necessary
+  (package-install 'gnu-elpa-keyring-update)
 
   ;; Set some sensible defaults for use-package
   (setq use-package-always-ensure t
@@ -706,10 +748,6 @@ I still need to investigate more about it and how to better tweak it.
 
   ;; Required by `use-package'
   (use-package diminish :ensure t)
-
-
-  ;; Update GPG keyring for GNU ELPA
-  (use-package gnu-elpa-keyring-update)
 
   ;; Update packages
   (unless (fboundp 'package-upgrade-all)
@@ -987,7 +1025,13 @@ I am currently using Protesilaos Modus Themes. But I may switch eventually
     ;; Add all your customizations prior to loading the themes
     (setq modus-themes-italic-constructs t
           modus-themes-disable-other-themes t
-          modus-themes-bold-constructs nil)
+  	modus-themes-mixed-fonts t
+  	modus-themes-custom-auto-reload t
+  	modus-themes-variable-pitch-ui t
+          modus-themes-bold-constructs nil
+  	modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+  	modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
+  	)
 
     ;; Maybe define some palette overrides, such as by using our presets
     (setq modus-themes-common-palette-overrides
@@ -1083,7 +1127,6 @@ my own customized moodline (if time allows it).
 
   ;; A minor-mode menu for mode-line
   (use-package minions
-
     :hook (doom-modeline-mode . minions-mode))
 #+end_src
 
@@ -1274,7 +1317,6 @@ Finally we finishes the setup of UI.
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
   (provide 'init-ui)
 #+end_src
-
 
 *** =init-edit.el= Edition and writing related configuration
 
@@ -1492,7 +1534,6 @@ finally we close this section with some extra settings
 
   (provide 'init-edit)
 #+end_src 
-
 
 *** =init-completion.el= Completion systems related configuration
 
@@ -1800,6 +1841,7 @@ one of the biggest packages here, if not the one with the most customizations.
     (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help))
 
   (use-package consult-flyspell
+    ;; :hook (prog-mode-hook . flyspell-prog-mode)
     :bind ("M-g s" . consult-flyspell))
 
   (use-package consult-flycheck
@@ -1955,7 +1997,6 @@ Finally we close this section.
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
   (provide 'init-completion)
 #+end_src
-
 
 *** =init-bookmarks.el= Bookmarking mechanism whitin Emacs.
 
@@ -2466,7 +2507,6 @@ with the functions specified in the lower part of the =dashboard= configuration.
   (setq search-highlight t)
 #+end_src
 
-
 **** Treesitter specific settings
 
 Treesitter requires it's own section. It is used to better provide
@@ -2490,7 +2530,6 @@ instead of forcing the remap like I'm doing here
 
   (provide 'init-highlight)
 #+end_src
-
 
 *** =init-dired.el= Dired - The Emacs File Manager
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-dired.el"
@@ -2675,8 +2714,7 @@ instead of forcing the remap like I'm doing here
     (provide 'init-treemacs)
 #+end_src
 
-
-*** ==init-markdown.el== Markdown Mode
+*** =init-markdown.el= Markdown Mode
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-markdown.el"
     ;;; init-markdown.el --- Initialize Markdown configurations.	-*- lexical-binding: t -*-
@@ -3035,6 +3073,34 @@ time trying to learn how to use it.
   (provide 'init-dict)
 #+end_src
 
+*** =init-flymake.el= Flymake for lintin and spell check
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-flymake.el"
+    ;;; init-flymake.el --- Initialize Dict configurations.	-*- lexical-binding: t -*-
+
+  (use-package flymake
+    :ensure t)
+
+  (use-package flymake-flycheck
+    :config
+      ;; Disable flycheck checkers for which we have flymake equivalents
+     (setq-default  flycheck-disabled-checkers (append (default-value 'flycheck-disabled-checkers)
+  						     '(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package sh-shellcheck)))
+     (add-hook 'flymake-mode-hook 'flymake-flycheck-auto)
+     (add-hook 'prog-mode-hook 'flymake-mode)
+     (add-hook 'text-mode-hook 'flymake-mode)
+    
+     :bind (
+  	  ("C-c ! l" . flymake-show-buffer-diagnostics)
+  	  ("C-c ! n" . flymake-goto-next-error)
+  	  ("C-c ! p" . flymake-goto-prev-error)
+  	  ("C-c ! c" . flymake-start)
+  	  )
+     :hook
+     (eldoc-documentation-functions . flymake-eldoc-function)
+     )
+  (provide 'init-flymake)
+#+end_src
+
 *** =init-utils.el= Utilities mostly
 
 
@@ -3193,10 +3259,10 @@ time trying to learn how to use it.
 
 #+end_src
 
-*** TODO =init-vcs.el= Source Code Versioning configuration (MAGIT)
+*** =init-vcs.el= Source Code Versioning configuration (MAGIT)
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-vcs.el"
-        ;;; init-vcs.el --- Initialize VCS configurations.	-*- lexical-binding: t -*-
+  ;;; init-vcs.el --- Initialize VCS configurations.	-*- lexical-binding: t -*-
 
   ;; Git
   ;; See `magit-define-global-key-bindings'
@@ -3268,7 +3334,7 @@ For now I only plan to set eglot and try as much to rely only on it.
 In case we need to customize the LSP program to use for one particular language,
 it is possible to add the following snippet to the =:config= section of the eglot config.
 
-#+begin_src  emacs-lisp :tangle none :result none
+#+begin_src  emacs-lisp 
   (add-to-list 'eglot-server-programs
                '((ruby-mode ruby-ts-mode) "ruby-lsp"))
 #+end_src
@@ -3298,6 +3364,7 @@ it is possible to add the following snippet to the =:config= section of the eglo
 #+end_src
 
 *** =init-prog.el= Programming Generalities
+
 
 Here are the settings related to all programming modes. Specfic customizations
 done for each programming language I plan to use are stored in their own config file.
@@ -3476,6 +3543,32 @@ along with major programming modes.
   (provide 'init-prog)  
 #+end_src
 
+*** =init-clojure.el= Clojure specific settins
+
+
+
+Clojure is a JVM language similar to Lisp which I really want to try. I'm not an expert at it and seems to
+be quite popular among the Functional programming fans so I want to give it a try. The fact that it is also
+a JVM language makes it more interesting to me. This is my attempt at getting something usable for Clojure
+in emacs.
+
+Most of this configuration was taken from Emacs Purcell's configuration: https://github.com/purcell/emacs.d/
+
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-clojure.el"
+  ;; TODO: this requires a lot more investigation.
+  (use-package clojure-ts-mode
+    :ensure t)
+
+  (use-package cljsbuild-mode
+    :ensure t)
+
+  ;; Project automation for clojure
+  (use-package elein
+    :ensure t)
+
+  (provide 'init-clojure)
+#+end_src
+
 *** =init-java.el= Java specific settings
 
 I still use and prefere JAVA for most code intensive and performant code when Ruby is not enough. This is
@@ -3496,6 +3589,8 @@ my atempt at making Emacs a decent Java Editor for my needs.
            )
 
     )
+
+  (provide 'init-java)
 #+end_src
 
 *** =init-python.el= Python specific settings
@@ -3577,15 +3672,45 @@ making it sane.
   (provide 'init-python)
 #+end_src
 
-*** TODO =init-ruby.el= Python specific settings
+*** =init-ruby.el= Python specific settings
 
 Ruby is my language of choice these days for anything web-development related.
 Here are the settings that I consider (or have found to be so far) the best for
 Ruby and Ruby on Rails development.
-
-
+ 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ruby.el"
-  ;; init-python.el --- Initialize ruby configurations.	-*- lexical-binding: t -*-
+  ;; init-ruby.el --- Initialize ruby configurations.	-*- lexical-binding: t -*-
+
+  ;; Basic ruby mode
+  (use-package ruby
+    :ensure nil
+    :config (
+  	   (setq-default ruby-use-encoding-map nil
+  			 ruby-insert-encoding-magic-comment nil)
+  	     )
+    
+    :mode (("\\.rxml\\'" . ruby-mode)
+           ("\\.rjs\\'" . ruby-mode)
+  	 ("\\.irbrc\\'" . ruby-mode)
+  	 ("\\.pryrc\\'" . ruby-mode)
+  	 ("\\.builder\\'" . ruby-mode)
+  	 ("\\.gemspec\\'" . ruby-mode)
+  	 ("Kirkfile\\'" . ruby-mode)
+  	 ("Gemfile\\.lock\\'" . conf-mode))
+    :hook (ruby-mode-hook . subword-mode)
+    :bind (("<f9>" . inf-ruby-console-auto)))
+
+  (use-package ruby-compilation
+    :ensure t
+    :init (defalias 'rake 'ruby-compilation-rake)
+    :bind (
+  	   (:map ruby-mode-map ([S-f5] . ruby-compilation-this-buffer))
+  	   (:map ruby-mode-map ([f5] . ruby-compilation-this-test)))
+    )
+
+  ;; Toggle ruby Hash syntax between => and :
+  (use-package ruby-hash-syntax
+    :ensure t)
 
   ;; Run a Ruby process in a buffer
   (use-package inf-ruby
@@ -3626,8 +3751,18 @@ Ruby and Ruby on Rails development.
     ;; For Ruby package management
     )
 
+  (use-package rubocop
+        :hook (ruby-mode-hook . rubocop-mode)
+        :config
+        (setq rubocop-format-on-save t)
+        (setq rubocop-autocorrect-on-save t))
+
+
   (provide 'init-ruby)
 #+end_src
+
+#+RESULTS:
+: init-ruby
 
 *** =init-web.el= Web, JavaScript and Typescript related settings
 
@@ -3714,7 +3849,7 @@ Ruby and Ruby on Rails development.
 
   (use-package add-node-modules-path
     :custom
-    (add-node-modules-path-command '("pnpm bin" "pnpm bin -w"))) 
+    (add-node-modules-path-command '("pnpm bin" "pnpm bin -w")))
 
   ;; Run Mocha or Jasmine tests
   (use-package mocha
@@ -3749,10 +3884,5 @@ Ruby and Ruby on Rails development.
 
   (provide 'init-web)
 #+end_src
-
-
-
-
-
 
 ** Next
