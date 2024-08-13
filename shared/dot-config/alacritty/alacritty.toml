@@ -21,45 +21,45 @@ style = "Regular"
 # Doom One Theme
 # ========================================    
 # Default colors
-[colors.primary]
-background = '#282c34'
-foreground = '#bbc2cf'
+#[colors.primary]
+#background = '#282c34'
+#foreground = '#bbc2cf'
 
 # Normal colors
-[colors.normal]
-black   = '#282c34'
-red     = '#ff6c6b'
-green   = '#98be65'
-yellow  = '#ecbe7b'
-blue    = '#51afef'
-magenta = '#c678dd'
-cyan    = '#46d9ff'
-white   = '#bbc2cf'
+# [colors.normal]
+# black   = '#282c34'
+# red     = '#ff6c6b'
+# green   = '#98be65'
+# yellow  = '#ecbe7b'
+# blue    = '#51afef'
+# magenta = '#c678dd'
+# cyan    = '#46d9ff'
+# white   = '#bbc2cf'
 
 # Gruvbox Theme
 # ========================================    
-# # Default colors
-# [colors.primary]
-# background = '#282828'
-# foreground = '#d4be98'
+# Default colors
+[colors.primary]
+background = '#282828'
+foreground = '#d4be98'
 
-# # Normal colors
-# [colors.normal]
-# black   = '#3c3836'
-# red     = '#ea6962'
-# green   = '#a9b665'
-# yellow  = '#d8a657'
-# blue    = '#7daea3'
-# magenta = '#d3869b'
-# cyan    = '#89b482'
-# white   = '#d4be98'
+# Normal colors
+[colors.normal]
+black   = '#3c3836'
+red     = '#ea6962'
+green   = '#a9b665'
+yellow  = '#d8a657'
+blue    = '#7daea3'
+magenta = '#d3869b'
+cyan    = '#89b482'
+white   = '#d4be98'
 
-# [colors.bright]
-# black   = '#3c3836'
-# red     = '#ea6962'
-# green   = '#a9b665'
-# yellow  = '#d8a657'
-# blue    = '#7daea3'
-# magenta = '#d3869b'
-# cyan    = '#89b482'
-# white   = '#d4be98'
+[colors.bright]
+black   = '#3c3836'
+red     = '#ea6962'
+green   = '#a9b665'
+yellow  = '#d8a657'
+blue    = '#7daea3'
+magenta = '#d3869b'
+cyan    = '#89b482'
+white   = '#d4be98'
