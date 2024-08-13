@@ -1,0 +1,12 @@
+# ignore everything
+*
+
+# Except for these...
+!.gitignore
+!config.org
+!logos/**
+!juank-emacs-modules/.keep
+!juank-lisp/.keep
+!early-init.el
+# ...even if they are in subdirectories
+!*/
