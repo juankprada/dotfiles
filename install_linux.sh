@@ -44,14 +44,14 @@ cd ..
 echo ""
 echo ">>> stow .local/bin"
 cd $WORKING_DIR/linux
-stow -R dot-local/ --target=$HOME/.local --dotfiles
+stow -R dot-local/ --target=$HOME/.local --dotfiles --ignore='.DS_Store'
 chmod +x ~/.local/bin/*
 cd ..
 
 echo ""
 echo ">>> stow .config"
 cd $WORKING_DIR/linux
-stow -R dot-config --target=$HOME/.config  --dotfiles
+stow -R dot-config --target=$HOME/.config  --dotfiles --ignore='.DS_Store'
 cd ..
 
 echo ""
