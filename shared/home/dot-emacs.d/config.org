@@ -1090,12 +1090,12 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :bold-weight extrabold)
             (reading
              :default-weight semilight
-             :default-family "Hack Nerd Font "
+             :default-family "CaskaydiaMono Nerd Font"
              :default-height 140
              :bold-weight extrabold)
             (t
              ;; Following Prot’s example, keeping these for for didactic purposes.
-             :default-family "Hack Nerd Font Mono"
+             :default-family "CaskaydiaMono Nerd Font"
              :default-weight regular
              :default-height 170
              :fixed-pitch-family nil ; falls back to :default-family
@@ -1104,7 +1104,7 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :fixed-pitch-serif-family nil ; falls back to :default-family
              :fixed-pitch-serif-weight nil ; falls back to :default-weight
              :fixed-pitch-serif-height 1.0
-             :variable-pitch-family "HAck Nerd Font Propo"
+             :variable-pitch-family "CaskaydiaMono Nerd Font Propo"
              :variable-pitch-weight nil
              :variable-pitch-height 1.0
              :bold-family nil ; use whatever the underlying face has
