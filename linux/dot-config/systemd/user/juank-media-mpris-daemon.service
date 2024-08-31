@@ -1,9 +1,0 @@
-[Unit]
-Description=juank-media mpris-daemon
-
-[Service]
-ExecStart=%h/bin/juank-media mpris-daemon
-Restart=always
-
-[Install]
-WantedBy=default.target
