@@ -167,17 +167,6 @@ commitDotFiles() {
 
 ### ALIASES ###
 
-# Ubuntu and Debian have problems! Stick to Fedora for a happier life
-if lsb_release -a | grep -q "Debian\|Ubuntu"; then
-    alias bat='batcat'
-    alias eza='exa'
-    ### "bat" as manpager
-    export MANPAGER="sh -c 'col -bx | batcat -l man -p'"
-else
-    ### "bat" as manpager
-    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-fi
-
 alias work="cd ~/Documents/work"
 alias personal="cd ~/Documents/Projects/"
 
@@ -258,6 +247,31 @@ alias gcad='git commit -a --amend'
 
 alias decomress='ex'
 
+
+# Ubuntu and Debian have problems! Stick to Fedora for a happier life
+if lsb_release -a | grep -q "Debian\|Ubuntu"; then
+    alias bat='batcat'
+    alias eza='exa'
+    ### "bat" as manpager
+    export MANPAGER="sh -c 'col -bx | batcat -l man -p'"
+
+    # Fuzy Finder
+    if command -v fzf &> /dev/null; then
+	source /usr/share/bash-completion/completions/fzf
+	source /usr/share/doc/fzf/examples/key-bindings.bash
+    fi
+elif lsb_release -a | grep -q "Fedora"; then
+    ### "bat" as manpager
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+    # Fuzy Finder
+    if command -v fzf &> /dev/null; then
+	source /usr/share/fzf/shell/key-bindings.bash
+    fi
+else 
+    ### "bat" as manpager
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
 # Uncomment the following line if you don't like systemctl's auto-paging feature:
 # export SYSTEMD_PAGER=bat
 
@@ -279,11 +293,7 @@ fi
 
 ### Initializations
 
-# Fuzy Finder
-if command -v fzf &> /dev/null; then
-  source /usr/share/bash-completion/completions/fzf
-  source /usr/share/doc/fzf/examples/key-bindings.bash
-fi
+
 
 # Starship Prompt
 eval "$(starship init bash)"
