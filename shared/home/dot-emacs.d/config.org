@@ -367,11 +367,12 @@ I may need to add comments to several sub-sections of this file.
              emacs-basic-display
              (not (display-graphic-p)))))
 
+
+
   (defun juank-dashboard-logo ()
     "Returns the path to a random logo specifid in the `~/.emacs.d/logos` directory"
-    (if (display-graphic-p)
-        (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")
-      "banner.txt"))
+    (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")
+    )
 
   (defun juank-align-non-space (BEG END)
     "Align non-space columns in region BEG END."
@@ -2143,7 +2144,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
 
   (eval-when-compile
     (require 'init-funcs))
-
+  
   (use-package dashboard
     :diminish dashboard-mode
     :custom-face
@@ -2157,8 +2158,9 @@ with the functions specified in the lower part of the =dashboard= configuration.
            ("S" . find-custom-file)
            ("U" . update-config-and-packages)
            ("q" . quit-dashboard))
-
-    :hook (dashboard-mode . (lambda ()
+    
+    :hook
+    (dashboard-mode . (lambda ()
                               ;; No title
                               (setq-local frame-title-format nil)
                               ;; Enable `page-break-lines-mode'
@@ -2169,8 +2171,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
 
     :init
     (setq dashboard-banner-logo-title "Welcome Master. What are we working on today?"
-
-          dashboard-startup-banner (juank-dashboard-logo)
+  	dashboard-startup-banner (juank-dashboard-logo)
           ;;dashboard-page-separator "\n\f\n"
           dashboard-projects-backend 'project-el
           dashboard-path-max-length 60
@@ -2210,6 +2211,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
     (dashboard-setup-startup-hook)
 
     :config
+    
     (defun my-dashboard-insert-copyright ()
       "Insert copyright in the footer."
       (when dashboard-set-footer

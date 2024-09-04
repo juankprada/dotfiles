@@ -17,7 +17,7 @@ source /usr/share/bash-completion/bash_completion
 export TERM="xterm-256color"                      # getting proper colors
 export HISTCONTROL=ignoredups:erasedups           # no duplicate entries
 export ALTERNATE_EDITOR=""                        # setting for emacsclient
-export EDITOR="emacsclient -t -a ''"              # $EDITOR use Emacs in terminal
+export EDITOR="emacsclient -t -a 'emacs'"              # $EDITOR use Emacs in terminal
 export SUDO_EDITOR="$EDITOR"
 export VISUAL="emacsclient -c -a emacs"           # $VISUAL use Emacs in GUI mode
 
@@ -174,7 +174,7 @@ alias connect_to_vps="ssh juankprada@153.92.1.75"
 
 # vim and emacs
 alias vim="nvim"
-alias em="/usr/bin/emacs -nw"
+alias em="emacsclient -nw -c -a 'emacs'"
 alias emacs="emacsclient -c -a 'emacs'"
 alias my_ip="ip address | grep -o \"inet 192.*/\" | awk '{ print \$2 }' | tr / ' ' | xargs"
 
