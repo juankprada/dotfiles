@@ -969,6 +969,8 @@ requirements.
   ;; Move Custom-Set-Variables to Different File
   (setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
   (load custom-file 'noerror)
+  ;; Set the initial buffer as the Dashboard
+  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 
   (provide 'init-base)
 #+end_src
@@ -1112,7 +1114,7 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :italic-family nil
              :italic-slant italic
              :line-spacing nil))))
-#+End_src
+#+end_src
     
 **** Modeline Customization
 
@@ -1329,6 +1331,9 @@ is quite tedious.
   ;; ignore bell alarm completely
   (setq ring-bell-function 'ignore)
 #+end_src
+
+#+RESULTS:
+: ignore
 
 
 
@@ -1682,13 +1687,15 @@ it matches my style as it kind of removes the minibuffer as the "list of complet
   
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
   (use-package vertico-posframe
+    :after vertico
     :hook (vertico-mode . vertico-posframe-mode)
     :init (setq vertico-posframe-poshandler
                 #'posframe-poshandler-frame-center-near-bottom
                 vertico-posframe-parameters
                 '((left-fringe  . 8)
-                  (right-fringe . 8))))
-
+                  (right-fringe . 8)))
+    (vertico-posframe-mode 1))
+  
 #+end_src
 
 **** Consult.
