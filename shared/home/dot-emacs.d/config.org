@@ -2289,7 +2289,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
 *** =init-highlight.el= Highlighting and Treesitter settings
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-highlight.el"
-  ;;; init-highlight.el --- Initialize Highlight configurations.	-*- lexical-binding: t -*-
+    ;;; init-highlight.el --- Initialize Highlight configurations.	-*- lexical-binding: t -*-
 
   (eval-when-compile
     (require 'init-funcs))
@@ -2481,49 +2481,30 @@ with the functions specified in the lower part of the =dashboard= configuration.
 
 
 
-  ;; Pulse current line
-  (use-package pulse
-    :ensure nil
-    :custom-face
-    (pulse-highlight-start-face ((t (:inherit region :background unspecified))))
-    (pulse-highlight-face ((t (:inherit region :background unspecified :extend t))))
-    :hook (((dumb-jump-after-jump imenu-after-jump) . my-recenter-and-pulse)
-           ((bookmark-after-jump magit-diff-visit-file next-error) . my-recenter-and-pulse-line))
-    :init
-    (with-no-warnings
-      (defun my-pulse-momentary-line (&rest _)
-        "Pulse the current line."
-        (pulse-momentary-highlight-one-line (point)))
+    ;;;; Pulsar
+  ;; Read the pulsar manual: <https://protesilaos.com/emacs/pulsar>.
+  (use-package pulsar
+    :ensure t
+    :config
+    (setopt pulsar-pulse t
+            pulsar-delay 0.055
+            pulsar-iterations 10
+            pulsar-face 'pulsar-magenta
+            pulsar-highlight-face 'pulsar-cyan)
 
-      (defun my-pulse-momentary (&rest _)
-        "Pulse the region or the current line."
-        (if (fboundp 'xref-pulse-momentarily)
-            (xref-pulse-momentarily)
-          (my-pulse-momentary-line)))
-
-      (defun my-recenter-and-pulse(&rest _)
-        "Recenter and pulse the region or the current line."
-        (recenter)
-        (my-pulse-momentary))
-
-      (defun my-recenter-and-pulse-line (&rest _)
-        "Recenter and pulse the current line."
-        (recenter)
-        (my-pulse-momentary-line))
-
-      (dolist (cmd '(recenter-top-bottom
-                     other-window switch-to-buffer
-                     aw-select toggle-window-split
-                     windmove-do-window-select
-                     pager-page-down pager-page-up
-                     treemacs-select-window
-                     symbol-overlay-basic-jump))
-        (advice-add cmd :after #'my-pulse-momentary-line))
-
-      (dolist (cmd '(pop-to-mark-command
-                     pop-global-mark
-                     goto-last-change))
-        (advice-add cmd :after #'my-recenter-and-pulse))))
+    (pulsar-global-mode 1)
+    :hook
+    ;; There are convenience functions/commands which pulse the line using
+    ;; a specific colour: `pulsar-pulse-line-red' is one of them.
+    ((next-error . (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
+     (minibuffer-setup . pulsar-pulse-line-red))
+    :bind
+    ;; pulsar does not define any key bindings.  This is just my personal
+    ;; preference.  Remember to read the manual on the matter.  Evaluate:
+    ;;
+    ;; (info "(elisp) Key Binding Conventions")
+    (("C-x l" . pulsar-pulse-line) ; override `count-lines-page'
+     ("C-x L" . pulsar-highlight-dwim))) ; or use `pulsar-highlight-line'
 
 
   ;; highlight during query
