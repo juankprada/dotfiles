@@ -25,7 +25,7 @@ tableteraser="UGTABLET 15.6 inch PenDisplay Stylus eraser"
 # and the actual name of the display. It seems that the work around is to name any
 # external display connected ad 'HEAD-n' where n is the monitor number.
 # in my case that would be HEAD-1
-output="HEAD-2"
+output="HEAD-1"
 xsetwacom --set "$tabletstylus" MapToOutput $output
 xsetwacom --set "$tableteraser" MapToOutput $output
 
@@ -43,10 +43,15 @@ xsetwacom --set "$tabletstylus" ResetArea
 
 # Pressure Curve:
 # a web GUI is available here to tweak it https://linuxwacom.github.io/bezier.html
-xsetwacom --set "$tabletstylus" PressureCurve 90 85 15 100
+xsetwacom --set "$tabletstylus" PressureCurve 60 21 41 87 #90 85 15 100
 
 # Configuration data trimming and suppression
 # The event of this device are not legion; better to not filter any for sensitivity
 # Minimal trimming is also good.
 xsetwacom --set "$tabletstylus" Suppress 0 # data pt.s filtered, default is 2, 0-100 (old 4)
 xsetwacom --set "$tabletstylus" RawSample 1 # data pt.s trimmed, default is 4, 1-20 (old 1)
+
+
+#Configure the stylus buttons
+# Buttons are identified from 1 to 3. 1 is the pen tip and represents a click
+xsetwacom --set "$tabletstylus" Button 2 3

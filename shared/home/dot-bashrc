@@ -192,6 +192,8 @@ alias df='df -h'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 alias fd='fdfind'
 
+# Krita
+alias krita='$HOME/Applications/krita-5.2.6-x86_64_b91deea105204592bed527d811426f67.appimage'
 
 # Colorize grep output (good for log files)
 alias grep='grep --color=auto'
@@ -317,3 +319,4 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 . "$HOME/.cargo/env"
+source ~/.bash_completion/alacritty

@@ -1,0 +1,10 @@
+[Unit]
+Description=policykit agent
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/lxpolkit
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target
