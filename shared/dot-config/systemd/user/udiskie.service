@@ -3,7 +3,7 @@ Description=udiskie
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=/usr/bin/udiskie --no-automount --no-file-manager --smart-tray
+ExecStart=/usr/bin/udiskie --notify --no-automount --tray
 Restart=always
 
 [Install]

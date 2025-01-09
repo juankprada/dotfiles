@@ -16,7 +16,7 @@ bindings = [
 ]
 
 [font]
-size=8.5
+size=11
 normal = { family = "CaskaydiaMono Nerd Font", style = "Regular" }
 bold = { family = "CaskaydiaMono Nerd Font", style = "Bold" }
 italic = { family = "CaskaydiaMono Nerd Font", style = "Italic" }

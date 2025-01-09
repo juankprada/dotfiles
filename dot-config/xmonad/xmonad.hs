@@ -50,10 +50,11 @@ import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.IndependentScreens
 
-    -- Layouts modifiers
+
+-- Layouts modifiers
 import XMonad.Actions.UpdatePointer
 
-   -- Utilities
+-- Utilities
 import XMonad.Util.EZConfig (additionalKeysP, mkNamedKeymap)
 import XMonad.Util.Hacks
 import XMonad.Util.NamedActions
@@ -64,6 +65,8 @@ import XMonad.Util.Loggers
 import XMonad.Util.ClickableWorkspaces
 import XMonad.Util.NamedScratchpad
 import XMonad.Prompt.ConfirmPrompt
+import Xmonad.Util.StickyWindows
+
 
 import Custom.MyDefaults (myModMask, myTerminal, myBrowser, myEditor)
 import Custom.MyDecorations (myBorderWidth, myFocusedBorderColor, myNormalBorderColor)
@@ -120,12 +123,15 @@ myLogHook = fadeInactiveLogHook fadeAmount
 main :: IO ()
 main = do
     xmonad
-      . ewmhFullscreen
-      . ewmh
+      . sticky
+      -- . ewmhFullscreen
+      . setEwmhActivateHook doAskUrgent
       . dynamicSBs barSpawner
       . javaHack
       . rescreenHook rescreenCfg
       . docks
+      . withUrgencyHook NoUrgencyHook
+      . ewmh
       $ def
         {
           terminal = myTerminal

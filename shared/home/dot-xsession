@@ -1,10 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-xrdb -merge .Xresources
+
+export QT_SCREEN_SCALE_FACTORS=1
+export QT_SCALE_FACTOR=1
+export QT_QPA_PLATFORMTHEME="qt5ct"
+export GTK_THEME="Arc-Dark"
+export XDG_CURRENT_DESKTOP="XFCE"
+export gtk-application-prefer-dark-theme = true
+
+xsetroot -cursor_name left_ptr &
+
+[ -f $HOME/.Xresources ] && xrdb $HOME/.Xresources
+#[[ -f $HOME//.Xmodmap ]] && xmodmap $HOME//.Xmodmap
 
 xsettingsd &
 
-xsetroot -cursor_name left_ptr &
+
 
 
 # TODO: We probably want to set other Touchpad options and find a
@@ -13,12 +24,8 @@ xsetroot -cursor_name left_ptr &
 # by the distribution. Fedora had a diffeent name.
 xinput set-prop "ELAN06FA:00 04F3:31DD Touchpad" "libinput Tapping Enabled" 1 &
 
-
-
-#[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
-
 # Auto start all XDG defined startup apps
-#dex-autostart --autostart --environment Xmonad
+# dex-autostart --autostart --environment Xmonad
 
 # Hide the Mouse when not in use
 #unclutter &
@@ -28,6 +35,7 @@ xinput set-prop "ELAN06FA:00 04F3:31DD Touchpad" "libinput Tapping Enabled" 1 &
 # monitor to be at MAX resolution (which is not good due to scaling)
 # We want that whatever is connected at startup is active
 # Detect connected Monitors
+autorandr -c --default horizontal --skip-options crtc
 #autorandr -c --default horizontal --skip-options crtc
 
 # TODO: This is something I definitely want to review. Last
@@ -35,45 +43,33 @@ xinput set-prop "ELAN06FA:00 04F3:31DD Touchpad" "libinput Tapping Enabled" 1 &
 # Cute sound for startup
 #ffplay -nodisp -autoexit /opt/system_sounds/startup-01.mp3
 
+nitrogen --restore &
 
-{
-	echo DISPLAY="$DISPLAY"
-	echo XDG_SEAT="$XDG_SEAT"
-	echo XDG_SESSION_ID="$XDG_SESSION_ID"
-	echo XDG_VTNR="$XDG_VTNR"
-} >"$XDG_RUNTIME_DIR"/xsession-env-"$DISPLAY"
+redshift-gtk &
+
+systemctl --user import-environment SSH_AUTH_SOCK
+
+[ -x /usr/bin/trayer ] && (trayer --edge bottom --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 22 --iconspacing 6 --monitor primary 2> /dev/null &)
+
+systemctl enable --now --user "blueman-applet.service"
+systemctl enable --now --user "nm-applet.service"
+systemctl enable --now --user "dunst.service"
+systemctl enable --now --user "caffeine-indicator.service"
+systemctl enable --now --user "firewall-applet.service"
+systemctl enable --now --user "juank-media-mpris-daemon.service"
+systemctl enable --now --user "pasystray.service"
+systemctl enable --now --user "polkit-agent.service"
+systemctl enable --now --user "udiskie.service"
+
+sleep 1
+systemctl enable --now --user "picom.service"
 
 
 
+exec xmonad 
 
-# exec xmonad
-
-# TODO: Eventually we may migrate to other WM (ie. Qtile). We may
-# want to parameterize settings here and not hardcode Xmonad
-if [[ "$(loginctl show-user --property=Display "$USER")" == "Display=$XDG_SESSION_ID" ]]; then
-    echo "STARTING X ON FIRST OPTION" >> ~/login.txt
-	systemctl --user import-environment SSH_AUTH_SOCK
-	systemd-run \
-		--collect --wait \
-		--user --slice="session.slice" --unit="xmonad-$XDG_SESSION_ID-$DISPLAY.service" \
-		--property="EnvironmentFile=$XDG_RUNTIME_DIR/xsession-env-$DISPLAY" \
-		--property="Environment=_JUANK_SESSION_PRIMARY=1" \
-		--property="Requires=graphical-session-pre.target" \
-		--property="After=graphical-session-pre.target" \
-		--property="BindsTo=graphical-session.target" \
-		--property="BindsTo=xmonad@$DISPLAY.target" \
-		--property="OnFailure=failsafe-xsecurelock@$DISPLAY.service" \
-		--property="Restart=on-failure" \
-		-- xmonad
-else
-    echo "STARTING X ON SECOND OPTION" >> ~/login.txt
-	systemd-run \
-		--quiet \
-		--collect --scope \
-		--user --slice="session.slice" --unit="xmonad-$XDG_SESSION_ID-$DISPLAY.scope" \
-		--property="BindsTo=xmonad@$DISPLAY.target" \
-		-- xmonad
-fi
-
-systemctl --user start "failsafe-xsecurelock@$DISPLAY.service"
 sleep 2
+
+
+
+

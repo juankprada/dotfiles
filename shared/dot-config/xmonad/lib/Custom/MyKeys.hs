@@ -69,6 +69,7 @@ myKeys =
 
      -- Rofi
      ("M-p", spawn "rofi -show drun"),
+     ("M-S-p", spawn "rofi-music"),
      ("M-y", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
      ("M1-<Tab>", spawn "rofi -show window"),
 
@@ -80,7 +81,7 @@ myKeys =
      ("M-s", SM.submap $ searchEngineMap $ S.promptSearchBrowser myPromptConfig myBrowser),
 
      -- NamedScratchpads TODO: Fix this
-     --("M-t", namedScratchpadAction myScratchpads "quick commands"),
+     ("M-t", namedScratchpadAction myScratchpads "terminal"),
         -- Kill windows
      ("M-S-c", kill1),     -- Kill the currently focused client
      ("M-S-a", killAll),   -- Kill all windows on current workspace
@@ -154,11 +155,13 @@ myKeys =
 searchEngineMap method =
   M.fromList
     [ ((0, xK_a), method $ S.searchEngine "archwiki" "http://wiki.archlinux.org/index.php/Special:Search?search="),
-      ((0, xK_g), method S.google),
       ((0, xK_d), method S.duckduckgo),
+      ((0, xK_g), method S.google),
       ((0, xK_h), method S.hoogle),
       ((0, xK_i), method S.imdb),
       ((0, xK_s), method $ S.searchEngine "stackoverflow" "https://stackoverflow.com/search?q="),
       ((0, xK_w), method S.wikipedia),
       ((0, xK_y), method S.youtube)
     ]
+
+

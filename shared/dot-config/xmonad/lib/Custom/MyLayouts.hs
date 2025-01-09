@@ -82,7 +82,9 @@ full = renamed [XLR.Replace "Full"] $ noBorders Full
 
 sf = renamed [XLR.Replace "Float"] $ noBorders simplestFloat
 
-myLayout = boringWindows (ifWider 1080 (tall ||| bsp) (column ||| accordion) ||| tabs ||| full)
+-- myLayout = boringWindows (ifWider 1080 (tall ||| bsp) (column ||| accordion) ||| tabs ||| full)
+
+myLayout = boringWindows (tall ||| bsp ||| column ||| accordion ||| tabs ||| full)
 
 -- STUDY: Check if XMonad.Layout.showWName allows for custom modification
 -- of the text provided.
@@ -101,8 +103,8 @@ myLayoutHook2 = renamed [KeepWordsRight 1]
                . avoidStruts
                . fixedAspectRatio (0.5, 0.5)
                . layoutHintsWithPlacement (0.5, 0.5)
-               . spacingRaw False (Border 0 0 0 0) True (Border 5 5 5 5) True -- between windows
-               . gaps [(U, 5), (R, 5), (L, 5), (D, 5)] -- along the screen, excluding docks
+               . spacingRaw False (Border 0 0 0 0) True (Border 0 0 0 0) True -- between windows
+               . gaps [(U, 2), (R, 2), (L, 2), (D, 2)] -- along the screen, excluding docks
                . mkToggle (single NBFULL) -- toggle full screen
                . smartBorders
                $ tiled

@@ -3,7 +3,7 @@ Description=picom compositor
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=/usr/bin/picom
+ExecStart=/usr/local/bin/picom
 Restart=always
 
     

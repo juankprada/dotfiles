@@ -249,6 +249,9 @@ alias gcad='git commit -a --amend'
 
 alias decomress='ex'
 
+# Docker/Podman
+
+alias docker='podman'
 
 # Ubuntu and Debian have problems! Stick to Fedora for a happier life
 if lsb_release -a | grep -q "Debian\|Ubuntu"; then

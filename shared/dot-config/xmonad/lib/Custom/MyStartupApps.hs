@@ -10,15 +10,17 @@ import XMonad.Hooks.SetWMName
 myStartupHook :: X ()
 myStartupHook = do
   let
+      xssLock = "xss-lock --notifier=/usr/libexec/xsecurelock/dimmer /usr/bin/xsecurelock &"
       wallpaperCmd = "nitrogen --restore"
       trayerCmd = "killall -9 trayer; trayer --edge bottom --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 22 --iconspacing 6 --monitor primary &"
       ibusCmd = "ibus-daemon -drxR &"
       autorandr = "autorandr -c --default horizontal --skip-options crtc"
-      --startSoundCmd = (mySoundPlayer ++ startupSound)
+      startSoundCmd = (mySoundPlayer ++ startupSound)
 
-  sequence_ [ spawn wallpaperCmd
-            , spawn trayerCmd
-            , spawn autorandr
+  sequence_ [  spawnOnce xssLock
+            -- spawn wallpaperCmd
+            --, spawn autorandr
+            --, spawn trayerCmd
             --, spawn volumeIconCmd
             --, spawn shutterCmd
             --, spawnOnce ibusCmd

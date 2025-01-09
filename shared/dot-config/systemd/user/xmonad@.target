@@ -3,5 +3,6 @@ Description=xmonad DISPLAY=%i
 RefuseManualStart=yes
 StopWhenUnneeded=yes
 
+Wants=xsettingsd@%i.service
 Wants=xss-lock@%i.service
 

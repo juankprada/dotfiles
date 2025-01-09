@@ -76,11 +76,13 @@ myKeys =
      -- Shutter
      ("<Print>", spawn "shutter"),
 
+     -- Prompt
+     ("M-x", xmonadPrompt myXPConfig,
      -- Search commands (wait for next keypress)
      ("M-s", SM.submap $ searchEngineMap $ S.promptSearchBrowser myPromptConfig myBrowser),
-
+     
      -- NamedScratchpads TODO: Fix this
-     --("M-t", namedScratchpadAction myScratchpads "quick commands"),
+     ("M-t", namedScratchpadAction myScratchpads "terminal"),
         -- Kill windows
      ("M-S-c", kill1),     -- Kill the currently focused client
      ("M-S-a", killAll),   -- Kill all windows on current workspace
@@ -154,11 +156,28 @@ myKeys =
 searchEngineMap method =
   M.fromList
     [ ((0, xK_a), method $ S.searchEngine "archwiki" "http://wiki.archlinux.org/index.php/Special:Search?search="),
-      ((0, xK_g), method S.google),
       ((0, xK_d), method S.duckduckgo),
+      ((0, xK_g), method S.google),
       ((0, xK_h), method S.hoogle),
       ((0, xK_i), method S.imdb),
       ((0, xK_s), method $ S.searchEngine "stackoverflow" "https://stackoverflow.com/search?q="),
       ((0, xK_w), method S.wikipedia),
       ((0, xK_y), method S.youtube)
     ]
+
+
+myXPConfig :: XPConfig
+myXPConfig =
+  def
+    { font =
+        "xft:Source Code Pro:size=11:regular:antialias=true,FontAwesome:pixelsize=13"
+    , position = CenteredAt (1 / 4) (2 / 3)
+    , bgColor = myBgColor
+    , fgColor = myFgColor
+    , bgHLight = myFgColor
+    , fgHLight = myBgColor
+    , borderColor = myFgColor
+    , searchPredicate = fuzzyMatch
+    , sorter = fuzzySort
+    , height = 30
+    }

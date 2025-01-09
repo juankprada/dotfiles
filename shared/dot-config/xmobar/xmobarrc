@@ -1,7 +1,7 @@
-Config { font    = "Iosevka Comfy Duo 11"
+Config { font    = "Scientifica Bold 12"
        , additionalFonts = [ "Hack Nerd Font Mono 16"]
-       , bgColor = "#282c34"
-       , fgColor = "#ff6c6b"
+       , bgColor = "#2f343f"
+       , fgColor = "#e6e6e6"
        , position = TopSize L 100 22
        , lowerOnStart = True
        , hideOnStart = False
@@ -11,11 +11,11 @@ Config { font    = "Iosevka Comfy Duo 11"
                       -- Get kernel version (script found in .local/bin)
                      Run Com ".local/bin/kernel" [] "kernel" 36000
                         -- Cpu usage in percent
-                    , Run Cpu ["-t", "<fn=1>\xf108</fn> cpu: (<total>%)","-H","50","--high","red"] 20
+                    , Run Cpu ["--template", "<fn=1>\xf108</fn> CPU:<total>","-H","50","--high","red", "--suffix", "Yes", "--ppad", "2"] 10
                         -- Ram used number and percent
-                    , Run Memory ["-t", "<fn=1>\xf233</fn> mem: <used>M (<usedratio>%)"] 20
+                    , Run Memory ["-t", "<fn=1>\xf233</fn> RAM:<usedratio>", "--High", "77", "--high", "red", "--ppad", "2", "--suffix", "Yes"] 20
                         -- Disk space free
-                    , Run DiskU [("/", "<fn=1>\xf0c7</fn> hdd: <free> free")] [] 60
+                    , Run DiskU [("/", "<fn=1>\xf0c7</fn> Disk:<free> free")] [] 60
                         -- Echos an "up arrow" icon in front of the uptime output.
                         --, Run Com "echo" ["<fn=1>\xf0aa</fn>"] "uparrow" 36000
                         -- Uptime
@@ -26,20 +26,19 @@ Config { font    = "Iosevka Comfy Duo 11"
                     , Run Com ".local/bin/updates" [] "pacupdate" 36000
                         -- Echos a "battery" icon in front of the pacman updates.
                     , Run Com "echo" ["<fn=1>\xf242</fn>"] "baticon" 0
-                        -- Echos "debian" icon
-                    , Run Com "echo" ["<fn=1>\xf306</fn>"] "debicon" 0
                         -- Battery
+                    
                     , Run BatteryP ["BAT0"] ["-t", "<acstatus><watts> (<left>%)"] 360
                         -- Time and date
                     , Run Date "<fn=1>\xf017</fn> %b %d, %Y - %I:%M %p" "date" 60
                     , Run Com "echo" ["<fn=1>\xf028</fn>"] "volicon" 36000
-                    -- , Run Com "volume" [] "volume" 10
+                    , Run Alsa "default" "Master" ["--template", "<volumestatus>", "--suffix", "True", "--", "--on", "", "--off", "<fn=1>\984927</fn> 0%", "--lowv", "20", "--highv", "60", "--lows", "<fn=1>\61478</fn> ", "--mediums", "<fn=1>\61479</fn> ", "--highs", "<fn=1>\61480</fn>", "--onc", "#a6e3a1", "--offc", "#a6e3a1" ]
                     , Run UnsafeXPropertyLog "_XMONAD_LOG_1"
                     , Run XPropertyLog "_XMOBAR_DEVICES"
                     , Run Com "echo" ["<fn=1>\xf011</fn>"] "shutdownicon" 3600
-                    -- , Run Volume "default" "Master" [] 10
+
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %_XMONAD_LOG_1% }{<fc=#ecbe7b><action=`alacritty -e btop`>%cpu%</action></fc>  <fc=#ff6c6b><action=`alacritty -e btop`>%memory%</action></fc>  <fc=#a9a1e1>%disku%</fc>  <fc=#c678dd>%bell% <action=`alacritty -e sudo pacman -Syu`>%pacupdate%</action></fc>  <fc=#da8548><action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action></fc>  <fc=#98be65>%volicon% %volume%</fc>  <fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc>  <action=`juank-logout-menu`>%shutdownicon%</action> "
+       , template = " %_XMONAD_LOG_1% }{<fc=#909090>[</fc><action=`alacritty -e btop`>%cpu%</action><fc=#909090>]</fc> <fc=#909090>[</fc><action=`alacritty -e btop`>%memory%</action><fc=#909090>]</fc> <fc=#909090>[</fc>%disku%<fc=#909090>]</fc> <fc=#909090>[</fc>%bell% <action=`alacritty -e sudo apt update && sudo apt upgrade`>%pacupdate%</action><fc=#909090>]</fc> <fc=#909090>[</fc><action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action><fc=#909090>]</fc> <fc=#909090>[</fc>%alsa:default:Master% <fc=#909090>]</fc> <fc=#909090>[</fc><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action><fc=#909090>]</fc> <action=`juank-logout-menu`>%shutdownicon%</action>"
        }

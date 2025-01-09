@@ -11,26 +11,26 @@ import qualified Data.Char as Char
 -- to reduce duplication of workspace names
 myWsIcons :: M.Map String String
 myWsIcons = M.fromList [
-    ("1. Web", "\xf059f"),
-    ("2. Term", "\xf489"),
-    ("3. Dev", "\xf121"),
-    ("4. Music", "\xf075a"),
-    ("5. Chat", "\xf0b7b"),
-    ("6. Game", "\xf11b"),
-    ("7. Art", "\xe22b"),
-    ("8. Other", "\xf07c3")
+    ("1:Web", "\xf059f"),
+    ("2:Term", "\xf489"),
+    ("3:Dev", "\xf121"),
+    ("4:Music", "\xf075a"),
+    ("5:Chat", "\xf0b7b"),
+    ("6:Game", "\xf11b"),
+    ("7:Art", "\xe22b"),
+    ("8:Other", "\xf07c3")
   ]
 
 myWorkspaces :: [String]
 myWorkspaces = [
-                 "1. Web"
-               , "2. Term"
-               , "3. Dev"
-               , "4. Music"
-               , "5. Chat"
-               , "6. Game"
-               , "7. Art"
-               , "8. Other"]
+                 "1:Web"
+               , "2:Term"
+               , "3:Dev"
+               , "4:Music"
+               , "5:Chat"
+               , "6:Game"
+               , "7:Art"
+               , "8:Other"]
 myWorkspaceIndices = M.fromList $ zip myWorkspaces [1..] -- (,) == \x y -> (x,y)
 
 
