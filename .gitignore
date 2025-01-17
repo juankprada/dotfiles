@@ -5,3 +5,5 @@ home/dot-emacs.d/**
 !home/dot-emacs.d/init.el
 !home/dot-emacs.d/config.org
 !home/dot-emacs.d/logos
+*.hi
+*.o
