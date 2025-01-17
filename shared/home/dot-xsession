@@ -6,7 +6,7 @@ export QT_SCALE_FACTOR=1
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export GTK_THEME="Arc-Dark"
 export XDG_CURRENT_DESKTOP="XFCE"
-export gtk-application-prefer-dark-theme = true
+export gtk-application-prefer-dark-theme=true
 
 xsetroot -cursor_name left_ptr &
 
@@ -14,9 +14,6 @@ xsetroot -cursor_name left_ptr &
 #[[ -f $HOME//.Xmodmap ]] && xmodmap $HOME//.Xmodmap
 
 xsettingsd &
-
-
-
 
 # TODO: We probably want to set other Touchpad options and find a
 # better place to set these properties
@@ -28,7 +25,7 @@ xinput set-prop "ELAN06FA:00 04F3:31DD Touchpad" "libinput Tapping Enabled" 1 &
 # dex-autostart --autostart --environment Xmonad
 
 # Hide the Mouse when not in use
-#unclutter &
+# unclutter &
 
 # TODO: Make sure we store different profiles with autorandr
 # Right now running this at the start will cause the external
@@ -56,17 +53,20 @@ systemctl enable --now --user "nm-applet.service"
 systemctl enable --now --user "dunst.service"
 systemctl enable --now --user "caffeine-indicator.service"
 systemctl enable --now --user "firewall-applet.service"
-systemctl enable --now --user "juank-media-mpris-daemon.service"
+#systemctl enable --now --user "juank-media-mpris-daemon.service"
 systemctl enable --now --user "pasystray.service"
 systemctl enable --now --user "polkit-agent.service"
 systemctl enable --now --user "udiskie.service"
 
 sleep 1
-systemctl enable --now --user "picom.service"
+#systemctl enable --now --user "picom.service"
 
 
+# Choose the WM to run
+#exec bspwm
+echo $PATH >> ~/PATH.txt
 
-exec xmonad 
+bash -lc 'exec xmonad'
 
 sleep 2
 
