@@ -1,7 +1,5 @@
-Config { font    = "Hack Nerd Font Mono 11"
-       , additionalFonts = [ "Font Awesome 5 Free Solid 12"
-                           , "Font Awesome 5 Brands 12"
-                           ]
+Config { font    = "Terminess Nerd Font Propo Regular 11"
+       , additionalFonts = [ "Hack Nerd Font Mono 16"]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
        , position = BottomSize L 90 22
@@ -10,11 +8,10 @@ Config { font    = "Hack Nerd Font Mono 11"
        , allDesktops = True
        , persistent = True
        , commands = [ Run Com "/home/juankprada/.config/xmobar/trayer-padding-icon.sh" [] "trayerpad" 20
-                    , Run Com "echo" ["<fn=1>\xf075a</fn>"] "musicicon" 0
-                    , Run Com ".local/bin/musicbar" [] "music" 1
                     , Run UnsafeXPropertyLog "_XMONAD_LOG_2"
-                    ]
+		    ]	
+					      
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %_XMONAD_LOG_2% }{ <fc=#da8548>%musicicon% %music%</fc><fc=#666666> | </fc>"
+       , template = " %_XMONAD_LOG_2% } { %trayerpad%"
        }

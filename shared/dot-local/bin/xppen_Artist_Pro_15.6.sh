@@ -43,7 +43,7 @@ xsetwacom --set "$tabletstylus" ResetArea
 
 # Pressure Curve:
 # a web GUI is available here to tweak it https://linuxwacom.github.io/bezier.html
-xsetwacom --set "$tabletstylus" PressureCurve 60 21 41 87 #90 85 15 100
+xsetwacom --set "$tabletstylus" PressureCurve 0 0 100 100 #60 21 41 87 #90 85 15 100
 
 # Configuration data trimming and suppression
 # The event of this device are not legion; better to not filter any for sensitivity

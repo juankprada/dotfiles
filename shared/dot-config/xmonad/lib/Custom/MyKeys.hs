@@ -66,10 +66,11 @@ myKeys =
 
      -- Editor
      ("M-e", spawn myEditor),
+     ("M-d", spawn "thunar"),
 
      -- Rofi
      ("M-p", spawn "rofi -show drun"),
-     ("M-S-p", spawn "rofi-music"),
+     ("M-S-p", spawn "rofi-lofi"),
      ("M-y", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
      ("M1-<Tab>", spawn "rofi -show window"),
 

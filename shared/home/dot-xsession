@@ -1,16 +1,18 @@
+
 #!/usr/bin/env bash
 
-
-export QT_SCREEN_SCALE_FACTORS=1
-export QT_SCALE_FACTOR=1
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_ENABLE_HIGHDPI_SCALING=1
+#export QT_SCREEN_SCALE_FACTORS=1
+#export QT_SCALE_FACTOR=1
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export GTK_THEME="Arc-Dark"
 export XDG_CURRENT_DESKTOP="XFCE"
-export gtk-application-prefer-dark-theme=true
+#export gtk-application-prefer-dark-theme=true
 
 xsetroot -cursor_name left_ptr &
 
-[ -f $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xrdb -merge $HOME/.Xresources
 #[[ -f $HOME//.Xmodmap ]] && xmodmap $HOME//.Xmodmap
 
 xsettingsd &
@@ -42,8 +44,6 @@ autorandr -c --default horizontal --skip-options crtc
 
 nitrogen --restore &
 
-redshift-gtk &
-
 systemctl --user import-environment SSH_AUTH_SOCK
 
 [ -x /usr/bin/trayer ] && (trayer --edge bottom --align right --widthtype percent --transparent true --alpha 0 --tint 0x282c34 --width 10 --height 22 --iconspacing 6 --monitor primary 2> /dev/null &)
@@ -59,17 +59,27 @@ systemctl enable --now --user "polkit-agent.service"
 systemctl enable --now --user "udiskie.service"
 
 sleep 1
-#systemctl enable --now --user "picom.service"
+systemctl enable --now --user "picom.service"
 
+# For Color Profile management
+xiccd &
+
+## TODO: Check how Redshift interfeere with colord and ICC profiles
+redshift-gtk &
+
+# Start Input-remapper
+bash -c "input-remapper-control --command stop-all && input-remapper-control --command autoload"
+
+# Shutter for Screenshots
+shutter --min_at_startup &
+
+
+# Start Ibus daemon
+/usr/bin/ibus-daemon -drx &
 
 # Choose the WM to run
 #exec bspwm
-echo $PATH >> ~/PATH.txt
-
+#exec dwm
 bash -lc 'exec xmonad'
 
 sleep 2
-
-
-
-

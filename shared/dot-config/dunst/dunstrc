@@ -8,11 +8,11 @@
     transparency = 10
     padding = 10    
     horizontal_padding = 10
-    frame_width = 3
+    frame_width = 1
     frame_color = "#333333"
     separator_color = frame 
     separator_height = 3
-    corner_radius = 7
+    corner_radius = 2
     progress_bar = true      #example dunstify -h int:value:12
     progress_bar_height = 16
     progress_bar_frame_width = 4
@@ -20,15 +20,15 @@
     progress_bar_min_width = 150
     indicate_hidden = yes
     sort = yes
-    font = Iosevka comfy duo 12
+    font = Terminess Nerd Font Propo Regular 10
     markup = full    
     format = "<b>%s</b>\n%b"
     word_wrap = true
     ignore_newline = false
     icon_position = left
     min_icon_size= 0
-	max_icon_size = 32
-    icon_path = /usr/share/icons/Papirus-Dark/32x32/status/:/usr/share/icons/Papirus-Dark/32x32/devices/:/usr/share/icons/gnome/32x32/status/:/usr/share/icons/gnome/32x32/devices/
+    max_icon_size = 32
+    icon_path = /usr/share/icons/ePapirus-Dark/32x32/status/:/usr/share/icons/ePapirus-Dark/32x32/devices/:/usr/share/icons/gnome/32x32/status/:/usr/share/icons/gnome/32x32/devices/
     dmenu = /usr/bin/rofi -dmenu -p dunst:
     browser = ~/.local/bin/sensible-browser
 
@@ -46,8 +46,6 @@
     hide_duplicate_count = false
     show_indicators = yes
     
-    
-    
     sticky_history = yes
     history_length = 20
     
@@ -63,19 +61,19 @@
 	fullscreen = delay
 
 [experimental]
-    per_monitor_dpi = false
+    per_monitor_dpi = true
 
 
 [urgency_low]
     background = "#222222"
-	foreground = "#aaaaaa"
-	timeout = 10
+    foreground = "#aaaaaa"
+    timeout = 10
     
 [urgency_normal]
     background = "#222222"
-	foreground = "#ffffff"
-	timeout = 10
+    foreground = "#ffffff"
     timeout = 10
+    
 
 [urgency_critical]
     background = "#662222"
@@ -84,8 +82,6 @@
     timeout = 0
 
 [fullscreen_show_pasystray]
-	appname = pasystray
-	fullscreen = show
-	override_pause_level = 60
-
-# vim:set ft=cfg:
+    appname = pasystray
+    fullscreen = show
+    override_pause_level = 60

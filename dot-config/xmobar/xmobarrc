@@ -1,7 +1,7 @@
 Config { font    = "Iosevka Comfy Duo 11"
        , additionalFonts = [ "Hack Nerd Font Mono 16"]
-       , bgColor = "#282c34"
-       , fgColor = "#ff6c6b"
+       , bgColor = "#2E3440"
+       , fgColor = "#D8DEE9"
        , position = TopSize L 100 22
        , lowerOnStart = True
        , hideOnStart = False
@@ -41,5 +41,5 @@ Config { font    = "Iosevka Comfy Duo 11"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %_XMONAD_LOG_1% }{<fc=#ecbe7b><action=`alacritty -e btop`>%cpu%</action></fc>  <fc=#ff6c6b><action=`alacritty -e btop`>%memory%</action></fc>  <fc=#a9a1e1>%disku%</fc>  <fc=#c678dd>%bell% <action=`alacritty -e sudo pacman -Syu`>%pacupdate%</action></fc>  <fc=#da8548><action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action></fc>  <fc=#98be65>%volicon% %volume%</fc>  <fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc>  <action=`juank-logout-menu`>%shutdownicon%</action> "
+       , template = " %_XMONAD_LOG_1% }{<fc=#8FBCBB><action=`alacritty -e btop`>%cpu%</action></fc>  <fc=#ff6c6b><action=`alacritty -e btop`>%memory%</action></fc>  <fc=#a9a1e1>%disku%</fc>  <fc=#c678dd>%bell% <action=`alacritty -e sudo pacman -Syu`>%pacupdate%</action></fc>  <fc=#da8548><action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action></fc>  <fc=#98be65>%volicon% %volume%</fc>  <fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc>  <action=`juank-logout-menu`>%shutdownicon%</action> "
        }

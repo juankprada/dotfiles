@@ -26,6 +26,9 @@ myManagement =
       (title     =? "Steam")                                          --> doShift (workspaceAt 6),
       (className =? "Gimp")                                           --> doShift (workspaceAt 7),
       (title     =? "Krita")                                          --> doShift (workspaceAt 7),
+      (title     =? "TestWin")                                        --> doFloat,
+      (className =? "displaycal")                                     --> doFloat,
+      (className =? "thunar" <&&> title=? "File Operation Progress")  --> doFloat,
       (className =? "firefox" <&&> resource =? "Dialog")              --> doFloat,  -- Float Firefox Dialog
       (isFullscreen)                                                  --> doFullFloat
     ]

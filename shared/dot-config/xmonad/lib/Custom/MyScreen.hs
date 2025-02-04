@@ -8,6 +8,7 @@ myAfterRescreenHook :: X ()
 myAfterRescreenHook = spawn "sleep 1; xmonad --restart"
 
 myRandrChangeHook :: X ()
+--myRandrChangeHook = spawn "sleep 1;" --"; autorandr -c --default horizontal --skip-options crtc"
 myRandrChangeHook = spawn "sleep 1; autorandr -c --default horizontal --skip-options crtc"
 
 rescreenCfg :: RescreenConfig
@@ -16,3 +17,4 @@ rescreenCfg =
     { afterRescreenHook = myAfterRescreenHook,
       randrChangeHook = myRandrChangeHook
     }
+    

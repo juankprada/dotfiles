@@ -158,4 +158,4 @@ textbox-prompt-colon {
     str:        ":";
     margin:     0px 0.3em 0em 0em ;
     text-color: @normal-foreground;
-}
+}@theme "/home/juankprada/.config/rofi/themes/squared-nerd.rasi"

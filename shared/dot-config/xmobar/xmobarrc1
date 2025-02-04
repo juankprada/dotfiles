@@ -1,7 +1,6 @@
-Config { font    = "Hack Nerd Font Mono 11"
-       , additionalFonts = [ "Font Awesome 5 Free Solid 11"
-                           , "Font Awesome 5 Brands 11"
-                           ]
+
+Config { font    = "Terminess Nerd Font Propo Regular 11"
+       , additionalFonts = [ "Hack Nerd Font Mono 16"]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
        , position = TopSize L 100 24

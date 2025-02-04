@@ -18,7 +18,7 @@ myStartupHook = do
       startSoundCmd = (mySoundPlayer ++ startupSound)
 
   sequence_ [  spawnOnce xssLock
-            -- spawn wallpaperCmd
+            ,  spawn wallpaperCmd
             --, spawn autorandr
             --, spawn trayerCmd
             --, spawn volumeIconCmd

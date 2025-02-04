@@ -10,12 +10,11 @@ import XMonad.Prompt
 
 -- My Font
 myFont :: String
-myFont = "xft:Iosevka Comfy Duo:regular:size=15:antialias=true:hinting=true"
+myFont = "xft:Terminess Nerd Font:regular:size=12:antialias=true:hinting=true"
 
 -- Sets border width for windows
 myBorderWidth :: XMonad.Dimension
-myBorderWidth = 3
-
+myBorderWidth = 4
 
 myNormalBorderColor :: String
 myNormalBorderColor = colorBack
@@ -45,7 +44,7 @@ myPromptConfig =
 myShowWNameConfig :: SWNConfig
 myShowWNameConfig =
   def
-    { swn_font = "xft:Hack Nerd Font Mono:regular:size=20:antialias=true:hinting=true",
+    { swn_font = "xft:Terminess Nerd Font:regular:size=10:antialias=true:hinting=true",
       swn_color = color04,
       swn_bgcolor = colorBack,
       swn_fade = 0.8
@@ -64,7 +63,7 @@ myTabConfig =
       activeTextColor = color03,
       inactiveTextColor = colorFore,
       urgentTextColor = colorBack,
-      fontName = "xft:Iosevka Comfy Duo:regular:size=12:antialias=true:hinting=true"
+      fontName = "xft:Terminess Nerd Font:regular:size=10:antialias=true:hinting=true"
     }
 
 -- emConf :: EasyMotionConfig

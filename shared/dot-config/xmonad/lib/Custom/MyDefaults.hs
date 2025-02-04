@@ -29,6 +29,4 @@ startupSound  = soundDir ++ "startup-01.mp3"
 shutdownSound = soundDir ++ "shutdown-01.mp3"
 dmenuSound    = soundDir ++ "menu-01.mp3"
 
--- Sets the border width for windows
-myBorderWidth :: Dimension
-myBorderWidth = 3
+

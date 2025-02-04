@@ -73,6 +73,7 @@ import Custom.MyWorkspaces
 import Custom.MyLayouts (myLayoutHook, myLayoutHook2)
 import Custom.MyManagement
 import Custom.MyKeys (myKeys)
+import Colors.Nord
 
 import Data.List
 
@@ -165,8 +166,16 @@ barSpawner (S s) = do
 -- xmobarTop    = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.config/xmobar/xmobarrc"       (pure $ myXmobarPP 0)
 -- xmobarBottom = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 0 ~/.config/xmobar/xmobar_bottom"  (pure $ myXmobarBottomPP 0)
 
-magenta :: String -> String
-magenta  = xmobarColor "#ff79c6" ""
+
+activeWsColor :: String -> String
+activeWsColor = xmobarColor color07 ""
+
+windowTitleColor :: String -> String
+windowTitleColor = xmobarColor color04 ""
+
+
+urgentColor :: String -> String
+urgentColor = xmobarColor color02 ""
 
 blue :: String -> String
 blue     = xmobarColor "#bd93f9" ""
@@ -187,31 +196,43 @@ myXmobarPP :: ScreenId -> PP
 myXmobarPP s = filterOutWsPP [scratchpadWorkspaceTag] $ def
   {
     ppCurrent      = activeWS
+  , ppSep =  "<fc=#666666> | </fc>"                                     -- Separator character
   , ppVisible      = visibleWS
   , ppHidden       = hiddenWS
   , ppHiddenNoWindows = hiddenNoWWS
   , ppUrgent = urgentWS
-  , ppOrder  = \(ws:ex) -> [ws]
+  , ppTitleSanitize = xmobarStrip
+  , ppExtras =  [windowCount]
+  , ppOrder  = \(ws:l:t:ex) -> [ws]
  }
  where
-   activeWS = xmobarBorder "Bottom" "#ff79c6" 3 . magenta . clickable           -- current workspace
-   visibleWS = xmobarColor "#98be65" "" . clickable -- Visible but not current workspace
-   hiddenWS = xmobarBorder "Bottom" "#82AAFF" 1 . xmobarColor "#82AAFF" "" . clickable --Hidden workspaces
-   hiddenNoWWS = xmobarColor "#c792ea" ""  . clickable           -- Hidden workspaces (no windows)
-   urgentWS = xmobarColor "#C45500" "" . wrap "!" "!"  . clickable                 -- Urgent workspace
+   activeWS = xmobarBorder "Bottom" color07 3 . activeWsColor . clickable           -- current workspace
+   visibleWS = xmobarColor color04 "" . clickable -- Visible but not current workspace
+   hiddenWS = xmobarBorder "Bottom" color06 1 . xmobarColor color06 "" . clickable --Hidden workspaces
+   hiddenNoWWS = xmobarColor colorFore ""  . clickable           -- Hidden workspaces (no windows)
+   urgentWS = xmobarColor color02 "" . wrap "!" "!"  . clickable                 -- Urgent workspace
+   formatFocused   = xmobarBorder "Bottom" "#ff79c6" 2 . activeWsColor . ppWindow
+   formatUnfocused = wrap (lowWhite "") (lowWhite "") . blue    . ppWindow
+   ppWindow :: String -> String
+   ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
 
 myXmobarBottomPP :: ScreenId -> PP
 myXmobarBottomPP s = filterOutWsPP [scratchpadWorkspaceTag] $ def
   {
   ppSep =  "<fc=#666666> | </fc>"                                     -- Separator character
-  , ppUrgent = xmobarColor "#C45500" "" . wrap "!" "!"
+  , ppUrgent = xmobarColor color02 "" . wrap "!" "!"
   , ppTitleSanitize = xmobarStrip
-  , ppExtras = [windowCount, logTitles formatFocused formatUnfocused]  -- # of windows current workspace
+  , ppExtras = [windowCount, logTitles' formatedWindows ]  -- # of windows current workspace
   , ppOrder = \(ws:l:t:ex) -> [l]++ex
   }
  where
-   formatFocused   = wrap (white    "[") (white    "]") . xmobarBorder "Bottom" "#ff79c6" 2 . magenta . ppWindow
-   formatUnfocused = wrap (lowWhite "") (lowWhite "") . blue    . ppWindow
-
+   formatUrgent    = wrap (white    "") (lowWhite    " |") . xmobarBorder "Bottom" color02 2 . urgentColor . ppWindow
+   formatFocused   = wrap (white    "") (lowWhite    " |") . xmobarBorder "Bottom" "#ff79c6" 2 . activeWsColor . ppWindow
+   formatUnfocused = wrap (lowWhite "") (lowWhite " |") . blue . ppWindow
+   formatedWindows = TitlesFormat { focusedFormat = formatFocused, unfocusedFormat = formatUnfocused, urgentFormat = formatUrgent }
    ppWindow :: String -> String
-   ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
+   ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 60
+
+
+
+

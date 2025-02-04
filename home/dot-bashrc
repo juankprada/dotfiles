@@ -15,11 +15,12 @@ export VISUAL="emacsclient -c -a emacs"           # $VISUAL use Emacs in GUI mod
 
 
 export LANG="en_US.UTF-8"
-export GTK_IM_MODULE="fcitx"
-export QT_IM_MODULE="fcitx"
-export XMODIFIERS="@im=fcitx"
-# export XIM_PROGRAM="/urs/bin/ibus-daemon -drx"
-OOO_FORCE_DESKTOP=kde4
+export GTK_IM_MODULE="ibus"
+export QT_IM_MODULE="ibus"
+export XMODIFIERS="@im=ibus"
+
+export XIM_PROGRAM="/usr/bin/ibus-daemon -drx"
+#OOO_FORCE_DESKTOP=kde4
 
 ### "bat" as manpager
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
