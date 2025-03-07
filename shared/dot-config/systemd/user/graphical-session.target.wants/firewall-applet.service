@@ -1,1 +1,1 @@
-../firewall-applet.service
+/home/juankprada/.config/systemd/user/firewall-applet.service

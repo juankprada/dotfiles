@@ -1,7 +1,0 @@
-[Unit]
-Description=xmonad DISPLAY=%i
-RefuseManualStart=yes
-StopWhenUnneeded=yes
-
-Wants=xss-lock@%i.service
-

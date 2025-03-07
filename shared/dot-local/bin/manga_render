@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# Export .kra files in one directory, process them with GIMP's Newspaper Filter
+# and exports them as Indexed, black and white only Tiff files
+
+# Check if the correct number of arguments are provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <input_directory> <output_directory> [--verbose]"
+  exit 1
+fi
+
+
+# Assign the input parameters to variables
+input_directory="$1"
+output_directory="$2"
+
+VERBOSE=0
+
+
+if [ "$#" -eq 3 ] && [ "$3" == "--verbose"]; then
+   VERBOSE=1
+fi
+
+# Create the output directory if it doesn't exist
+mkdir -p "$output_directory"
+
+
+for kra_file in "$input_directory"/*.kra; do
+
+    # check if there are any .kra files
+    if [ ! -f "$kra_file" ]; then
+	echo "No .kra files found in $input_directory"
+	exit 1
+    fi
+
+    # get the base name of the .kra fil without extension
+
+    base_name=$(basename "$kra_file" .kra)
+    echo "BASE NAME: $base_name"
+    # Define the output TIFF file path
+    intermidiate_file="$output_directory/$base_name.intermediate.tiff"
+    
+
+    # Run krita to export .kra fle to TIFF
+    echo "[Krita] Exporting $kra_file to $intermidiate_file"
+
+    if [ "$VERBOSE" -eq 1 ]; then
+	krita-5.2.9-x86_64.appimage "$kra_file" --export --export-filename "$intermidiate_file"
+    else
+	krita-5.2.9-x86_64.appimage "$kra_file" --export --export-filename "$intermidiate_file" >/dev/null 2>&1
+    fi
+
+    # Check if the export was successfull
+    if [ $? -eq 0 ]; then
+	echo "[Krita] Successfully exported $kra_file to $intermidiate_file"
+    else
+	echo "[Krita] Failed to export $kra_file"
+    fi
+    
+done
+
+for tiff_file in "$output_directory"/*.intermediate.tiff; do
+     # check if there are any .tiff files
+    if [ ! -f "$tiff_file" ]; then
+	echo "No .intermediate.tiff files found in $input_directory"
+	exit 1
+    fi
+
+    base_name=$(basename "$tiff_file" .intermediate.tiff)
+    output_file=$output_directory/$base_name.png
+    
+    
+    echo "Using GEGL to apply halftone effect. Input File $tiff_file"
+    if [ "$VERBOSE" -eq 1 ]; then
+	gegl "$tiff_file" -o "$output_file" -- newsprint color-model=black-on-white pattern=circle period=10 angle=76 black-pullout=1 aa-samples=1 
+    else
+	gegl "$tiff_file" -o "$output_file" -- newsprint color-model=black-on-white pattern=circle period=10 angle=76 black-pullout=1 aa-samples=1 >/dev/null 2>&1
+    fi
+
+    if [ $? -eq 0 ]; then
+        echo "[Gegl] Successfully processed $tiff_file to $output_file"
+    else
+        echo "[Gegl] Failed to process $tiff_file"
+    fi
+
+done 
+
+
+
+
+for png_file in "$output_directory"/*.png; do
+      # check if there are any .png files
+    if [ ! -f "$png_file" ]; then
+	echo "No .png files found in $input_directory"
+	exit 1
+    fi
+
+    base_name=$(basename "$png_file" .png)
+    output_tiff=$output_directory/$base_name.tiff
+
+    echo "[Imagemagick] Converting PNG file to Monochrome Tiff. Input file: $png_file"
+    # convert the PNG file to indexed tiff file
+    convert "$png_file" -depth 1 -type bilevel -ordered-dither o8x8 -monochrome -compress LZW "$output_tiff"
+    
+    if [ $? -eq 0 ]; then
+        echo "[Imagemagick] Successfully processed $png_file to $output_tiff"
+    else
+        echo "[Imagemagick] Failed to process $png_file"
+    fi    
+done
+
+
+# delete all intermediate files
+echo "Deleting all intermediate files..."
+rm -f "$output_directory"/*.intermediate.tiff
+rm -f "$output_directory"/*.png
+echo "Finished deletion of intermediate files."
+
+
+
+# Rename all pages.
+# TODO: Make the name of the files a Parameter
+a=0
+for tiff_file in "$output_directory"/*.tiff; do
+  new=$(printf  "page_%03d.tiff" "$a")
+  mv -i -- "$tiff_file" "$output_directory/$new"
+  let a=a+1
+done
+
+
+
+# Generate PDF for printing
+# TODO: We may want to use Scribus first and merge the tiff files into the Scribus file instead of relying on this method
+
+echo "[img2pdf] Generating PDF"
+mkdir -p "$output_directory"/PDF
+img2pdf "$output_directory"/*.tiff -o "$output_directory"/PDF/B4_manga.pdf
+echo "[img2pdf] Created B4 pdf."
+img2pdf --pagesize A4 "$output_directory"/*.tiff -o "$output_directory"/PDF/A4_manga.pdf
+echo "[img2pdf] Created A4 pdf."
+
+echo "[zip] Creating zip file..."
+zip -j -9 "$output_directory/Manga_$(date +"%Y%m%d_%H%M%S").zip" "$output_directory/"*.tiff
+echo "[zip] Created zip file."
+
+
+mkdir -p "$output_directory"/TIFF
+mv "$output_directory"/*.tiff "$output_directory"/TIFF/
+
+echo "Process complete."

@@ -70,7 +70,7 @@ import Custom.MyDecorations (myBorderWidth, myFocusedBorderColor, myNormalBorder
 import Custom.MyScreen (rescreenCfg)
 import Custom.MyStartupApps (myStartupHook)
 import Custom.MyWorkspaces
-import Custom.MyLayouts (myLayoutHook, myLayoutHook2)
+import Custom.MyLayouts (myLayoutHook)
 import Custom.MyManagement
 import Custom.MyKeys (myKeys)
 import Colors.Nord

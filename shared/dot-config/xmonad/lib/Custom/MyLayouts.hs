@@ -14,6 +14,7 @@ import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerScreen
+import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed as XLR
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.ShowWName
@@ -84,7 +85,8 @@ sf = renamed [XLR.Replace "Float"] $ noBorders simplestFloat
 
 -- myLayout = boringWindows (ifWider 1080 (tall ||| bsp) (column ||| accordion) ||| tabs ||| full)
 
-myLayout = boringWindows (tall ||| bsp ||| column ||| accordion ||| tabs ||| full)
+myLayout = onWorkspaces ["Art"] full $
+           boringWindows (tall ||| bsp ||| column ||| accordion ||| tabs ||| full )
 
 -- STUDY: Check if XMonad.Layout.showWName allows for custom modification
 -- of the text provided.
@@ -93,7 +95,7 @@ myLayoutHook =
     smartBorders $
       mkToggle
         (NOBORDERS ?? FULL ?? EOT)
-        myLayout
+        myLayout 
 
 
 

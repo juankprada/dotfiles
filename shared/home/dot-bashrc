@@ -22,12 +22,13 @@ export EDITOR="emacsclient -t -a 'emacs'"              # $EDITOR use Emacs in te
 export SUDO_EDITOR="$EDITOR"
 export VISUAL="emacsclient -c -a emacs"           # $VISUAL use Emacs in GUI mode
 
+
 export LANG="en_US.UTF-8"
 export GTK_IM_MODULE="ibus"
 export QT_IM_MODULE="ibus"
 export XMODIFIERS="@im=ibus"
 
-
+OOO_FORCE_DESKTOP=kde4
 
 ### PATH
 if [ -d "$HOME/bin" ] ;

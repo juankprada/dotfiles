@@ -6,8 +6,9 @@ export QT_ENABLE_HIGHDPI_SCALING=1
 #export QT_SCREEN_SCALE_FACTORS=1
 #export QT_SCALE_FACTOR=1
 export QT_QPA_PLATFORMTHEME="qt5ct"
+
 export GTK_THEME="Arc-Dark"
-export XDG_CURRENT_DESKTOP="XFCE"
+export XDG_CURRENT_DESKTOP="LXDE"
 #export gtk-application-prefer-dark-theme=true
 
 xsetroot -cursor_name left_ptr &
@@ -53,7 +54,7 @@ systemctl enable --now --user "nm-applet.service"
 systemctl enable --now --user "dunst.service"
 systemctl enable --now --user "caffeine-indicator.service"
 systemctl enable --now --user "firewall-applet.service"
-#systemctl enable --now --user "juank-media-mpris-daemon.service"
+systemctl enable --now --user "juank-media-mpris-daemon.service"
 systemctl enable --now --user "pasystray.service"
 systemctl enable --now --user "polkit-agent.service"
 systemctl enable --now --user "udiskie.service"
@@ -62,7 +63,7 @@ sleep 1
 systemctl enable --now --user "picom.service"
 
 # For Color Profile management
-xiccd &
+#xiccd &
 
 ## TODO: Check how Redshift interfeere with colord and ICC profiles
 redshift-gtk &
