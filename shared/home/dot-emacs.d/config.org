@@ -163,18 +163,18 @@ Here we make it silent.
 *** =init.el= Custom intialization configurations
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (unless (or (daemonp) noninteractive init-file-debug)
-    ;; Suppress file handlers operations at startup
-    ;; `file-name-handler-alist' is consulted on each call to `require' and `load'
-    (let ((old-value file-name-handler-alist))
-      (setq file-name-handler-alist nil)
-      (set-default-toplevel-value 'file-name-handler-alist file-name-handler-alist)
-      (add-hook 'emacs-startup-hook
-                (lambda ()
-                  "Recover file name handlers."
-                  (setq file-name-handler-alist
-                        (delete-dups (append file-name-handler-alist old-value))))
-                101)))
+  ;; (unless (or (daemonp) noninteractive init-file-debug)
+  ;;   ;; Suppress file handlers operations at startup
+  ;;   ;; `file-name-handler-alist' is consulted on each call to `require' and `load'
+  ;;   (let ((old-value file-name-handler-alist))
+  ;;     (setq file-name-handler-alist nil)
+  ;;     (set-default-toplevel-value 'file-name-handler-alist file-name-handler-alist)
+  ;;     (add-hook 'emacs-startup-hook
+  ;;               (lambda ()
+  ;;                 "Recover file name handlers."
+  ;;                 (setq file-name-handler-alist
+  ;;                       (delete-dups (append file-name-handler-alist old-value))))
+  ;;               101)))
 
 #+end_src
 
@@ -222,7 +222,7 @@ this config works are degined within these modules and here is the place where t
   ;; ;; Preferences
   (require 'init-base)
   (require 'init-ui)
-
+  (require 'init-keybindings)
 
   (require 'init-edit)
   (require 'init-completion)
@@ -255,6 +255,7 @@ this config works are degined within these modules and here is the place where t
   (require 'init-python)
   (require 'init-ruby)
   (require 'init-web)
+  (require 'init-c)
 
   ;; (require 'init-elisp)
 
@@ -472,7 +473,7 @@ I may need to add comments to several sub-sections of this file.
   (defun juank-find-project-directory-recursive ()
     "Recursively search for a makefile."
     (interactive)
-    (if (file-exists-p juank-makescript) t
+    (if (file-exists-p juank-build-command) t
       (cd "../")
       (juank-find-project-directory-recursive)))
 
@@ -828,6 +829,9 @@ information for several packages to work with.
     (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)
     )
 
+  
+  (setq max-lisp-eval-depth 10000)
+
 #+end_src
 
 I want consistant behaviour in our keyboard between all different operating systems.
@@ -1030,7 +1034,7 @@ custom settings for improved performance at the time of coding.
 
 
   ;; Always start Emacs with a split view
-  ;;(split-window-horizontally)
+  (split-window-horizontally)
 
 #+end_src
 
@@ -1039,29 +1043,29 @@ custom settings for improved performance at the time of coding.
 
 I am currently using Protesilaos Modus Themes. But I may switch eventually
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
-  (use-package modus-themes
-    :init
-    ;; Load the theme of your choice.
-    (load-theme 'modus-vivendi-tinted)
-    :config
-    ;; Add all your customizations prior to loading the themes
-    (setq modus-themes-italic-constructs t
-          modus-themes-disable-other-themes t
-  	modus-themes-mixed-fonts t
-  	modus-themes-custom-auto-reload t
-  	modus-themes-variable-pitch-ui t
-          modus-themes-bold-constructs nil
-  	modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
-  	modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
-  	)
+    (use-package modus-themes
+      :init
+      ;; Load the theme of your choice.
+      (load-theme 'modus-vivendi-tinted)
+      :config
+      ;; Add all your customizations prior to loading the themes
+      (setq modus-themes-italic-constructs t
+            modus-themes-disable-other-themes t
+    	modus-themes-mixed-fonts t
+    	modus-themes-custom-auto-reload t
+    	modus-themes-variable-pitch-ui t
+            modus-themes-bold-constructs nil
+    	modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+    	modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
+    	)
 
-    ;; Maybe define some palette overrides, such as by using our presets
-    (setq modus-themes-common-palette-overrides
-          modus-themes-preset-overrides-intense)
+      ;; Maybe define some palette overrides, such as by using our presets
+      (setq modus-themes-common-palette-overrides
+            modus-themes-preset-overrides-intense)
+      )
 
 
-
-    (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+      
 #+end_src
 
 **** Fonts and Faces
@@ -1384,6 +1388,11 @@ should be default in emacs.
            ([remap isearch-query-replace] . anzu-isearch-query-replace)
            ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
     :hook (after-init . global-anzu-mode))
+
+  
+  ;; Duplcate lines
+  (global-set-key (kbd "C-c C-d") 'duplicate-line)
+
 
 #+end_src
 
@@ -1720,10 +1729,10 @@ one of the biggest packages here, if not the one with the most customizations.
            ("C-c T"   . consult-theme)
            ("C-."     . consult-imenu)
 
-           ("C-c c e" . consult-colors-emacs)
-           ("C-c c w" . consult-colors-web)
-           ("C-c c f" . describe-face)
-           ("C-c c t" . consult-theme)
+           ("C-c x e" . consult-colors-emacs)
+           ("C-c x w" . consult-colors-web)
+           ("C-c x f" . describe-face)
+           ("C-c x t" . consult-theme)
 
            ([remap Info-search]        . consult-info)
            ([remap isearch-forward]    . consult-line)
@@ -3036,12 +3045,12 @@ time trying to learn how to use it.
   (use-package org-roam
     :diminish
     :defines org-roam-graph-viewer
-    :bind (("C-c n l" . org-roam-buffer-toggle)
-           ("C-c n f" . org-roam-node-find)
-           ("C-c n g" . org-roam-graph)
-           ("C-c n i" . org-roam-node-insert)
-           ("C-c n c" . org-roam-capture)
-           ("C-c n j" . org-roam-dailies-capture-today))
+    :bind (("C-c C-n l" . org-roam-buffer-toggle)
+           ("C-c C-n f" . org-roam-node-find)
+           ("C-c C-n g" . org-roam-graph)
+           ("C-c C-n i" . org-roam-node-insert)
+           ("C-c C-n c" . org-roam-capture)
+           ("C-c C-n j" . org-roam-dailies-capture-today))
     :init
     (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
           org-roam-graph-viewer (if (featurep 'xwidget-internal)
@@ -3055,7 +3064,7 @@ time trying to learn how to use it.
     (org-roam-db-autosync-enable))
 
   (use-package org-roam-ui
-    :bind ("C-c n u" . org-roam-ui-mode)
+    :bind ("C-c C-n u" . org-roam-ui-mode)
     :init (when (featurep 'xwidget-internal)
             (setq org-roam-ui-browser-function #'xwidget-webkit-browse-url)))
 
@@ -3894,4 +3903,243 @@ Ruby and Ruby on Rails development.
   (provide 'init-web)
 #+end_src
 
+*** =init-c.el= C/C++ specific settings
+
+This is my latest attempt at using C as my main language.
+
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-c.el"
+   ;; init-c.el --- Initialize C/C++ configurations.	-*- lexical-binding: t -*-
+   (use-package cmake-mode)
+
+   ;; Set GDB to a sensible layout
+   (setq gdb-many-windows t gdb-show-main t)
+
+   (defconst juank-big-fun-c-style
+     '((c-electric-pound-behavior   . nil)
+       (c-tab-always-indent         . t)
+       (c-comment-only-line-offset  . 0)
+       (c-hanging-braces-alist      . ((class-open)
+       				    (class-close)
+       				    (defun-open)
+       				    (defun-close)
+       				    (inline-open)
+       				    (inline-close)
+       				    (brace-list-open)
+       				    (brace-list-close)
+       				    (brace-list-intro)
+       				    (brace-list-entry)
+       				    (block-open)
+       				    (block-close)
+       				    (substatement-open)
+       				    (statement-case-open)
+       				    (class-open)))
+       (c-hanging-colons-alist      . ((inher-intro)
+       				    (case-label)
+       				    (label)
+       				    (access-label)
+       				    (access-key)
+       				    (member-init-intro)))
+       (c-cleanup-list              . (scope-operator
+       				    list-close-comma
+       				    defun-close-semi))
+       (c-offsets-alist             . ((arglist-close         .  c-lineup-arglist)
+       				    (label                 . -4)
+       				    (access-label          . -4)
+       				    (substatement-open     .  0)
+       				    (statement-case-intro  .  4)
+       				    (statement-block-intro .  c-lineup-for)
+       				    (case-label            .  4)
+       				    (block-open            .  0)
+       				    (inline-open           .  0)
+       				    (topmost-intro-cont    .  0)
+       				    (knr-argdecl-intro     . -4)
+       				    (brace-list-open       .  0)
+       				    (brace-list-intro      .  4)))
+       (c-echo-syntactic-information-p . t))
+     "Juank Big Fun C++ Style totally not copied from Casey Muratori's on")
+
+   (defun juank-c-mode-hook ()
+       	(setq compilation-directory-locked nil)
+       	(setq juank-build-command "./build.sh")
+       	
+       	(when (bound-and-true-p juank-win32)
+       	  (setq juank-build-command "build.bat")
+       	  )
+
+   	(setq c-ts-mode-indent-offset 4)                                                                                                          
+  	(setq c-ts-mode-indent-style #'juank-big-fun-c-style)    
+     	;;(c-add-style "BigFun" juank-big-fun-c-style t)
+
+   	;;(setq c-ts-mode-indent-offset 4)
+   	;;(setq c-indent-level 4) ; a tab is equivalent to 4 spaces
+   	;;					; 4-space tabs
+   	(setq tab-width 4
+                 indent-tabs-mode nil)
+
+   					; Additional style stuff
+   	(c-set-offset 'member-init-intro '++)
+
+   					; No hungry backspace
+   	(c-toggle-auto-hungry-state -1)
+
+   					; Newline indents, semi-colon doesn't
+   	(define-key c-mode-map "\C-m" 'newline-and-indent)
+   	(setq c-hanging-semi&comma-criteria '((lambda () 'stop)))
+
+
+   					; Handle super-tabbify (TAB completes, shift-TAB actually tabs)
+   	(setq dabbrev-case-replace t)
+   	(setq dabbrev-case-fold-search t)
+   	(setq dabbrev-upcase-means-case-search t)
+   	(setq split-window-preferred-function 'casey-never-split-a-window)
+
+   					; Abbrevation expansion
+   	(abbrev-mode 1)
+
+   	(turn-on-font-lock)
+   	(defun juank-find-corresponding-file ()
+   	  "Find the file that corresponds to this one."
+   	  (interactive)
+   	  (setq CorrespondingFileName nil)
+   	  (setq BaseFileName (file-name-sans-extension buffer-file-name))
+   	  (if (string-match "\\.c" buffer-file-name)
+   	      (setq CorrespondingFileName (concat BaseFileName ".h")))
+   	  (if (string-match "\\.h" buffer-file-name)
+   	      (if (file-exists-p (concat BaseFileName ".c")) (setq CorrespondingFileName (concat BaseFileName ".c"))
+   		(setq CorrespondingFileName (concat BaseFileName ".cpp"))))
+   	  (if (string-match "\\.hin" buffer-file-name)
+   	      (setq CorrespondingFileName (concat BaseFileName ".cin")))
+   	  (if (string-match "\\.cin" buffer-file-name)
+   	      (setq CorrespondingFileName (concat BaseFileName ".hin")))
+   	  (if (string-match "\\.cpp" buffer-file-name)
+   	      (setq CorrespondingFileName (concat BaseFileName ".h")))
+   	  (if CorrespondingFileName (find-file CorrespondingFileName)
+   	    (error "Unable to find a corresponding file")))
+
+
+   	(defun juank-find-corresponding-file-other-window ()
+
+   	  "Find the file that corresponds to this one."
+   	  (interactive)
+   	  (find-file-other-window buffer-file-name)
+   	  (juank-find-corresponding-file)
+   	  (other-window -1))
+
+   	(setq comment-style 'multi-line)
+   	(setq comment-start "/* ")
+   	(setq comment-end " */")
+   	(setq c-indent-level 4) ; a tab is equivalent to 4 spaces
+   	(local-set-key  (kbd "C-c a") 'juank-find-corresponding-file-other-window)
+
+
+
+
+   	(defun juank-header-format ()
+   	  "Format the given file as a header file."
+   	  (interactive)
+   	  (setq BaseFileName (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
+   	  (insert "#if !defined(")
+   	  (push-mark)
+   	  (insert BaseFileName)
+   	  (upcase-region (mark) (point))
+   	  (pop-mark)
+   	  (insert "_H)\n")
+   	  (insert "/* ========================================================================\n")
+   	  (insert "   $File: $\n")
+   	  (insert "   $Date: $\n")
+   	  (insert "   $Revision: $\n")
+   	  (insert "   $Creator: Juan Prada $\n")
+   	  (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
+   	  (insert "   ======================================================================== */\n")
+   	  (insert "\n")
+   	  (insert "#define ")
+   	  (push-mark)
+   	  (insert BaseFileName)
+   	  (upcase-region (mark) (point))
+   	  (pop-mark)
+   	  (insert "_H\n")
+   	  (insert "#endif")
+   	  )
+
+
+   	(defun juank-source-format ()
+   	  "Format the given file as a source file."
+   	  (interactive)
+   	  (setq BaseFileName (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
+   	  (insert "/* ========================================================================\n")
+   	  (insert "   $File: $\n")
+   	  (insert "   $Date: $\n")
+   	  (insert "   $Revision: $\n")
+   	  (insert "   $Creator: Juan Prada $\n")
+   	  (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
+   	  (insert "   ======================================================================== */\n")
+   	  )
+
+
+   	(cond ((file-exists-p buffer-file-name) t)
+   	      ((string-match "[.]hin" buffer-file-name) (juank-source-format))
+   	      ((string-match "[.]cin" buffer-file-name) (juank-source-format))
+   	      ((string-match "[.]h" buffer-file-name) (juank-header-format))
+   	      ((string-match "[.]c" buffer-file-name) (juank-source-format))
+   	      ((string-match "[.]cpp" buffer-file-name) (juank-source-format)))
+
+
+   	(add-to-list 'compilation-error-regexp-alist 'juank-devenv)
+   	(add-to-list 'compilation-error-regexp-alist-alist '(juank-devenv
+   							     "*\\([0-9]+>\\)?\\(\\(?:[a-zA-Z]:\\)?[^:(\t\n]+\\)(\\([0-9]+\\)) : \\(?:see declaration\\|\\(?:warnin\\(g\\)\\|[a-z ]+\\) C[0-9]+:\\)"
+   							     2 3 nil (4)))
+
+   	(define-key c-mode-map "\t" 'dabbrev-expand)
+   	(define-key c-mode-map [S-tab] 'indent-for-tab-command)
+   	(define-key c-mode-map [C-tab] 'indent-region)
+
+       	
+       	) ;; End of My C hook
+
+
+
+   (defun juank-big-fun-compilation-hook ()
+     (make-local-variable 'truncate-lines)
+     (setq truncate-lines nil)
+     (setq compilation-context-lines 0)
+     )
+
+   (add-hook 'compilation-mode-hook 'juank-big-fun-compilation-hook)
+   (add-hook 'c-mode-common-hook 'juank-c-mode-hook)
+   (add-hook 'c-ts-mode-hook 'juank-c-mode-hook)
+
+   (provide 'init-c)
+#+end_src
+
+*** =init-keybindings.el= Some global key bindings
+
+#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-keybindings.el"
+  ;; Compile projects
+  (define-key global-map "\M-m" 'juank-make-without-asking)
+
+  ;; Toggle Modus Theme between light and dark
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
+
+  ;; Replace strings
+  (define-key global-map [f3] 'juank-replace-string)
+
+  (global-set-key [f9] 'first-error)
+  (global-set-key [f10] 'previous-error)
+  (global-set-key [f11] 'next-error)
+
+  ; activate whitespace-mode to view all whitespace characters
+  (global-set-key (kbd "C-c C-w") 'whitespace-mode)
+
+  ;; Comment and uncommpent shortcuts
+  (global-set-key  (kbd "C-c c") 'comment-region)
+  (global-set-key  (kbd "C-c u") 'uncomment-region)
+
+  ;; my shortcut for "go to line"
+  (global-set-key (kbd "C-c C-g") 'goto-line)
+
+  (global-set-key (kbd "C-x M-t") 'juank-cleanup-region)
+  (global-set-key (kbd "C-c n") 'juank-cleanup-buffer)
+
+  (provide 'init-keybindings)
+#+end_src
 ** Next
