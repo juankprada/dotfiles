@@ -1,4 +1,4 @@
-Config { font = "Terminess Nerd Font Propo Regular 12"
+Config { font = "Terminess Nerd Font Propo Regular 14"
        , additionalFonts = [ "Hack Nerd Font Mono 16"]
        , bgColor = "#2f343f"
        , fgColor = "#e6e6e6"
@@ -40,5 +40,5 @@ Config { font = "Terminess Nerd Font Propo Regular 12"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%_XMONAD_LOG_1%} <fc=#da8548>%musicicon% %music%</fc> {<action=`alacritty -e btop`>%cpu%</action> <action=`alacritty -e btop`>%memory%</action> %disku% %bell% <action=`alacritty -e sudo apt update && sudo apt upgrade`>%pacupdate%</action> <action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action> %alsa:default:Master%  <action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action> <action=`juank-logout-menu`>%shutdownicon%</action>"
+       , template = "%_XMONAD_LOG_1%} {<action=`alacritty -e btop`>%cpu%</action> <action=`alacritty -e btop`>%memory%</action> %disku% %bell% <action=`alacritty -e sudo apt update && sudo apt upgrade`>%pacupdate%</action> <action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action> %alsa:default:Master%  <action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action> <action=`juank-logout-menu`>%shutdownicon%</action>"
        }

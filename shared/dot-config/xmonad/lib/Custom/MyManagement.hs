@@ -27,7 +27,11 @@ myManagement =
     , className =? "steam" --> doShift (workspaceAt 6)
     , title =? "Krita" --> doShift (workspaceAt 7)
     , className =? "Gimp" --> doShift (workspaceAt 7)
+    , className =? "Lazarus" --> doFloat
     , isDialog --> doFloat
+    , title =? "Pathseekers" --> doFloat
+    , className =? "Pathseekers" --> doFloat
+    , appName =? "Pathseekers" --> doFloat
     , transience'
     
       -- (className =? "confirm")                                        --> doFloat,

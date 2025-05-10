@@ -24,31 +24,31 @@ italic = { family = "CaskaydiaMono Nerd Font", style = "Italic" }
 # One Dark
 # ========================================
 # Default colors
-[colors.primary]
-background = '#282c34'
-foreground = '#abb2bf'
+# [colors.primary]
+# background = '#282c34'
+# foreground = '#abb2bf'
 
-# Normal colors
-[colors.normal]
-black   = '#1e2127'
-red     = '#e06c75'
-green   = '#98c379'
-yellow  = '#d19a66'
-blue    = '#61afef'
-magenta = '#c678dd'
-cyan    = '#56b6c2'
-white   = '#abb2bf'
+# # Normal colors
+# [colors.normal]
+# black   = '#1e2127'
+# red     = '#e06c75'
+# green   = '#98c379'
+# yellow  = '#d19a66'
+# blue    = '#61afef'
+# magenta = '#c678dd'
+# cyan    = '#56b6c2'
+# white   = '#abb2bf'
 
-# Bright colors
-[colors.bright]
-black   = '#5c6370'
-red     = '#e06c75'
-green   = '#98c379'
-yellow  = '#d19a66'
-blue    = '#61afef'
-magenta = '#c678dd'
-cyan    = '#56b6c2'
-white   = '#ffffff'
+# # Bright colors
+# [colors.bright]
+# black   = '#5c6370'
+# red     = '#e06c75'
+# green   = '#98c379'
+# yellow  = '#d19a66'
+# blue    = '#61afef'
+# magenta = '#c678dd'
+# cyan    = '#56b6c2'
+# white   = '#ffffff'
 
 # Doom One Theme
 # ========================================    
@@ -71,29 +71,29 @@ white   = '#ffffff'
 # Gruvbox Theme
 # ========================================    
 # Default colors
-# [colors.primary]
-# background = '#282828'
-# foreground = '#d4be98'
+[colors.primary]
+background = '#282828'
+foreground = '#d4be98'
 
-# # Normal colors
-# [colors.normal]
-# black   = '#3c3836'
-# red     = '#ea6962'
-# green   = '#a9b665'
-# yellow  = '#d8a657'
-# blue    = '#7daea3'
-# magenta = '#d3869b'
-# cyan    = '#89b482'
-# white   = '#d4be98'
+# Normal colors
+[colors.normal]
+black   = '#3c3836'
+red     = '#ea6962'
+green   = '#a9b665'
+yellow  = '#d8a657'
+blue    = '#7daea3'
+magenta = '#d3869b'
+cyan    = '#89b482'
+white   = '#d4be98'
 
-# [colors.bright]
-# black   = '#3c3836'
-# red     = '#ea6962'
-# green   = '#a9b665'
-# yellow  = '#d8a657'
-# blue    = '#7daea3'
-# magenta = '#d3869b'
-# cyan    = '#89b482'
-# white   = '#d4be98'
+[colors.bright]
+black   = '#3c3836'
+red     = '#ea6962'
+green   = '#a9b665'
+yellow  = '#d8a657'
+blue    = '#7daea3'
+magenta = '#d3869b'
+cyan    = '#89b482'
+white   = '#d4be98'
 
 [terminal]

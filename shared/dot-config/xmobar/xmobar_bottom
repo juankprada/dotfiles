@@ -1,4 +1,4 @@
-Config { font    = "Terminess Nerd Font Propo Regular 12"
+Config { font    = "Terminess Nerd Font Propo Regular 14"
        , additionalFonts = [ "Hack Nerd Font Mono 16"]
        , bgColor = "#282c34"
        , fgColor = "#ff6c6b"
