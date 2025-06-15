@@ -1,0 +1,47 @@
+## Shadows
+#shadow = false;
+
+## Fading
+fading = false;
+no-fading-openclose = true;
+no-fading-destroyed-argb = true;
+
+## Transparency and opacity
+inactive-opacity = 1.0;
+active-opacity = 1.0;
+frame-opacity = 1.0;
+inactive-opacity-override = true;
+focus-exclude = [
+  "class_g = 'Cairo-clock'",
+  "class_g = 'Rofi'",
+  "class_g = 'Krita'"
+];
+
+## General Settings
+experimental-backends = true;
+backend = "glx";
+vsync = true;
+dbe = false;
+detect-client-opacity = true;
+detect-transient = true;
+glx-no-stencil = true;
+glx-use-copysubbuffer-mesa = true;
+use-damage = true;
+unredir-if-possible = true;
+no-frame-pacing = true;
+
+# sync via XRender fences (helpful for rotated outputs)
+xrender-sync-fence = true;
+
+wintypes:
+{
+  normal        = { fade = true; full-shadow = true; };
+  tooltip       = { fade = true; };
+  menu          = { fade = true; };
+  popup_menu    = { fade = true; };
+  dropdown_menu = { fade = true; };
+  utility       = { fade = true; };
+  dialog        = { fade = true; };
+  notify        = { fade = true; };
+  unknown       = { fade = true; };
+};

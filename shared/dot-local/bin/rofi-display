@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+chosen=$(printf "1. Laptop Screen Only\n2. Dev Studio (2 Displays)\n3. Art Studio (2 Display + Pen Display)\n4. Art Studio (Laptop Display + Pen Display)\n5. Custom Configuration (Arandr)" | rofi -dmenu -p "Display Screen layout")
+
+case "$chosen" in
+	"1. Laptop Screen Only") xrandr --output eDP --primary --mode 1920x1080 --pos 0x0 --rotate normal --output DP-1-0 --off --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --off --output HDMI-1-0 --off --output DP-1-4 --off ;;
+	"2. Dev Studio (2 Displays)") xrandr --output eDP --primary --mode 1920x1080 --pos 0x0 --rotate normal --output DP-1-0 --off --output DP-1-1 --off --output DP-1-2 --mode 3840x2160 --pos 1920x0 --rotate normal --output DP-1-3 --off --output HDMI-1-0 --off --output DP-1-4 --off ;;
+	"3. Art Studio (2 Display + Pen Display)") xrandr --output eDP --mode 1920x1080 --pos 0x0 --rotate normal --output DP-1-0 --off --output DP-1-1 --off --output DP-1-2 --primary --mode 3840x2160 --pos 1920x0 --rotate normal --output DP-1-3 --off --output HDMI-1-0 --mode 1920x1080 --pos 5760x0 --rotate normal --output DP-1-4 --off && xppen_Artist_Pro_15.6-3screens.sh;;
+    "4. Art Studio (Laptop Display + Pen Display)") xrandr --output eDP --primary --mode 1920x1080 --pos 0x0 --rotate normal --output DP-1-0 --off --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --off --output HDMI-1-0 --mode 1920x1080 --pos 1920x0 --rotate normal --output DP-1-4 --off && xppen_Artist_Pro_15.6.sh;;
+	"5. Custom Configuration (Arandr)") arandr ;;
+esac

@@ -22,7 +22,7 @@ his, the *.el* files are generated only after evaluating the following line from
 emacs ( by running  =C-c C-v C-t= )
 
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (org-babel-tangle)
 #+end_src
 
@@ -66,7 +66,7 @@ Packages should be compiles ahead-of-time when they are installed and site files
 are supposed to be compile when gccemacs is installed.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-    ;(setq gc-cons-threshold most-positive-fixnum)
+  										;(setq gc-cons-threshold most-positive-fixnum)
   (defvar default-file-name-handler-alist file-name-handler-alist)
   (setq file-name-handler-alist nil)
   (setq gc-cons-threshold 80000000)
@@ -77,8 +77,8 @@ are supposed to be compile when gccemacs is installed.
               (setq gc-cons-threshold 800000)
               (add-hook 'focus-out-hook 'garbage-collect)))
 
-    (setq native-comp-deferred-compilation nil ;; obsolete since 29.1
-          native-comp-jit-compilation nil)
+  (setq native-comp-deferred-compilation nil ;; obsolete since 29.1
+        native-comp-jit-compilation nil)
 
 #+end_src
 
@@ -115,8 +115,6 @@ tool-bars, etc are disabled as early as possible.
   (push '(vertical-scroll-bars) default-frame-alist)
   (when (featurep 'ns)
     (push '(ns-transparent-titlebar . t) default-frame-alist))
-  (setq-default mode-line-format nil)
-
 
   ;; Prevent flashing of unstyled modeline at startup
   (setq-default mode-line-format nil)
@@ -139,9 +137,9 @@ This is where all individual modules are loaded and custom macros and definition
   apps are not started from a shell."
     (interactive)
     (let ((path-from-shell (replace-regexp-in-string
-  			  "[ \t\n]*$" "" (shell-command-to-string
-  					  "$SHELL --login -c 'echo $PATH'"
-  					  ))))
+  						  "[ \t\n]*$" "" (shell-command-to-string
+  										  "$SHELL --login -c 'echo $PATH'"
+  										  ))))
       (setenv "PATH" path-from-shell)
       (setq exec-path (split-string path-from-shell path-separator))))
 
@@ -197,7 +195,7 @@ Here we make it silent.
 #+end_src
 
 After defining the way my custom packages will be loaded
-we advice =package-initialize= to load after upidatingh the =load-path= 
+we advice =package-initialize= to load after upidatingh the =load-path=
 
 #+begin_src emacs-lisp :tangle "init.el"
   (advice-add #'package-initialize :after #'update-load-path)
@@ -350,349 +348,397 @@ Most of these require better documentation (sorry for that).
 I may need to add comments to several sub-sections of this file.
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-funcs.el"
-  ;; init-funcs.el --- Define functions.	-*- lexical-binding: t -*-
+    ;; init-funcs.el --- Define functions.	-*- lexical-binding: t -*-
 
-  ;; Suppress warnings
-  (eval-when-compile
-    (require 'init-const)
-    )
+    ;; Suppress warnings
+    (eval-when-compile
+      (require 'init-const)
+      )
 
-  (defun icons-displayable-p ()
-    "Return non-nil if icons are displayable."
-    (or (featurep 'nerd-icons)
-        (require 'nerd-icons nil t)))
+    (defun icons-displayable-p ()
+      "Return non-nil if icons are displayable."
+      (or (featurep 'nerd-icons)
+          (require 'nerd-icons nil t)))
 
-  (defun childframe-workable-p ()
-    "Whether childframe is workable."
-    (not (or noninteractive
-             emacs-basic-display
-             (not (display-graphic-p)))))
-
-
-
-  (defun juank-dashboard-logo ()
-    "Returns the path to a random logo specifid in the `~/.emacs.d/logos` directory"
-    (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")
-    )
-
-  (defun juank-align-non-space (BEG END)
-    "Align non-space columns in region BEG END."
-    (interactive "r")
-    (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
-
-  (defun juank-never-split-a-window
-      ;; "Never, ever split a window.  Why would anyone EVER want you to do that??"
-      nil)
-
-  (defun juank-replace-string (FromString ToString)
-    "Replace a string without moving point."
-    (interactive "sReplace: \nsReplace: %s  With: ")
-    (save-excursion
-      (replace-string FromString ToString)
-      ))
-
-
-  (defun juank-previous-blank-line ()
-    "Moves to the previous line containing nothing but whitespace."
-    (interactive)
-    (search-backward-regexp "^[ \t]*\n")
-    )
-
-  (defun juank-next-blank-line ()
-    "Moves to the next line containing nothing but whitespace."
-    (interactive)
-    (forward-line)
-    (search-forward-regexp "^[ \t]*\n")
-    (forward-line -1)
-    )
-
-  (defun juank-byte-compile-dotfiles ()
-    "Byte compile all Emacs dotfiles."
-    (interactive)
-    ;; Automatically recompile the entire .emacs.d directory.
-    (byte-recompile-directory (expand-file-name config-dir) 0))
-
-  (defun juank-byte-compile-user-init-file ()
-    (let ((byte-compile-warnings '(unresolved)))
-      ;; in case compilation fails, don't leave the old .elc around:
-      (when (file-exists-p (concat user-init-file ".elc"))
-        (delete-file (concat user-init-file ".elc")))
-      (byte-compile-file user-init-file)
-      ;;(byte-compile-dotfiles)
-      ;; (message "%s compiled" user-init-file)
-      ))
-
-  ;; Prevent C-x C-c to kill emacs!!
-  (defun juank-dont-kill-emacs()
-    "Disable C-x C-c binding execute kill-emacs."
-    (interactive)
-    (error (substitute-command-keys "To exit emacs: \\[kill-emacs]")))
-
-
-  ;; Delete the current file
-  (defun juank-delete-this-file ()
-    "Delete the current file, and kill the buffer."
-    (interactive)
-    (unless (buffer-file-name)
-      (error "No file is currently being edited"))
-    (when (yes-or-no-p (format "Really delete '%s'?"
-                               (file-name-nondirectory buffer-file-name)))
-      (delete-file (buffer-file-name))
-      (kill-this-buffer)))
-
-
-  ;; Rename the current file
-  (if (fboundp 'rename-visited-file)
-      (defalias 'juank-rename-this-file-and-buffer 'rename-visited-file)
-    (defun juank-rename-this-file-and-buffer (new-name)
-      "Renames both current buffer and file it's visiting to NEW-NAME."
-      (interactive "sNew name: ")
-      (let ((name (buffer-name))
-            (filename (buffer-file-name)))
-        (unless filename
-          (error "Buffer '%s' is not visiting a file!" name))
-        (progn
-          (when (file-exists-p filename)
-            (rename-file filename new-name 1))
-          (set-visited-file-name new-name)
-          (rename-buffer new-name)))))
-
-
-  ;; function to call a command at a specific directory
-  (defun juank-at-directory-do ()
-    "reads a directory name (using ido), then runs
-                                          execute-extended-command with default-directory in the given
-                                          directory."
-    (interactive)
-    (let ((default-directory
-           (read-directory-name "in directory: "
-                                nil nil t)))
-      (call-interactively 'execute-extended-command)))
-
-
-  (defun juank-find-project-directory-recursive ()
-    "Recursively search for a makefile."
-    (interactive)
-    (if (file-exists-p juank-build-command) t
-      (cd "../")
-      (juank-find-project-directory-recursive)))
-
-
-  (defun juank-lock-compilation-directory ()
-    "The compilation process should NOT hunt for a makefile"
-    (interactive)
-    (setq compilation-directory-locked t)
-    (message "Compilation directory is locked."))
-
-
-  (defun juank-unlock-compilation-directory ()
-    "The compilation process SHOULD hunt for a makefile"
-    (interactive)
-    (setq compilation-directory-locked nil)
-    (message "Compilation directory is roaming."))
-
-  (defun juank-find-project-directory ()
-    "Find the project directory."
-    (interactive)
-    (setq find-project-from-directory default-directory)
-    (switch-to-buffer-other-window "*compilation*")
-    (if compilation-directory-locked (cd last-compilation-directory)
-      (cd find-project-from-directory)
-      (juank-find-project-directory-recursive)
-      (setq last-compilation-directory default-directory)))
-
-  (defun juank-make-without-asking ()
-    "Make the current build."
-    (interactive)
-    (if (juank-find-project-directory) (compile juank-build-command))
-    (other-window 1))
-
-
-  (defun juank-clean-without-asking()
-    "Clean the current build."
-    (interactive)
-    (if (find-project-directory) (compile juank-clean-command))
-    (other-window 1))
-
-  (defun juank-run-without-asking()
-    "Run the current build."
-    (interactive)
-    (if (juank-find-project-directory) (compile juank-run-command))
-    (other-window 1))
-
-
-  ;; Function used to call the compile command at a specific dir
-  (defun juank-project-compile ()
-    "reads a directory name then runs
-                                          execute-extended-command with default-directory in the given
-                                          directory."
-    (interactive)
-    (let ((default-directory
-           (read-directory-name "compile in directory: "
-                                nil nil t)))
-      (call-interactively 'compile)))
-
-  ;; custom grep tool
-  (defun juank-my-grep ()
-    "grep recursively for something.  defaults to item at cursor
-                                            position and current directory."
-    (interactive)
-    (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
-    )
-
-  ;; function to remove windows line ending
-  (defun juank-remove-windows-line-endings ()
-    "removes the ^m line endings"
-    (interactive)
-    (replace-string "\^M" "")
-    )
-
-
-  (defun juank-untabify-buffer ()
-    (interactive)
-    (untabify (point-min) (point-max)))
-
-  (defun juank-indent-buffer ()
-    (interactive)
-    (indent-region (point-min) (point-max)))
-
-  (defun juank-cleanup-buffer ()
-    "Perform a bunch of operations on the whitespace content of a buffer."
-    (interactive)
-  					;(indent-buffer)
-    ;;(untabify-buffer)
-    (delete-trailing-whitespace))
-
-
-  (defun juank-cleanup-region (beg end)
-    "Remove tmux artifacts from region."
-    (interactive "r")
-    (dolist (re '("\\\\│\·*\n" "\W*│\·*"))
-      (replace-regexp re "" nil beg end)))
+    (defun childframe-workable-p ()
+      "Whether childframe is workable."
+      (not (or noninteractive
+               emacs-basic-display
+               (not (display-graphic-p)))))
 
 
 
-  ;; search word at point
-  (defun juuank-isearch-word-at-point ()
-    (interactive)
-    (call-interactively 'isearch-forward-regexp))
+    (defun juank-dashboard-logo ()
+      "Returns the path to a random logo specifid in the `~/.emacs.d/logos` directory"
+      (concat "~/.emacs.d/logos/logo-" (number-to-string (random 21)) ".png")
+      )
 
+    (defun juank-align-non-space (BEG END)
+      "Align non-space columns in region BEG END."
+      (interactive "r")
+      (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
 
-  (defun juank-isearch-yank-word-hook ()
-    (when (equal this-command 'juank-isearch-word-at-point)
-      (let ((string (concat "\\<"
-                            (buffer-substring-no-properties
-                             (progn (skip-syntax-backward "w_") (point))
-                             (progn (skip-syntax-forward "w_") (point)))
-                            "\\>")))
-        (if (and isearch-case-fold-search
-                 (eq 'not-yanks search-upper-case))
-            (setq string (downcase string)))
-        (setq isearch-string string
-              isearch-message
-              (concat isearch-message
-                      (mapconcat 'isearch-text-char-description
-                                 string ""))
-              isearch-yank-flag t)
-        (isearch-search-and-update))))
+    (defun juank-never-split-a-window
+        ;; "Never, ever split a window.  Why would anyone EVER want you to do that??"
+        nil)
 
-
-  (defun juank-to-unix-file ()
-    "Change the current buffer to Latin 1 with Unix line-ends."
-    (interactive)
-    (set-buffer-file-coding-system 'iso-latin-1-unix t))
-
-  (defun juank-to-dos-file ()
-    "Change the current buffer to Latin 1 with DOS line-ends."
-    (interactive)
-    (set-buffer-file-coding-system 'iso-latin-1-dos t))
-
-  (defun juank-to-mac-file ()
-    "Change the current buffer to Latin 1 with Mac line-ends."
-    (interactive)
-    (set-buffer-file-coding-system 'iso-latin-1-mac t))
-
-  ;; function to duplicate current line
-  (defun juank-duplicate-line()
-    (interactive)
-    (move-beginning-of-line 1)
-    (kill-line)
-    (yank)
-    (open-line 1)
-    (next-line 1)
-    (yank)
-    )
-
-  (defun juank-save-all-buffers ()
-    "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
-    (interactive)
-    (save-some-buffers t))
-
-
-  (defun juank-edit-configs ()
-    "Opens the custom.org file."
-    (interactive)
-    (find-file "~/.emacs.d/config.org"))
-
-  (defun juank-save-and-update-includes ()
-    "Update the line numbers of #+INCLUDE:s in current buffer.
-                            Only looks at INCLUDEs that have either :range-begin or :range-end.
-                            This function does nothing if not in `org-mode', so you can safely
-                            add it to `before-save-hook'."
-    (interactive)
-    (when (derived-mode-p 'org-mode)
+    (defun juank-replace-string (FromString ToString)
+      "Replace a string without moving point."
+      (interactive "sReplace: \nsReplace: %s  With: ")
       (save-excursion
-        (goto-char (point-min))
-        (while (search-forward-regexp
-                "^\\s-*#\\+INCLUDE: *\"\\([^\"]+\\)\".*:range-\\(begin\\|end\\)"
-                nil 'noerror)
-          (let* ((file (expand-file-name (match-string-no-properties 1)))
-                 lines begin end)
-            (forward-line 0)
-            (when (looking-at "^.*:range-begin *\"\\([^\"]+\\)\"")
-              (setq begin (match-string-no-properties 1)))
-            (when (looking-at "^.*:range-end *\"\\([^\"]+\\)\"")
-              (setq end (match-string-no-properties 1)))
-            (setq lines (decide-line-range file begin end))
-            (when lines
-              (if (looking-at ".*:lines *\"\\([-0-9]+\\)\"")
-                  (replace-match lines :fixedcase :literal nil 1)
-                (goto-char (line-end-position))
-                (insert " :lines \"" lines "\""))))))))
-  (add-hook 'before-save-hook #'save-and-update-includes)
+        (replace-string FromString ToString)
+        ))
 
 
-  (defun juank-where-am-i ()
-    "An interactive function showing function `buffer-file-name' or `buffer-name'."
+    (defun juank-previous-blank-line ()
+      "Moves to the previous line containing nothing but whitespace."
+      (interactive)
+      (search-backward-regexp "^[ \t]*\n")
+      )
+
+    (defun juank-next-blank-line ()
+      "Moves to the next line containing nothing but whitespace."
+      (interactive)
+      (forward-line)
+      (search-forward-regexp "^[ \t]*\n")
+      (forward-line -1)
+      )
+
+    (defun juank-byte-compile-dotfiles ()
+      "Byte compile all Emacs dotfiles."
+      (interactive)
+      ;; Automatically recompile the entire .emacs.d directory.
+      (byte-recompile-directory (expand-file-name config-dir) 0))
+
+    (defun juank-byte-compile-user-init-file ()
+      (let ((byte-compile-warnings '(unresolved)))
+        ;; in case compilation fails, don't leave the old .elc around:
+        (when (file-exists-p (concat user-init-file ".elc"))
+          (delete-file (concat user-init-file ".elc")))
+        (byte-compile-file user-init-file)
+        ;;(byte-compile-dotfiles)
+        ;; (message "%s compiled" user-init-file)
+        ))
+
+    ;; Prevent C-x C-c to kill emacs!!
+    (defun juank-dont-kill-emacs()
+      "Disable C-x C-c binding execute kill-emacs."
+      (interactive)
+      (error (substitute-command-keys "To exit emacs: \\[kill-emacs]")))
+
+
+    ;; Delete the current file
+    (defun juank-delete-this-file ()
+      "Delete the current file, and kill the buffer."
+      (interactive)
+      (unless (buffer-file-name)
+        (error "No file is currently being edited"))
+      (when (yes-or-no-p (format "Really delete '%s'?"
+                                 (file-name-nondirectory buffer-file-name)))
+        (delete-file (buffer-file-name))
+        (kill-this-buffer)))
+
+
+    ;; Rename the current file
+    (if (fboundp 'rename-visited-file)
+        (defalias 'juank-rename-this-file-and-buffer 'rename-visited-file)
+      (defun juank-rename-this-file-and-buffer (new-name)
+        "Renames both current buffer and file it's visiting to NEW-NAME."
+        (interactive "sNew name: ")
+        (let ((name (buffer-name))
+              (filename (buffer-file-name)))
+          (unless filename
+            (error "Buffer '%s' is not visiting a file!" name))
+          (progn
+            (when (file-exists-p filename)
+              (rename-file filename new-name 1))
+            (set-visited-file-name new-name)
+            (rename-buffer new-name)))))
+
+
+    ;; function to call a command at a specific directory
+    (defun juank-at-directory-do ()
+      "reads a directory name (using ido), then runs
+                                                execute-extended-command with default-directory in the given
+                                                directory."
+      (interactive)
+      (let ((default-directory
+             (read-directory-name "in directory: "
+                                  nil nil t)))
+        (call-interactively 'execute-extended-command)))
+
+    (defvar juank-project-root-files
+      '("build.sh" "build.bat" "Makefile" ".project.el" ".git")
+      "List of files that identify the root of a project.")
+
+    ;; (defun juank-find-project-directory-recursive ()
+    ;;   "Recursively search for a makefile."
+    ;;   (interactive)
+    ;;   (if (file-exists-p ".git") t
+    ;;     (cd "../")
+    ;;     (juank-find-project-directory-recursive)))
+
+    (defun juank-find-project-directory-recursive ()
+      "Recursively search for a makefile."
+      (interactive)
+      (let ((project-files '(".git" ".project.el" "build.sh" "build.bat" "Makefile")))
+        (if (cl-some #'file-exists-p project-files)
+        	t
+          (cd "../")
+          (juank-find-project-directory-recursive))))
+
+
+
+    (defun juank-lock-compilation-directory ()
+      "The compilation process should NOT hunt for a makefile"
+      (interactive)
+      (setq compilation-directory-locked t)
+      (message "Compilation directory is locked."))
+
+
+    (defun juank-unlock-compilation-directory ()
+      "The compilation process SHOULD hunt for a makefile"
+      (interactive)
+      (setq compilation-directory-locked nil)
+      (message "Compilation directory is roaming."))
+
+    (defun juank-find-project-directory ()
+      "Find the project directory."
+      (interactive)
+      (setq find-project-from-directory default-directory)
+      (switch-to-buffer-other-window "*compilation*")
+      (if compilation-directory-locked (cd last-compilation-directory)
+        (cd find-project-from-directory)
+        (juank-find-project-directory-recursive)
+        (setq last-compilation-directory default-directory)))
+
+    (defun juank-make-without-asking ()
+      "Make the current build."
+      (interactive)
+      (if (juank-find-project-directory) (compile juank-build-command))
+      (other-window 1))
+
+
+    (defun juank-clean-without-asking()
+      "Clean the current build."
+      (interactive)
+      (if (find-project-directory) (compile juank-clean-command))
+      (other-window 1))
+
+    (defun juank-run-without-asking()
+      "Run the current build."
+      (interactive)
+      (if (juank-find-project-directory) (compile juank-run-command))
+      (other-window 1))
+
+
+    ;; Function used to call the compile command at a specific dir
+    (defun juank-project-compile ()
+      "reads a directory name then runs
+                                                execute-extended-command with default-directory in the given
+                                                directory."
+      (interactive)
+      (let ((default-directory
+             (read-directory-name "compile in directory: "
+                                  nil nil t)))
+        (call-interactively 'compile)))
+
+    ;; custom grep tool
+    (defun juank-my-grep ()
+      "grep recursively for something.  defaults to item at cursor
+                                                  position and current directory."
+      (interactive)
+      (grep (read-string "run grep as: " (concat "grep -isrni " "\"" (thing-at-point 'symbol) "\"" " .")))
+      )
+
+    ;; function to remove windows line ending
+    (defun juank-remove-windows-line-endings ()
+      "removes the ^m line endings"
+      (interactive)
+      (replace-string "\^M" "")
+      )
+
+
+    (defun juank-untabify-buffer ()
+      (interactive)
+      (untabify (point-min) (point-max)))
+
+    (defun juank-indent-buffer ()
+      (interactive)
+      (indent-region (point-min) (point-max)))
+
+    (defun juank-cleanup-buffer ()
+      "Perform a bunch of operations on the whitespace content of a buffer."
+      (interactive)
+    										;(indent-buffer)
+      ;;(untabify-buffer)
+      (delete-trailing-whitespace))
+
+
+    (defun juank-cleanup-region (beg end)
+      "Remove tmux artifacts from region."
+      (interactive "r")
+      (dolist (re '("\\\\│\·*\n" "\W*│\·*"))
+        (replace-regexp re "" nil beg end)))
+
+
+
+    (defun juank-counsel-rg-thing-at-point ()
+      "Call `counsel-rg` with the selected region or symbol at point.
+    If nothing is at point, call `counsel-rg` normally."
+      (interactive)
+      (let* ((use-region (use-region-p))
+             (text (if use-region
+                       (buffer-substring-no-properties (region-beginning) (region-end))
+                     (thing-at-point 'symbol t))))
+        (if (and text (not (string-empty-p text)))
+            (counsel-rg text)
+          (counsel-rg))))
+
+
+    ;; search word at point
+    (defun juank-isearch-word-at-point ()
+      (interactive)
+      (call-interactively 'isearch-forward-regexp))
+
+
+    (defun juank-isearch-yank-word-hook ()
+      (when (equal this-command 'juank-isearch-word-at-point)
+        (let ((string (concat "\\<"
+                              (buffer-substring-no-properties
+                               (progn (skip-syntax-backward "w_") (point))
+                               (progn (skip-syntax-forward "w_") (point)))
+                              "\\>")))
+          (if (and isearch-case-fold-search
+                   (eq 'not-yanks search-upper-case))
+              (setq string (downcase string)))
+          (setq isearch-string string
+                isearch-message
+                (concat isearch-message
+                        (mapconcat 'isearch-text-char-description
+                                   string ""))
+                isearch-yank-flag t)
+          (isearch-search-and-update))))
+
+
+    (defun juank-to-unix-file ()
+      "Change the current buffer to Latin 1 with Unix line-ends."
+      (interactive)
+      (set-buffer-file-coding-system 'iso-latin-1-unix t))
+
+    (defun juank-to-dos-file ()
+      "Change the current buffer to Latin 1 with DOS line-ends."
+      (interactive)
+      (set-buffer-file-coding-system 'iso-latin-1-dos t))
+
+    (defun juank-to-mac-file ()
+      "Change the current buffer to Latin 1 with Mac line-ends."
+      (interactive)
+      (set-buffer-file-coding-system 'iso-latin-1-mac t))
+
+    ;; function to duplicate current line
+    (defun juank-duplicate-line()
+      (interactive)
+      (move-beginning-of-line 1)
+      (kill-line)
+      (yank)
+      (open-line 1)
+      (next-line 1)
+      (yank)
+      )
+
+    (defun juank-save-all-buffers ()
+      "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
+      (interactive)
+      (save-some-buffers t))
+
+
+    (defun juank-edit-configs ()
+      "Opens the custom.org file."
+      (interactive)
+      (find-file "~/.emacs.d/config.org"))
+
+    (defun juank-save-and-update-includes ()
+      "Update the line numbers of #+INCLUDE:s in current buffer.
+                                  Only looks at INCLUDEs that have either :range-begin or :range-end.
+                                  This function does nothing if not in `org-mode', so you can safely
+                                  add it to `before-save-hook'."
+      (interactive)
+      (when (derived-mode-p 'org-mode)
+        (save-excursion
+          (goto-char (point-min))
+          (while (search-forward-regexp
+                  "^\\s-*#\\+INCLUDE: *\"\\([^\"]+\\)\".*:range-\\(begin\\|end\\)"
+                  nil 'noerror)
+            (let* ((file (expand-file-name (match-string-no-properties 1)))
+                   lines begin end)
+              (forward-line 0)
+              (when (looking-at "^.*:range-begin *\"\\([^\"]+\\)\"")
+                (setq begin (match-string-no-properties 1)))
+              (when (looking-at "^.*:range-end *\"\\([^\"]+\\)\"")
+                (setq end (match-string-no-properties 1)))
+              (setq lines (decide-line-range file begin end))
+              (when lines
+                (if (looking-at ".*:lines *\"\\([-0-9]+\\)\"")
+                    (replace-match lines :fixedcase :literal nil 1)
+                  (goto-char (line-end-position))
+                  (insert " :lines \"" lines "\""))))))))
+    (add-hook 'before-save-hook #'save-and-update-includes)
+
+    ;; WORKAROUND: fix blank screen issue on macOS.
+    (defun juank-fix-fullscreen-cocoa ()
+      "Address blank screen issue with child-frame in fullscreen.
+                This issue has been addressed in 28."
+      (and sys/mac-cocoa-p
+           (not emacs/>=28p)
+           (bound-and-true-p ns-use-native-fullscreen)
+           (setq ns-use-native-fullscreen nil)))
+
+    (defun update-packages ()
+      "Refresh package contents and update all packages."
+      (interactive)
+      (message "Updating packages...")
+      (package-upgrade-all)
+      (message "Updating packages...done"))
+    (defalias 'juank-update-packages #'update-packages)
+
+
+  (defun pascal-to-snake-case (str)
+  "Convert PascalCase STR to snake_case, fully lowercased."
+  (let ((case-fold-search nil))
+    (downcase
+     (replace-regexp-in-string
+      "\\([A-Z]+\\)\\([A-Z][a-z]\\)" "\\1_\\2"
+      (replace-regexp-in-string
+       "\\([a-z0-9]\\)\\([A-Z]\\)" "\\1_\\2" str)))))
+  
+    
+  (defun convert-pascal-identifiers-to-snake ()
+    "Convert all PascalCase identifiers in the buffer or region to snake_case."
     (interactive)
-    (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
+    (let* ((case-fold-search nil)
+           (bounds (if (use-region-p)
+                       (cons (region-beginning) (region-end))
+                     (cons (point-min) (point-max)))))
+      (save-excursion
+        (goto-char (car bounds))
+        (while (re-search-forward "\\b[A-Z][a-zA-Z0-9]*\\b" (cdr bounds) t)
+          (let* ((match (match-string 0))
+                 (replacement (pascal-to-snake-case match)))
+            (when (not (string= match replacement))
+              (replace-match replacement)))))))
 
-  ;; WORKAROUND: fix blank screen issue on macOS.
-  (defun juank-fix-fullscreen-cocoa ()
-    "Address blank screen issue with child-frame in fullscreen.
-          This issue has been addressed in 28."
-    (and sys/mac-cocoa-p
-         (not emacs/>=28p)
-         (bound-and-true-p ns-use-native-fullscreen)
-         (setq ns-use-native-fullscreen nil)))
+    ;; Fonts
+    (defun juank-install-fonts ()
+      "Install necessary fonts."
+      (interactive)
+      (nerd-icons-install-fonts))
 
-  (defun update-packages ()
-    "Refresh package contents and update all packages."
-    (interactive)
-    (message "Updating packages...")
-    (package-upgrade-all)
-    (message "Updating packages...done"))
-  (defalias 'juank-update-packages #'update-packages)
-
-
-  ;; Fonts
-  (defun juank-install-fonts ()
-    "Install necessary fonts."
-    (interactive)
-    (nerd-icons-install-fonts))
-
-  (provide 'init-funcs)
+    (provide 'init-funcs)
 #+end_src
+
+#+RESULTS:
+: init-funcs
 
 *** =init-package.el= Packages definition.
 
@@ -812,6 +858,7 @@ information for several packages to work with.
   (when (fboundp 'set-charset-priority)
     (set-charset-priority 'unicode))
   (prefer-coding-system 'utf-8)
+  (setq default-buffer-file-coding-systrem 'utf8-unix)
   (setq locale-coding-system 'utf-8)
   (setq system-time-locale "C")
   (unless sys/win32p
@@ -829,8 +876,8 @@ information for several packages to work with.
     (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)
     )
 
-  
-  (setq max-lisp-eval-depth 10000)
+
+  (setq max-lisp-eval-depth 20000)
 
 #+end_src
 
@@ -895,7 +942,7 @@ process within emacs based on the usage. Here we set it up
 Finally we define some settings always keeping in mind my custom
 requirements.
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-base.el"
-  (setq blink-matching-paren nil)
+  (setq blink-matching-paren 1)
   (setq delete-pair-blink-delay 0.1)
   (setq help-window-select t)
   (setq next-error-recenter '(4)) ; center of the window
@@ -912,7 +959,7 @@ requirements.
         duplicate-region-final-position -1)
   (setq scroll-error-top-bottom t)
 
-                                          ; Don't autosave.
+  										; Don't autosave.
   (setq auto-save-default nil)
   ;; make copy and paste use the same clipboard as emacs.
   (setq select-enable-primary t)
@@ -945,7 +992,7 @@ requirements.
   (set-default 'truncate-lines t)
 
   ;; make the region visible (but only up to the next operation on it)
-  (setq transient-mark-mode t)		
+  (setq transient-mark-mode t)
 
   ;; don't add new lines to the end of a file when using down-arrow key
   (setq next-line-add-newlines nil)
@@ -960,15 +1007,15 @@ requirements.
   (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
   ;; Don’t compact font caches during GC
-  (setq inhibit-compacting-font-caches t)  
+  (setq inhibit-compacting-font-caches t)
 
   ;; Deleting files go to OS's trash folder
-  (setq delete-by-moving-to-trash t)       
+  (setq delete-by-moving-to-trash t)
 
-  (setq adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*")
-  (setq adaptive-fill-first-line-regexp "^* *$")
-  (setq sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*")
-  (setq sentence-end-double-space nil)
+  ;; (setq adaptive-fill-regexp "[ t]+|[ t]*([0-9]+.|*+)[ t]*")
+  ;; (setq adaptive-fill-first-line-regexp "^* *$")
+  ;; (setq sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*")
+  ;; (setq sentence-end-double-space nil)
   (setq word-wrap-by-category t)
 
   ;; Move Custom-Set-Variables to Different File
@@ -976,6 +1023,15 @@ requirements.
   (load custom-file 'noerror)
   ;; Set the initial buffer as the Dashboard
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+
+  ;; Stop Emacs from losing undo information by
+  ;; setting very high limits for undo buffers
+  (setq undo-limit 20000000)
+  (setq undo-strong-limit 40000000)
+
+  ;; Set indentation level to 4.
+  (setq-default tab-width 4)
+
 
   (provide 'init-base)
 #+end_src
@@ -1020,7 +1076,7 @@ custom settings for improved performance at the time of coding.
 
   (when (and sys/mac-ns-p sys/mac-x-p)
     ;;(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    ;;(add-to-list 'default-frame-alist '(ns-appearance . dark))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))
     (add-hook 'server-after-make-frame-hook
               (lambda ()
                 (if (display-graphic-p)
@@ -1035,6 +1091,11 @@ custom settings for improved performance at the time of coding.
 
   ;; Always start Emacs with a split view
   (split-window-horizontally)
+  (setq split-height-threshold 20)
+  (setq split-width-threshold nil)
+
+  ;; Colors ("Colors" in some other languages)
+  (setq global-font-lock-mode t)
 
 #+end_src
 
@@ -1043,29 +1104,30 @@ custom settings for improved performance at the time of coding.
 
 I am currently using Protesilaos Modus Themes. But I may switch eventually
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
-    (use-package modus-themes
-      :init
-      ;; Load the theme of your choice.
-      (load-theme 'modus-vivendi-tinted)
-      :config
-      ;; Add all your customizations prior to loading the themes
-      (setq modus-themes-italic-constructs t
-            modus-themes-disable-other-themes t
-    	modus-themes-mixed-fonts t
-    	modus-themes-custom-auto-reload t
-    	modus-themes-variable-pitch-ui t
-            modus-themes-bold-constructs nil
-    	modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
-    	modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
-    	)
+  (use-package modus-themes
+    :init
+    ;; Load the theme of your choice.
+    (load-theme 'modus-vivendi-tinted)
+    :config
+    ;; Add all your customizations prior to loading the themes
+    (setq modus-themes-italic-constructs t
+          modus-themes-disable-other-themes t
+  		modus-themes-mixed-fonts t
+  		modus-themes-custom-auto-reload t
+  		modus-themes-variable-pitch-ui t
+          modus-themes-bold-constructs nil
+  		modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+  		modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
+  		)
 
-      ;; Maybe define some palette overrides, such as by using our presets
-      (setq modus-themes-common-palette-overrides
-            modus-themes-preset-overrides-intense)
-      )
+    ;; Maybe define some palette overrides, such as by using our presets
+    (setq modus-themes-common-palette-overrides
+  		modus-themes-preset-overrides-intense)
+    )
 
 
-      
+
+
 #+end_src
 
 **** Fonts and Faces
@@ -1097,12 +1159,12 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :bold-weight extrabold)
             (reading
              :default-weight semilight
-             :default-family "CaskaydiaMono Nerd Font"
+             :default-family "Iosevka Nerd Font"
              :default-height 140
              :bold-weight extrabold)
             (t
              ;; Following Prot’s example, keeping these for for didactic purposes.
-             :default-family "CaskaydiaMono Nerd Font"
+             :default-family "Iosevka Nerd Font Mono"
              :default-weight regular
              :default-height 170
              :fixed-pitch-family nil ; falls back to :default-family
@@ -1111,7 +1173,7 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :fixed-pitch-serif-family nil ; falls back to :default-family
              :fixed-pitch-serif-weight nil ; falls back to :default-weight
              :fixed-pitch-serif-height 1.0
-             :variable-pitch-family "CaskaydiaMono Nerd Font Propo"
+             :variable-pitch-family "Iosevka Nerd Font Propo"
              :variable-pitch-weight nil
              :variable-pitch-height 1.0
              :bold-family nil ; use whatever the underlying face has
@@ -1120,7 +1182,7 @@ We rely on =fontaine= a package by Protesilaos. Check the manual at
              :italic-slant italic
              :line-spacing nil))))
 #+end_src
-    
+
 **** Modeline Customization
 
 This required its own subsection as the Modeline is one of the things
@@ -1156,36 +1218,9 @@ my own customized moodline (if time allows it).
     :hook (doom-modeline-mode . minions-mode))
 #+end_src
 
-**** Hiding the Modeline
-
-Generally speaking having a modeline in buffers that
-contain a shell or other type interative buffers not related to writing is
-unnecessary
-
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
-  (use-package hide-mode-line
-    :hook (((treemacs-mode
-             eshell-mode shell-mode
-             term-mode vterm-mode
-             embark-collect-mode
-             lsp-ui-imenu-mode
-             pdf-annot-list-mode) . turn-on-hide-mode-line-mode)
-           (dired-mode . (lambda()
-                           (and (bound-and-true-p hide-mode-line-mode)
-                                (turn-off-hide-mode-line-mode))))))
-#+end_src
-
 **** Icons
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
-
-  ;; TODO: Check how to achieve this. There is an error wwith `font-installed-p` not being defined
-  ;; Icons
-  ;; (use-package nerd-icons
-  ;;   :config
-  ;;   (when (and (display-graphic-p)
-  ;;              (not (font-installed-p nerd-icons-font-family)))
-  ;;       (nerd-icons-install-fonts t)))
 
   (use-package nerd-icons
     :ensure t
@@ -1244,7 +1279,7 @@ is quite tedious.
 **** Some extra config
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
-  
+
   ;; Display dividers between windows
   (setq window-divider-default-places t
         window-divider-default-bottom-width 1
@@ -1255,23 +1290,30 @@ is quite tedious.
 
   ;; Mouse & Smooth Scroll
   ;; Scroll one line at a time (less "jumpy" than defaults)
-  (when (display-graphic-p)
-    (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-          mouse-wheel-scroll-amount-horizontal 1
-          mouse-wheel-progressive-speed nil))
+  ;; (when (display-graphic-p)
+  ;;   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+  ;;         mouse-wheel-scroll-amount-horizontal 1
+  ;;         mouse-wheel-progressive-speed nil))
+  ;; (setq scroll-step 1
+  ;;       scroll-margin 10
+  ;;       scroll-conservatively 100000
+  ;;       auto-window-vscroll nil
+  ;;       scroll-preserve-screen-position t)
+
+  ;; ;; Horizontal  Scroll
+  ;; (setq hscroll-step 1)
+  ;; (setq hscroll-margin 1)
+  ;; Smooth Scrolling
   (setq scroll-step 1
-        scroll-margin 10
-        scroll-conservatively 100000
+  	  ;;       scroll-margin 10
+  	  scroll-conservatively 100000
         auto-window-vscroll nil
-        scroll-preserve-screen-position t)
-
-  ;; Horizontal  Scroll
-  (setq hscroll-step 1)
-  (setq hscroll-margin 1)
+        scrol-preserve-screen-position t)
+  (setq scroll-conservatively 101)
 
 
 
-  ;; Good pixel line scrolling
+  ;; ;; Good pixel line scrolling
   (if (fboundp 'pixel-scroll-precision-mode)
       (pixel-scroll-precision-mode t)
     (unless sys/macp
@@ -1297,7 +1339,6 @@ is quite tedious.
     :hook (after-init . global-page-break-lines-mode))
 
   ;; Child frame
-
   (use-package posframe
     :hook (after-load-theme . posframe-delete-all)
     :init
@@ -1340,8 +1381,6 @@ is quite tedious.
 #+RESULTS:
 : ignore
 
-
-
 Finally we finishes the setup of UI.
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ui.el"
   (provide 'init-ui)
@@ -1359,7 +1398,7 @@ should be default in emacs.
   ;; Define constants.
   ;;
 
-    ;;; Code:
+        ;;; Code:
 
 
   ;; Delete selection if you insert
@@ -1389,9 +1428,18 @@ should be default in emacs.
            ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
     :hook (after-init . global-anzu-mode))
 
-  
+
   ;; Duplcate lines
-  (global-set-key (kbd "C-c C-d") 'duplicate-line)
+  (global-set-key (kbd "C-c C-d") 'juank-duplicate-line)
+  (global-set-key (kbd "C-c C-d") 'juank-duplicate-line)
+
+  ;; redefine the isearch-forward-regexp function
+  (add-hook 'isearch-mode-hook 'juank-isearch-yank-word-hook)
+
+  ;; execute my-isearch-word-at-point with ctrl+* key binding
+  (global-set-key (kbd "C-*") 'juank-isearch-word-at-point)
+
+
 
 
 #+end_src
@@ -1437,7 +1485,7 @@ or a custom defined rectangular region. iedit achieves this.
   (use-package avy-zap
     :bind (("M-z" . avy-zap-to-char-dwim)
            ("M-Z" . avy-zap-up-to-char-dwim)))
-#+end_src 
+#+end_src
 
 **** Ediff A decent Diff tool
 
@@ -1452,7 +1500,7 @@ or a custom defined rectangular region. iedit achieves this.
     (setq ediff-window-setup-function 'ediff-setup-windows-plain
           ediff-split-window-function 'split-window-horizontally
           ediff-merge-split-window-function 'split-window-horizontally))
-#+end_src 
+#+end_src
 
 **** Expand Region
 
@@ -1471,7 +1519,7 @@ Check out the video at: https://emacsrocks.com/e09.html to find out more.
              (node-end (treesit-node-end node)))
         ;; Node fits the region exactly. Try its parent node instead.
         (when (and (= (region-beginning) node-start) (= (region-end) node-end))
-          (when-let ((node (treesit-node-parent node)))
+          (when-let* ((node (treesit-node-parent node)))
             (setq node-start (treesit-node-start node)
                   node-end (treesit-node-end node))))
         (set-mark node-end)
@@ -1516,7 +1564,7 @@ of big files. This package helps me get back to my last change without marks or 
     :bind (([remap kill-ring-save] . easy-kill)
            ([remap mark-sexp] . easy-mark)))
 
-  
+
 #+end_src
 
 **** Undo as a Tree
@@ -1567,10 +1615,8 @@ finally we close this section with some extra settings
     :hook (after-init . global-so-long-mode))
 
   (provide 'init-edit)
-#+end_src 
-
+#+end_src
 *** =init-completion.el= Completion systems related configuration
-
 This configuration starts with some sensible defaults from the default emacs options.
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
@@ -1630,10 +1676,105 @@ This configuration starts with some sensible defaults from the default emacs opt
 
 #+end_src
 
-
-**** Orderless
-
+**** IVY, COUNSEL and SWIPPER
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
+  (setq ivy-disabled nil)
+
+  (use-package counsel
+    :ensure t
+    :after ivy
+    :config (counsel-mode))
+
+  (use-package ivy
+    :ensure t
+    :diminish
+    :config
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq ivy-on-del-error-function nil)
+    (setq ivy-wrap t)
+  										;(setq enable-recursive-minibuffers t)
+    ;; enable this if you want `swiper' to use it
+  										;(setq search-default-mode #'char-fold-to-regexp)
+
+    (ivy-mode)
+    )
+
+  (use-package counsel-projectile
+    :ensure t
+    :after counsel
+    :init
+    (counsel-projectile-mode))
+
+  (use-package ivy-rich
+    :ensure t
+    :after ivy
+    :custom
+    (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+    (ivy-virtual-abbreviate 'full
+                            ivy-rich-switch-buffer-align-virtual-buffer t
+                            ivy-rich-path-style 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer)
+    (ivy-rich-mode 1)
+    )
+
+  (use-package swiper
+    :ensure t
+    :after ivy)
+
+  (use-package nerd-icons-ivy-rich
+    :ensure t
+    :init
+    (nerd-icons-ivy-rich-mode 1)
+    (ivy-rich-mode 1)
+    :after ivy)
+
+  (use-package smex
+    :ensure t)
+
+  (use-package ivy-xref
+    :ensure t
+    :init
+    ;; xref initialization is different in Emacs 27 - there are two different
+    ;; variables which can be set rather than just one
+    (when (>= emacs-major-version 27)
+  	(setq xref-show-definitions-function #'ivy-xref-show-defs))
+    ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+    ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+    ;; as well
+    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
+
+  ;; Make Ivy, swiper and counsel the default
+  (global-set-key "\C-s" 'swiper-isearch)
+  (global-set-key "\C-r" 'swiper-backward)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "C-x C-p") 'counsel-projectile)
+
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-c r") 'juank-counsel-rg-thing-at-point)
+  (global-set-key (kbd "C-c f") 'counsel-fzf)
+  (global-set-key (kbd "C-c l") 'counsel-locate)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+#+end_src
+**** VERTICO, CONSULT and EMBARK [DISABLED IN FAVOR OF IVY and Swipper]
+***** Orderless [DISABLED]
+
+#+begin_src emacs-lisp :tangle no
+  ;;"juank-emacs-modules/init-completion.el"
   ;; Optionally use the `orderless' completion style.
   (use-package orderless
     :custom
@@ -1643,11 +1784,12 @@ This configuration starts with some sensible defaults from the default emacs opt
 
 #+end_src
 
-**** TODO VERTICO. VERTical Interactive COmpletion.
+***** VERTICO. VERTical Interactive COmpletion. [DISABLED]
 This one is an alternative to *helm*, and *Ivy*. It seems way faster than Ivy but performance
 comparison to *helm* is still not clear for me. I may want to revisit *helm* at some point.
 
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
+#+begin_src emacs-lisp :tangle no
+  ;;"juank-emacs-modules/init-completion.el"
   (use-package vertico
     :defer t
     :config
@@ -1694,21 +1836,22 @@ comparison to *helm* is still not clear for me. I may want to revisit *helm* at 
 The next one is a very interesting package that alters the way in which *Vertico*
 shows the completion window. I would like to play more with it and see how
 it matches my style as it kind of removes the minibuffer as the "list of completion options"
-  
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
-  (use-package vertico-posframe
-    :after vertico
-    :hook (vertico-mode . vertico-posframe-mode)
-    :init (setq vertico-posframe-poshandler
-                #'posframe-poshandler-frame-center-near-bottom
-                vertico-posframe-parameters
-                '((left-fringe  . 8)
-                  (right-fringe . 8)))
-    (vertico-posframe-mode 1))
-  
+
+#+begin_src emacs-lisp :tangle no
+  ;;"juank-emacs-modules/init-completion.use"
+  (el-package vertico-posframe
+  			:after vertico
+  			:hook (vertico-mode . vertico-posframe-mode)
+  			:init (setq vertico-posframe-poshandler
+  						#'posframe-poshandler-frame-center-near-bottom
+  						vertico-posframe-parameters
+  						'((left-fringe  . 8)
+  						  (right-fringe . 8)))
+  			(vertico-posframe-mode 1))
+
 #+end_src
 
-**** Consult.
+***** Consult. [DISABLED]
 Consult provides search and navigation commands based on Emacs completion function =complettin-read=.
 
 Essentially provides tools for switching buffers and using tools like grep/ripgrep. It's probably
@@ -1717,7 +1860,8 @@ one of the biggest packages here, if not the one with the most customizations.
 *TODO:* Remap keys to better match my working style.
 
 *NOTE:* Taken directly from <https://github.com/seagle0128/.emacs.d/blob/master/lisp/init-completion.el>
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
+#+begin_src emacs-lisp :tangle no
+  ;;"juank-emacs-modules/init-completion.el"
   (use-package consult
     :bind (;; C-c bindings in `mode-specific-map'
            ("C-c M-x" . consult-mode-command)
@@ -1826,8 +1970,8 @@ one of the biggest packages here, if not the one with the most customizations.
     (defun consult-colors-emacs (color)
       "Show a list of all supported colors for a particular frame.
 
-    You can insert the name (default), or insert or kill the hexadecimal or RGB
-    value of the selected COLOR."
+     You can insert the name (default), or insert or kill the hexadecimal or RGB
+     value of the selected COLOR."
       (interactive
        (list (consult--read (list-colors-duplicates (defined-colors))
                             :prompt "Emacs color: "
@@ -1846,8 +1990,8 @@ one of the biggest packages here, if not the one with the most customizations.
     (defun consult-colors-web (color)
       "Show a list of all CSS colors.\
 
-    You can insert the name (default), or insert or kill the hexadecimal or RGB
-    value of the selected COLOR."
+     You can insert the name (default), or insert or kill the hexadecimal or RGB
+     value of the selected COLOR."
       (interactive
        (list (consult--read (consult-colors--web-list)
                             :prompt "Color: "
@@ -1890,11 +2034,16 @@ one of the biggest packages here, if not the one with the most customizations.
 
 #+end_src
 
-**** Embark. Another beast to tame.
+***** Embark. Another beast to tame. [DISABLED]
+
+NOTE: Deprecated. I'm tired of the extra features and want to streamline
+my Emacs experience. Moving back to IVY
+
 This is another tool that I am trying to integrate into my workflow. It seems to
 provide accessible options throgh a "context aware" menu.
 
-#+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
+#+begin_src emacs-lisp :tangle no
+  ;;"juank-emacs-modules/init-completion.el"
   (use-package embark
     :bind (("s-."   . embark-act)
            ("C-s-." . embark-act)
@@ -1924,9 +2073,9 @@ provide accessible options throgh a "context aware" menu.
     (with-eval-after-load 'which-key
       (defun embark-which-key-indicator ()
         "An embark indicator that displays keymaps using which-key.
-  The which-key help message will show the type and value of the
-  current target followed by an ellipsis if there are further
-  targets."
+    The which-key help message will show the type and value of the
+    current target followed by an ellipsis if there are further
+    targets."
         (lambda (&optional keymap targets prefix)
           (if (null keymap)
               (which-key--hide-popup-ignore-command)
@@ -2029,7 +2178,7 @@ Technically not a completion system but a snippet expansion plugin.
 
 
 Finally we close this section.
-  
+
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-completion.el"
   (provide 'init-completion)
 #+end_src
@@ -2153,41 +2302,41 @@ with the functions specified in the lower part of the =dashboard= configuration.
 
   (eval-when-compile
     (require 'init-funcs))
-  
+
   (use-package dashboard
     :diminish dashboard-mode
     :custom-face
     (dashboard-heading ((t (:inherit (font-lock-string-face bold)))))
     (dashboard-items-face ((t (:weight normal))))
     (dashboard-no-items-face ((t (:weight normal))))
-    :bind (("<f2>" . open-dashboard)
+    :bind (("<f12>" . open-dashboard)
            :map dashboard-mode-map
            ("H" . browse-homepage)
            ("R" . restore-session)
            ("S" . find-custom-file)
            ("U" . update-config-and-packages)
            ("q" . quit-dashboard))
-    
+
     :hook
     (dashboard-mode . (lambda ()
-                              ;; No title
-                              (setq-local frame-title-format nil)
-                              ;; Enable `page-break-lines-mode'
-                              (when (fboundp 'page-break-lines-mode)
-                                (page-break-lines-mode 1))))
+                        ;; No title
+                        (setq-local frame-title-format nil)
+                        ;; Enable `page-break-lines-mode'
+                        (when (fboundp 'page-break-lines-mode)
+                          (page-break-lines-mode 1))))
 
 
 
     :init
     (setq dashboard-banner-logo-title "Welcome Master. What are we working on today?"
-  	dashboard-startup-banner (juank-dashboard-logo)
+  		dashboard-startup-banner (juank-dashboard-logo)
           ;;dashboard-page-separator "\n\f\n"
           dashboard-projects-backend 'project-el
           dashboard-path-max-length 60
           dashboard-center-content t
-          dashboard-show-shortcuts t 
+          dashboard-show-shortcuts t
           dashboard-display-icons-p #'icons-displayable-p ;; t if this evaluation doesnt work
-          dashboard-icon-type 'nerd-icons 
+          dashboard-icon-type 'nerd-icons
           dashboard-set-init-info t
           dashboard-set-heading-icons t
           dashboard-set-file-icons t
@@ -2220,7 +2369,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
     (dashboard-setup-startup-hook)
 
     :config
-    
+
     (defun my-dashboard-insert-copyright ()
       "Insert copyright in the footer."
       (when dashboard-set-footer
@@ -2366,6 +2515,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
     :hook ((prog-mode) . rainbow-mode)
     :init (with-eval-after-load 'helpful
             (bind-key "w" #'rainbow-mode helpful-mode-map))
+    (rainbow-mode)
     :config
     (with-no-warnings
       ;; HACK: Use overlay instead of text properties to override `hl-line' faces.
@@ -2395,7 +2545,7 @@ with the functions specified in the lower part of the =dashboard= configuration.
   ;; Highlight TODO and similar keywords in comments and strings
   (use-package hl-todo
     :custom-face
-    (hl-todo ((t (:inherit default :height 0.9 :width condensed :weight bold :underline nil :inverse-video t))))
+    (hl-todo ((t (:inehrit default :height 0.9 :width condensed :weight bold :underline nil :inverse-video t))))
     :bind (:map hl-todo-mode-map
                 ([C-f3]    . hl-todo-occur)
                 ("C-c t p" . hl-todo-previous)
@@ -2534,14 +2684,14 @@ TODO: It might be worth checking for a setting that will open =*-ts-mode= by def
 instead of forcing the remap like I'm doing here
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-highlight.el"
-  ;; Download treesitter language 
+  ;; Download treesitter language
   (use-package treesit-auto
     :hook (after-init . global-treesit-auto-mode)
     :init (setq treesit-auto-install 'prompt))
 
   ;; Get the most out of treesitter
   (setq treesit-font-lock-level 4)
-  
+
   ;; Add additional remaps to force treesiter-mode
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
@@ -2580,7 +2730,7 @@ instead of forcing the remap like I'm doing here
           ;; Suppress the warning: `ls does not support --dired'.
           (setq dired-use-ls-dired nil)
           (setq dired-listing-switches "-alh"))))
-    
+
     (use-package dired-quick-sort)
 
     ;; Show git info in dired
@@ -2641,7 +2791,7 @@ instead of forcing the remap like I'm doing here
 *** =init-ibuffer.el= Ibuffer configuration
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ibuffer.el"
       ;;; init-ibuffer.el --- Initialize Ibuffer configurations.	-*- lexical-binding: t -*-
-    (use-package ibuffer
+  (use-package ibuffer
     :ensure nil
     :bind ("C-x C-b" . ibuffer)
     :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold))))
@@ -2675,8 +2825,8 @@ instead of forcing the remap like I'm doing here
         (advice-remove #'ibuffer-project-group-name #'my-ibuffer-project-group-name)
         (setq ibuffer-project-root-functions
               '((ibuffer-project-project-root . "Project")
-                (file-remote-p . "Remote")))))) 
-    (provide 'init-ibuffer)
+                (file-remote-p . "Remote"))))))
+  (provide 'init-ibuffer)
 #+end_src
 
 *** =init-treemacs.el= Treemacs - A simple file tree
@@ -2696,7 +2846,7 @@ instead of forcing the remap like I'm doing here
            ("C-x t C-t" . treemacs-find-file)
            ("C-x t M-t" . treemacs-find-tag)
            :map treemacs-mode-map)
-           ;;([mouse-1]   . treemacs-single-click-expand-action))
+    ;;([mouse-1]   . treemacs-single-click-expand-action))
     :config
     (setq treemacs-collapse-dirs           (if treemacs-python-executable 3 0)
           treemacs-missing-project-action  'remove
@@ -2728,8 +2878,8 @@ instead of forcing the remap like I'm doing here
               magit-post-stage
               magit-post-unstage)
              . treemacs-magit--schedule-update)))
-    
-    (provide 'init-treemacs)
+
+  (provide 'init-treemacs)
 #+end_src
 
 *** =init-markdown.el= Markdown Mode
@@ -2799,7 +2949,7 @@ instead of forcing the remap like I'm doing here
       )
 
     ;; Preview via `grip'
-    ;; Install: pip install grip 
+    ;; Install: pip install grip
     (use-package grip-mode
       :defines org-mode-map
       :bind (:map markdown-mode-command-map
@@ -2809,7 +2959,7 @@ instead of forcing the remap like I'm doing here
         (bind-key "C-c g" #'grip-mode org-mode-map))
 
       (setq grip-update-after-change nil)
-      (when-let ((credential (auth-source-user-and-password "api.github.com")))
+      (when-let* ((credential (auth-source-user-and-password "api.github.com")))
         (setq grip-github-user (car credential)
               grip-github-password (cadr credential))))
 
@@ -2893,7 +3043,7 @@ time trying to learn how to use it.
                                (?C . success))
 
           ;; Agenda styling
-        
+
           org-agenda-block-separator ?─
           org-agenda-time-grid
           '((daily today require-timed)
@@ -2913,7 +3063,7 @@ time trying to learn how to use it.
     ;; Add new template
     (add-to-list 'org-structure-template-alist '("n" . "note"))
 
-  
+
 
     ;; Add md/gfm backends
     (add-to-list 'org-export-backends 'md)
@@ -3100,22 +3250,22 @@ time trying to learn how to use it.
 
   (use-package flymake-flycheck
     :config
-      ;; Disable flycheck checkers for which we have flymake equivalents
-     (setq-default  flycheck-disabled-checkers (append (default-value 'flycheck-disabled-checkers)
-  						     '(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package sh-shellcheck)))
-     (add-hook 'flymake-mode-hook 'flymake-flycheck-auto)
-     (add-hook 'prog-mode-hook 'flymake-mode)
-     (add-hook 'text-mode-hook 'flymake-mode)
-    
-     :bind (
-  	  ("C-c ! l" . flymake-show-buffer-diagnostics)
-  	  ("C-c ! n" . flymake-goto-next-error)
-  	  ("C-c ! p" . flymake-goto-prev-error)
-  	  ("C-c ! c" . flymake-start)
-  	  )
-     :hook
-     (eldoc-documentation-functions . flymake-eldoc-function)
-     )
+    ;; Disable flycheck checkers for which we have flymake equivalents
+    (setq-default  flycheck-disabled-checkers (append (default-value 'flycheck-disabled-checkers)
+  													'(emacs-lisp emacs-lisp-checkdoc emacs-lisp-package sh-shellcheck)))
+    (add-hook 'flymake-mode-hook 'flymake-flycheck-auto)
+    (add-hook 'prog-mode-hook 'flymake-mode)
+    (add-hook 'text-mode-hook 'flymake-mode)
+
+    :bind (
+  		 ("C-c ! l" . flymake-show-buffer-diagnostics)
+  		 ("C-c ! n" . flymake-goto-next-error)
+  		 ("C-c ! p" . flymake-goto-prev-error)
+  		 ("C-c ! c" . flymake-start)
+  		 )
+    :hook
+    (eldoc-documentation-functions . flymake-eldoc-function)
+    )
   (provide 'init-flymake)
 #+end_src
 
@@ -3157,38 +3307,38 @@ time trying to learn how to use it.
     (which-key-add-key-based-replacements "C-x X" "edebug")
 
     (which-key-add-major-mode-key-based-replacements 'org-mode
-                                                     "C-c \"" "org-plot")
+      "C-c \"" "org-plot")
     (which-key-add-major-mode-key-based-replacements 'org-mode
-                                                     "C-c C-v" "org-babel")
+      "C-c C-v" "org-babel")
     (which-key-add-major-mode-key-based-replacements 'org-mode
-                                                     "C-c C-x" "org-misc")
+      "C-c C-x" "org-misc")
 
     (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
-                                                     "C-c ," "overseer")
+      "C-c ," "overseer")
     (which-key-add-major-mode-key-based-replacements 'python-mode
-                                                     "C-c C-t" "python-skeleton")
+      "C-c C-t" "python-skeleton")
 
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
-                                                     "C-c C-a" "markdown-link")
+      "C-c C-a" "markdown-link")
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
-                                                     "C-c C-c" "markdown-command")
+      "C-c C-c" "markdown-command")
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
-                                                     "C-c C-s" "markdown-style")
+      "C-c C-s" "markdown-style")
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
-                                                     "C-c C-t" "markdown-header")
+      "C-c C-t" "markdown-header")
     (which-key-add-major-mode-key-based-replacements 'markdown-mode
-                                                     "C-c C-x" "markdown-toggle")
+      "C-c C-x" "markdown-toggle")
 
     (which-key-add-major-mode-key-based-replacements 'gfm-mode
-                                                     "C-c C-a" "markdown-link")
+      "C-c C-a" "markdown-link")
     (which-key-add-major-mode-key-based-replacements 'gfm-mode
-                                                     "C-c C-c" "markdown-command")
+      "C-c C-c" "markdown-command")
     (which-key-add-major-mode-key-based-replacements 'gfm-mode
-                                                     "C-c C-s" "markdown-style")
+      "C-c C-s" "markdown-style")
     (which-key-add-major-mode-key-based-replacements 'gfm-mode
-                                                     "C-c C-t" "markdown-header")
+      "C-c C-t" "markdown-header")
     (which-key-add-major-mode-key-based-replacements 'gfm-mode
-                                                     "C-c C-x" "markdown-toggle")
+      "C-c C-x" "markdown-toggle")
 
 
     (use-package which-key-posframe
@@ -3236,22 +3386,6 @@ time trying to learn how to use it.
             (lambda (file)
               (when (executable-find "afplay")
                 (start-process "pomidor-play-sound" nil "afplay" file))))))
-
-  ;; Nice writing
-  (use-package olivetti
-    :diminish
-    :bind ("<f7>" . olivetti-mode)
-    :init (setq olivetti-body-width 0.62))
-
-
-  ;; Process
-  (use-package proced
-    :ensure nil
-    :init
-    (setq-default proced-format 'verbose)
-    (setq proced-auto-update-flag t
-          proced-auto-update-interval 3))
-
 
   ;; Misc
   (use-package disk-usage)
@@ -3352,12 +3486,12 @@ For now I only plan to set eglot and try as much to rely only on it.
 In case we need to customize the LSP program to use for one particular language,
 it is possible to add the following snippet to the =:config= section of the eglot config.
 
-#+begin_src  emacs-lisp 
+#+begin_src  emacs-lisp
   (add-to-list 'eglot-server-programs
                '((ruby-mode ruby-ts-mode) "ruby-lsp"))
 #+end_src
 
-  
+
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-lsp.el"
   ;;; init-lsp.el --- Initialize LSP configurations.	-*- lexical-binding: t -*-
   ;; Download treesitter language
@@ -3368,10 +3502,13 @@ it is possible to add the following snippet to the =:config= section of the eglo
                             (eglot-ensure))))
            ((markdown-mode yaml-mode yaml-ts-mode) . eglot-ensure))
     :init
+    (setq eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
     (setq read-process-output-max (* 1024 1024)) ; 1MB
     (setq eglot-autoshutdown t
           eglot-send-changes-idle-time 0.5)
+    (setq eglot-auto-format-buffer nil)
     :config
+    (add-to-list 'eglot-server-programs '((c++-mode c-mode c-ts-mode) . ("clangd" "--fallback-style=none")))
     (use-package consult-eglot
       :bind (:map eglot-mode-map
                   ("C-M-." . consult-eglot-symbols)))
@@ -3389,13 +3526,14 @@ done for each programming language I plan to use are stored in their own config 
 
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-prog.el"
-          ;;; init-prog.el --- Initialize Programmin related configurations.	-*- lexical-binding: t -*-
+            ;;; init-prog.el --- Initialize Programmin related configurations.	-*- lexical-binding: t -*-
 
   ;; Show function arglist or variable docstring
   (use-package eldoc
     :ensure nil
     :diminish
     :config
+    (setq eldoc-idle-delay 3)
     (when (childframe-workable-p)
       (use-package eldoc-box
         :diminish (eldoc-box-hover-mode eldoc-box-hover-at-point-mode)
@@ -3429,9 +3567,9 @@ done for each programming language I plan to use are stored in their own config 
 
 
   ;; Code styles
-  (use-package editorconfig
-    :diminish
-    :hook (after-init . editorconfig-mode))
+  ;;  (use-package editorconfig
+  ;;    :diminish
+  ;;    :hook (after-init . editorconfig-mode))
 
 
   ;; Run commands quickly
@@ -3453,7 +3591,6 @@ done for each programming language I plan to use are stored in their own config 
         (c++-mode        . ("cpp"))
         (python-mode     . ("python~3.10" "python~2.7"))
         (ruby-mode       . ("ruby~3.1"))
-
         (rustic-mode     . ("rust"))
         (css-mode        . ("css"))
         (html-mode       . ("html"))
@@ -3475,7 +3612,7 @@ done for each programming language I plan to use are stored in their own config 
     (defun devdocs-dwim()
       "Look up a DevDocs documentation entry.
 
-  Install the doc if it's not installed."
+    Install the doc if it's not installed."
       (interactive)
       ;; Install the doc if it's not installed
       (mapc
@@ -3493,6 +3630,8 @@ done for each programming language I plan to use are stored in their own config 
 
       ;; Lookup the symbol at point
       (devdocs-lookup nil (thing-at-point 'symbol t))))
+
+  (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
 #+end_src
 
 
@@ -3558,7 +3697,7 @@ along with major programming modes.
 
   (use-package dockerfile-mode)
 
-  (provide 'init-prog)  
+  (provide 'init-prog)
 #+end_src
 
 *** =init-clojure.el= Clojure specific settins
@@ -3598,12 +3737,12 @@ my atempt at making Emacs a decent Java Editor for my needs.
   (use-package eglot-java
     :hook (java-mode-hook . eglot-java-mode)
     :bind (
-           ("C-c l n" . eglot-java-file-new)
-           ("C-c l x" . eglot-java-run-main)
-           ("C-c l t" . eglot-java-run-test)
-           ("C-c l N" . eglot-java-project-new)
-           ("C-c l T" . eglot-java-project-build-task)
-           ("C-c l R" . eglot-java-project-build-refresh)
+           ("C-c C-l n" . eglot-java-file-new)
+           ("C-c C-l x" . eglot-java-run-main)
+           ("C-c C-l t" . eglot-java-run-test)
+           ("C-c C-l N" . eglot-java-project-new)
+           ("C-c C-l T" . eglot-java-project-build-task)
+           ("C-c C-l R" . eglot-java-project-build-refresh)
            )
 
     )
@@ -3695,7 +3834,7 @@ making it sane.
 Ruby is my language of choice these days for anything web-development related.
 Here are the settings that I consider (or have found to be so far) the best for
 Ruby and Ruby on Rails development.
- 
+
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-ruby.el"
   ;; init-ruby.el --- Initialize ruby configurations.	-*- lexical-binding: t -*-
 
@@ -3703,18 +3842,18 @@ Ruby and Ruby on Rails development.
   (use-package ruby
     :ensure nil
     :config (
-  	   (setq-default ruby-use-encoding-map nil
-  			 ruby-insert-encoding-magic-comment nil)
-  	     )
-    
+  		   (setq-default ruby-use-encoding-map nil
+  						 ruby-insert-encoding-magic-comment nil)
+  	       )
+
     :mode (("\\.rxml\\'" . ruby-mode)
            ("\\.rjs\\'" . ruby-mode)
-  	 ("\\.irbrc\\'" . ruby-mode)
-  	 ("\\.pryrc\\'" . ruby-mode)
-  	 ("\\.builder\\'" . ruby-mode)
-  	 ("\\.gemspec\\'" . ruby-mode)
-  	 ("Kirkfile\\'" . ruby-mode)
-  	 ("Gemfile\\.lock\\'" . conf-mode))
+  		 ("\\.irbrc\\'" . ruby-mode)
+  		 ("\\.pryrc\\'" . ruby-mode)
+  		 ("\\.builder\\'" . ruby-mode)
+  		 ("\\.gemspec\\'" . ruby-mode)
+  		 ("Kirkfile\\'" . ruby-mode)
+  		 ("Gemfile\\.lock\\'" . conf-mode))
     :hook (ruby-mode-hook . subword-mode)
     :bind (("<f9>" . inf-ruby-console-auto)))
 
@@ -3722,8 +3861,8 @@ Ruby and Ruby on Rails development.
     :ensure t
     :init (defalias 'rake 'ruby-compilation-rake)
     :bind (
-  	   (:map ruby-mode-map ([S-f5] . ruby-compilation-this-buffer))
-  	   (:map ruby-mode-map ([f5] . ruby-compilation-this-test)))
+  		 (:map ruby-mode-map ([S-f5] . ruby-compilation-this-buffer))
+  		 (:map ruby-mode-map ([f5] . ruby-compilation-this-test)))
     )
 
   ;; Toggle ruby Hash syntax between => and :
@@ -3770,10 +3909,10 @@ Ruby and Ruby on Rails development.
     )
 
   (use-package rubocop
-        :hook (ruby-mode-hook . rubocop-mode)
-        :config
-        (setq rubocop-format-on-save t)
-        (setq rubocop-autocorrect-on-save t))
+    :hook (ruby-mode-hook . rubocop-mode)
+    :config
+    (setq rubocop-format-on-save t)
+    (setq rubocop-autocorrect-on-save t))
 
 
   (provide 'init-ruby)
@@ -3908,208 +4047,170 @@ Ruby and Ruby on Rails development.
 This is my latest attempt at using C as my main language.
 
 #+begin_src emacs-lisp :tangle "juank-emacs-modules/init-c.el"
-   ;; init-c.el --- Initialize C/C++ configurations.	-*- lexical-binding: t -*-
-   (use-package cmake-mode)
+  ;; init-c.el --- Initialize C/C++ configurations.	-*- lexical-binding: t -*-
+  (use-package cmake-mode)
 
-   ;; Set GDB to a sensible layout
-   (setq gdb-many-windows t gdb-show-main t)
+  ;; Set GDB to a sensible layout
+  (setq gdb-many-windows t gdb-show-main t)
 
-   (defconst juank-big-fun-c-style
-     '((c-electric-pound-behavior   . nil)
-       (c-tab-always-indent         . t)
-       (c-comment-only-line-offset  . 0)
-       (c-hanging-braces-alist      . ((class-open)
-       				    (class-close)
-       				    (defun-open)
-       				    (defun-close)
-       				    (inline-open)
-       				    (inline-close)
-       				    (brace-list-open)
-       				    (brace-list-close)
-       				    (brace-list-intro)
-       				    (brace-list-entry)
-       				    (block-open)
-       				    (block-close)
-       				    (substatement-open)
-       				    (statement-case-open)
-       				    (class-open)))
-       (c-hanging-colons-alist      . ((inher-intro)
-       				    (case-label)
-       				    (label)
-       				    (access-label)
-       				    (access-key)
-       				    (member-init-intro)))
-       (c-cleanup-list              . (scope-operator
-       				    list-close-comma
-       				    defun-close-semi))
-       (c-offsets-alist             . ((arglist-close         .  c-lineup-arglist)
-       				    (label                 . -4)
-       				    (access-label          . -4)
-       				    (substatement-open     .  0)
-       				    (statement-case-intro  .  4)
-       				    (statement-block-intro .  c-lineup-for)
-       				    (case-label            .  4)
-       				    (block-open            .  0)
-       				    (inline-open           .  0)
-       				    (topmost-intro-cont    .  0)
-       				    (knr-argdecl-intro     . -4)
-       				    (brace-list-open       .  0)
-       				    (brace-list-intro      .  4)))
-       (c-echo-syntactic-information-p . t))
-     "Juank Big Fun C++ Style totally not copied from Casey Muratori's on")
+  ;; Define custom style for c-mode
+  (defconst juank-big-fun-c-style
+    '((c-electric-pound-behavior . nil)
+      (c-tab-always-indent . t)
+      (c-comment-only-line-offset . 0)
+      (c-hanging-braces-alist
+       (class-open class-close defun-open defun-close inline-open inline-close
+                   brace-list-open brace-list-close brace-list-intro brace-list-entry
+                   block-open block-close substatement-open statement-case-open))
+      (c-hanging-colons-alist
+       (inher-intro case-label label access-label access-key member-init-intro))
+      (c-cleanup-list
+       (scope-operator list-close-comma defun-close-semi))
+      (c-offsets-alist
+       (arglist-close . c-lineup-arglist)
+       (label . -4)
+       (access-label . -4)
+       (substatement-open . 0)
+       (statement-case-intro . 4)
+       (statement-block-intro . 4)
+       (case-label . 4)
+       (block-open . 0)
+       (inline-open . 0)
+       (topmost-intro-cont . 0)
+       (knr-argdecl-intro . -4)
+       (brace-list-open . 0)
+       (brace-list-intro . 4))
+      (c-echo-syntactic-information-p . t))
+    "Juank Big Fun C Style.")
 
-   (defun juank-c-mode-hook ()
-       	(setq compilation-directory-locked nil)
-       	(setq juank-build-command "./build.sh")
-       	
-       	(when (bound-and-true-p juank-win32)
-       	  (setq juank-build-command "build.bat")
-       	  )
+  ;; Common code shared across c-mode and c-ts-mode
+  (defun juank-common-c-setup ()
+    (setq tab-width 4
+          indent-tabs-mode nil
+          compilation-directory-locked nil
+          juank-build-command (if (bound-and-true-p juank-win32)
+                                  "build.bat"
+                                "./build.sh")
+          dabbrev-case-replace t
+          dabbrev-case-fold-search t
+          dabbrev-upcase-means-case-search t
+          split-window-preferred-function 'casey-never-split-a-window
+          comment-style 'multi-line
+          comment-start "/* "
+          comment-end " */")
 
-   	(setq c-ts-mode-indent-offset 4)                                                                                                          
-  	(setq c-ts-mode-indent-style #'juank-big-fun-c-style)    
-     	;;(c-add-style "BigFun" juank-big-fun-c-style t)
+    ;; Abbrevs and font lock
+    (abbrev-mode 1)
+    (font-lock-mode 1)
 
-   	;;(setq c-ts-mode-indent-offset 4)
-   	;;(setq c-indent-level 4) ; a tab is equivalent to 4 spaces
-   	;;					; 4-space tabs
-   	(setq tab-width 4
-                 indent-tabs-mode nil)
+    ;; File templates
+    (when (not (file-exists-p buffer-file-name))
+      (let ((ext (file-name-extension buffer-file-name)))
+        (cond ((string= ext "h") (juank-header-format))
+              ((member ext '("c" "cpp" "hin" "cin")) (juank-source-format)))))
 
-   					; Additional style stuff
-   	(c-set-offset 'member-init-intro '++)
+    ;; Keybindings
+    (local-set-key (kbd "C-j") 'newline-and-indent)
+    (local-set-key (kbd "C-c a") 'juank-find-corresponding-file-other-window)
+    (local-set-key (kbd "TAB") 'dabbrev-expand)
+    (local-set-key (kbd "<backtab>") 'indent-for-tab-command)
+    (local-set-key (kbd "<C-tab>") 'indent-region)
 
-   					; No hungry backspace
-   	(c-toggle-auto-hungry-state -1)
+    ;; Compilation regex
+    (add-to-list 'compilation-error-regexp-alist 'juank-devenv)
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 '(juank-devenv
+                   "*\\([0-9]+>\\)?\\(\\(?:[a-zA-Z]:\\)?[^:(\t\n]+\\)(\\([0-9]+\\)) : \\(?:see declaration\\|\\(?:warnin\\(g\\)\\|[a-z ]+\\) C[0-9]+:\\)"
+                   2 3 nil (4))))
 
-   					; Newline indents, semi-colon doesn't
-   	(define-key c-mode-map "\C-m" 'newline-and-indent)
-   	(setq c-hanging-semi&comma-criteria '((lambda () 'stop)))
+  ;; c-mode-specific setup
+  (defun juank-c-mode-hook ()
+    (c-add-style "BigFun" juank-big-fun-c-style t)
+    (c-set-style "BigFun")
+    (c-set-offset 'member-init-intro '++)
+    (c-toggle-auto-hungry-state -1)
+    (setq c-indent-level 4)
+    (setq c-hanging-semi&comma-criteria '((lambda () 'stop)))
+    (juank-common-c-setup))
 
+  ;; c-ts-mode-specific setup
+  (defun juank-c-ts-mode-hook ()
+    ;; Optional: tune `treesit-simple-indent-rules` if needed
+    ;; Or use built-in styles: 'bsd, 'linux, etc.
+    
+    ;; Explicit indentation width
+    (setq-local c-ts-mode-indent-offset 4)
+    (setq-local indent-tabs-mode nil)
+    (setq-local tab-width 4)
+    (juank-common-c-setup))
 
-   					; Handle super-tabbify (TAB completes, shift-TAB actually tabs)
-   	(setq dabbrev-case-replace t)
-   	(setq dabbrev-case-fold-search t)
-   	(setq dabbrev-upcase-means-case-search t)
-   	(setq split-window-preferred-function 'casey-never-split-a-window)
+  ;; Header formatting helper
+  (defun juank-header-format ()
+    "Insert a standard header file format."
+    (let ((base (upcase (file-name-sans-extension (file-name-nondirectory buffer-file-name)))))
+      (insert "#if !defined(" base "_H)\n")
+      (insert "/* ========================================================================\n")
+      (insert "   $File: $\n   $Date: $\n   $Revision: $\n")
+      (insert "   $Creator: Juan Prada $\n")
+      (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
+      (insert "   ======================================================================== */\n\n")
+      (insert "#define " base "_H\n\n")
+      (insert "#endif // " base "_H\n")))
 
-   					; Abbrevation expansion
-   	(abbrev-mode 1)
+  ;; Source formatting helper
+  (defun juank-source-format ()
+    "Insert a standard source file format."
+    (insert "/* ========================================================================\n")
+    (insert "   $File: $\n   $Date: $\n   $Revision: $\n")
+    (insert "   $Creator: Juan Prada $\n")
+    (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
+    (insert "   ======================================================================== */\n"))
 
-   	(turn-on-font-lock)
-   	(defun juank-find-corresponding-file ()
-   	  "Find the file that corresponds to this one."
-   	  (interactive)
-   	  (setq CorrespondingFileName nil)
-   	  (setq BaseFileName (file-name-sans-extension buffer-file-name))
-   	  (if (string-match "\\.c" buffer-file-name)
-   	      (setq CorrespondingFileName (concat BaseFileName ".h")))
-   	  (if (string-match "\\.h" buffer-file-name)
-   	      (if (file-exists-p (concat BaseFileName ".c")) (setq CorrespondingFileName (concat BaseFileName ".c"))
-   		(setq CorrespondingFileName (concat BaseFileName ".cpp"))))
-   	  (if (string-match "\\.hin" buffer-file-name)
-   	      (setq CorrespondingFileName (concat BaseFileName ".cin")))
-   	  (if (string-match "\\.cin" buffer-file-name)
-   	      (setq CorrespondingFileName (concat BaseFileName ".hin")))
-   	  (if (string-match "\\.cpp" buffer-file-name)
-   	      (setq CorrespondingFileName (concat BaseFileName ".h")))
-   	  (if CorrespondingFileName (find-file CorrespondingFileName)
-   	    (error "Unable to find a corresponding file")))
+  ;; Switch between header/source
+  (defun juank-find-corresponding-file ()
+    "Jump to corresponding .c/.h file."
+    (interactive)
+    (let* ((ext (file-name-extension buffer-file-name))
+           (base (file-name-sans-extension buffer-file-name))
+           (other (cond
+                   ((string= ext "c")   (concat base ".h"))
+                   ((string= ext "h")   (or (and (file-exists-p (concat base ".c")) (concat base ".c"))
+                                            (concat base ".cpp")))
+                   ((string= ext "hin") (concat base ".cin"))
+                   ((string= ext "cin") (concat base ".hin"))
+                   ((string= ext "cpp") (concat base ".h"))
+                   (t nil))))
+      (if other (find-file other)
+        (error "No corresponding file found"))))
 
+  (defun juank-find-corresponding-file-other-window ()
+    (interactive)
+    (find-file-other-window buffer-file-name)
+    (juank-find-corresponding-file)
+    (other-window -1))
 
-   	(defun juank-find-corresponding-file-other-window ()
+  ;; Hooks
+  (setq c-ts-mode-indent-style 'bsd)
+  (add-hook 'c-mode-hook #'juank-c-mode-hook)
+  (when (fboundp 'c-ts-mode)
+    (add-hook 'c-ts-mode-hook #'juank-c-ts-mode-hook))
 
-   	  "Find the file that corresponds to this one."
-   	  (interactive)
-   	  (find-file-other-window buffer-file-name)
-   	  (juank-find-corresponding-file)
-   	  (other-window -1))
+  (defun juank-big-fun-compilation-hook ()
+    (make-local-variable 'truncate-lines)
+    (setq truncate-lines nil)
+    (setq compilation-context-lines 0)
+    )
 
-   	(setq comment-style 'multi-line)
-   	(setq comment-start "/* ")
-   	(setq comment-end " */")
-   	(setq c-indent-level 4) ; a tab is equivalent to 4 spaces
-   	(local-set-key  (kbd "C-c a") 'juank-find-corresponding-file-other-window)
-
-
-
-
-   	(defun juank-header-format ()
-   	  "Format the given file as a header file."
-   	  (interactive)
-   	  (setq BaseFileName (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
-   	  (insert "#if !defined(")
-   	  (push-mark)
-   	  (insert BaseFileName)
-   	  (upcase-region (mark) (point))
-   	  (pop-mark)
-   	  (insert "_H)\n")
-   	  (insert "/* ========================================================================\n")
-   	  (insert "   $File: $\n")
-   	  (insert "   $Date: $\n")
-   	  (insert "   $Revision: $\n")
-   	  (insert "   $Creator: Juan Prada $\n")
-   	  (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
-   	  (insert "   ======================================================================== */\n")
-   	  (insert "\n")
-   	  (insert "#define ")
-   	  (push-mark)
-   	  (insert BaseFileName)
-   	  (upcase-region (mark) (point))
-   	  (pop-mark)
-   	  (insert "_H\n")
-   	  (insert "#endif")
-   	  )
-
-
-   	(defun juank-source-format ()
-   	  "Format the given file as a source file."
-   	  (interactive)
-   	  (setq BaseFileName (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
-   	  (insert "/* ========================================================================\n")
-   	  (insert "   $File: $\n")
-   	  (insert "   $Date: $\n")
-   	  (insert "   $Revision: $\n")
-   	  (insert "   $Creator: Juan Prada $\n")
-   	  (insert "   $Notice: (C) Copyright 2016 by Juan Camilo Prada. All Rights Reserved. $\n")
-   	  (insert "   ======================================================================== */\n")
-   	  )
+  (add-hook 'compilation-mode-hook 'juank-big-fun-compilation-hook)
+  										;(add-hook 'c-mode-common-hook 'juank-c-mode-hook)
+  ;;(add-hook 'c-mode-common-hook 'juank-c-format-hook)
 
 
-   	(cond ((file-exists-p buffer-file-name) t)
-   	      ((string-match "[.]hin" buffer-file-name) (juank-source-format))
-   	      ((string-match "[.]cin" buffer-file-name) (juank-source-format))
-   	      ((string-match "[.]h" buffer-file-name) (juank-header-format))
-   	      ((string-match "[.]c" buffer-file-name) (juank-source-format))
-   	      ((string-match "[.]cpp" buffer-file-name) (juank-source-format)))
-
-
-   	(add-to-list 'compilation-error-regexp-alist 'juank-devenv)
-   	(add-to-list 'compilation-error-regexp-alist-alist '(juank-devenv
-   							     "*\\([0-9]+>\\)?\\(\\(?:[a-zA-Z]:\\)?[^:(\t\n]+\\)(\\([0-9]+\\)) : \\(?:see declaration\\|\\(?:warnin\\(g\\)\\|[a-z ]+\\) C[0-9]+:\\)"
-   							     2 3 nil (4)))
-
-   	(define-key c-mode-map "\t" 'dabbrev-expand)
-   	(define-key c-mode-map [S-tab] 'indent-for-tab-command)
-   	(define-key c-mode-map [C-tab] 'indent-region)
-
-       	
-       	) ;; End of My C hook
-
-
-
-   (defun juank-big-fun-compilation-hook ()
-     (make-local-variable 'truncate-lines)
-     (setq truncate-lines nil)
-     (setq compilation-context-lines 0)
-     )
-
-   (add-hook 'compilation-mode-hook 'juank-big-fun-compilation-hook)
-   (add-hook 'c-mode-common-hook 'juank-c-mode-hook)
-   (add-hook 'c-ts-mode-hook 'juank-c-mode-hook)
-
-   (provide 'init-c)
+  (provide 'init-c)
 #+end_src
+
+#+RESULTS:
+: init-c
 
 *** =init-keybindings.el= Some global key bindings
 
@@ -4127,7 +4228,7 @@ This is my latest attempt at using C as my main language.
   (global-set-key [f10] 'previous-error)
   (global-set-key [f11] 'next-error)
 
-  ; activate whitespace-mode to view all whitespace characters
+  										; activate whitespace-mode to view all whitespace characters
   (global-set-key (kbd "C-c C-w") 'whitespace-mode)
 
   ;; Comment and uncommpent shortcuts

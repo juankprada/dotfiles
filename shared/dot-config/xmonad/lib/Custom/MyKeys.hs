@@ -136,7 +136,8 @@ myKeys =
      -- Xmonad
      ("M-S-r", spawn "xmonad --recompile && xmonad --restart"),    -- Restarts xmonad
      --("M-S-q", io exitSuccess),              -- Quits xmonad
-     ("M-S-q", confirmPrompt def "exit" (io (exitWith ExitSuccess)) ),
+     --("M-S-q", confirmPrompt def "exit" (io (exitWith ExitSuccess)) ),
+     ("M-S-q", spawn "juank-logout-menu"),
 
         -- Controls
      ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1.5%"),

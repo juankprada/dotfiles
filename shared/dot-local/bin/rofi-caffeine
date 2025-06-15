@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+chosen=$(printf "Enable Caffeine\nDisable Caffeine" | rofi -dmenu -p "Caffeine")
+
+case "$chosen" in
+  "Enable Caffeine") caffeine & ;;
+  "Disable Caffeine") killall caffeine ;;
+esac

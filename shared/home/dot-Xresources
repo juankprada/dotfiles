@@ -32,9 +32,15 @@ URxvt*imLocale: en_US.UTF-8
 URxvt*termName: rxvt-unicode-256color
 URxvt*buffered: false
 URxvt.intensityStyles: false
-URxvt.font: xft:Hack Nerd Font:size=12, \
-            xft:JoyPixels:size=12, \
-            xft:Monospace:style=Medium:size=12
+
+URxvt.font: \
+            xft:Symbols Nerd Font Mono:antialias=false:size=16:minspace=True, \
+            xft:CaskaydiaMono Nerd Font:antialias=false:size=12:minspace=True, \
+            xft:Iosevka Nerd Font Mono:antialias=false:size=12:minspace=True, \
+            xft:Noto Sans Mono:antialias=true:size=16:minspace=True, \
+
+
+
 URxvt.saveLines: 2000
 URxvt.scrollBar: false
 URxvt.cursorColor: white

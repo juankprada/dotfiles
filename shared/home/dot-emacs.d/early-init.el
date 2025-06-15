@@ -9,8 +9,8 @@
             (setq gc-cons-threshold 800000)
             (add-hook 'focus-out-hook 'garbage-collect)))
 
-  (setq native-comp-deferred-compilation nil ;; obsolete since 29.1
-        native-comp-jit-compilation nil)
+(setq native-comp-deferred-compilation nil ;; obsolete since 29.1
+      native-comp-jit-compilation nil)
 
 (setq package-enable-at-startup nil)
 
@@ -27,8 +27,6 @@
 (push '(vertical-scroll-bars) default-frame-alist)
 (when (featurep 'ns)
   (push '(ns-transparent-titlebar . t) default-frame-alist))
-(setq-default mode-line-format nil)
-
 
 ;; Prevent flashing of unstyled modeline at startup
 (setq-default mode-line-format nil)

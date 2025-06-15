@@ -1,44 +1,47 @@
-Config { font = "Terminess Nerd Font Propo Regular 14"
-       , additionalFonts = [ "Hack Nerd Font Mono 16"]
+Config { font = "Iosevka Nerd Font Propo 13"
+       , additionalFonts = [ "Iosevka Nerd Font 12"]
        , bgColor = "#2f343f"
        , fgColor = "#e6e6e6"
-       , position = TopSize L 100 22
+       , position = TopSize L 100 20
        , lowerOnStart = True
        , hideOnStart = False
        , allDesktops = False
        , persistent = True
        , commands = [ 
-                      -- Get kernel version (script found in .local/bin)
-                     Run Com ".local/bin/kernel" [] "kernel" 36000
                         -- Cpu usage in percent
-                    , Run Cpu ["--template", "<fc=#8FBCBB><fn=2>\xf108</fn> CPU:<total></fc>","-H","50","--high","red", "--suffix", "Yes", "--ppad", "2"] 10
+                     Run Cpu ["--template", "<fc=#7daea3>\xf108 CPU:<total></fc>","-H","50","--high","red", "--suffix", "Yes", "--ppad", "2"] 10
                         -- Ram used number and percent
-                    , Run Memory ["-t", "<fc=#A3BE8C><fn=2>\xf233</fn> RAM:<usedratio></fc>", "--High", "77", "--high", "red", "--ppad", "2", "--suffix", "Yes"] 20
+                    , Run Memory ["-t", "<fc=#a9b665>\xf233 RAM:<usedratio></fc>", "--High", "77", "--high", "red", "--ppad", "2", "--suffix", "Yes"] 20
                         -- Disk space free
-                    , Run DiskU [("/", "<fn=2>\xf0c7</fn> Disk:<free> free")] [] 60
-                        -- Echos an "up arrow" icon in front of the uptime output.
-                        --, Run Com "echo" ["<fn=1>\xf0aa</fn>"] "uparrow" 36000
-                        -- Uptime
-                        -- , Run Uptime ["-t", "uptime: <days>d <hours>h"] 360
+                    , Run DiskU [("/", "<fc=#d8a657>\xf0c7 Disk:<free></fc>")] [] 60
                         -- Echos a "bell" icon in front of  updates.
-                    , Run Com "echo" ["<fn=1>\xf0f3</fn>"] "bell" 0
+                    , Run Com "echo" ["<fc=#7daea3>\xf0f3</fc> "] "bell" 0
                         -- Check for pacman updates (script found in .local/bin)
                     , Run Com ".local/bin/updates" [] "pacupdate" 36000
-                        -- Echos a "battery" icon in front of the pacman updates.
-                    , Run Com "echo" ["<fn=2>\xf242</fn>"] "baticon" 0
-                        -- Battery
-                    , Run BatteryP ["BAT0"] ["-t", "<acstatus><watts> (<left>%)"] 360
-                        -- Time and date
-                    , Run Date "<fn=2>\xf017</fn> %b %d, %Y - %I:%M %p" "date" 60
-                    , Run Com "echo" ["<fn=1>\xf028</fn>"] "volicon" 36000
-                    , Run Alsa "default" "Master" ["--template", "<volumestatus>", "--suffix", "True", "--", "--on", "", "--off", "<fn=2>\984927</fn> 0%", "--lowv", "20", "--highv", "60", "--lows", "<fn=2>\61478</fn> ", "--mediums", "<fn=2>\61479</fn> ", "--highs", "<fn=2>\61480</fn>", "--onc", "#a6e3a1", "--offc", "#a6e3a1" ]
+                        -- Battery NOTE: Left here for reference
+                        --, Run BatteryP ["BAT0"] ["-t", "<acstatus><watts> (<left>%)"] 360
+                        -- Battery Block with power profile
+                    , Run Com ".local/bin/battery_block" [] "Battery" 360
+                        -- Date and time
+                    , Run Date "\xf017  %b %d, %Y %I:%M%p" "date" 60
+                        -- Volume and sound mixer
+                    , Run Alsa "default" "Master" ["--template", "<volumestatus>", "--suffix", "True", "--", "--on", "", "--off", "\984927 0%", "--lowv", "20", "--highv", "60", "--lows", "\61478 ", "--mediums", "\61479 ", "--highs", "\61480 ", "--onc", "#a6e3a1", "--offc", "#a6e3a1" ]
+                        -- Workspaces LOG from Xmonad
                     , Run UnsafeXPropertyLog "_XMONAD_LOG_1"
                     , Run XPropertyLog "_XMOBAR_DEVICES"
-                    , Run Com "echo" ["<fc=#dd6699><fn=2>\xf011</fn></fc>"] "shutdownicon" 3600
-		    , Run Com "echo" ["<fn=1>\xf075a</fn>"] "musicicon" 0
-		    , Run Com ".local/bin/musicbar" [] "music" 1
-                    ]
+                       -- Shutdown Icon
+                    , Run Com "echo" ["<fc=#dd6699>\xf011 </fc>"] "shutdownicon" 3600
+                    , Run Com "echo" ["<fc=#565a62> | </fc>"] "sep" 0
+                    , Run Com ".local/bin/wifi_block" [] "Wifi" 360
+                    , Run Com "echo" ["\xf00af"] "Bluetooth" 0
+                    , Run Com "echo" ["\xf0176"] "Caffeine" 0
+                    , Run Com "echo" ["\xf1a4c"] "Redshift" 0
+                    , Run Com "echo" ["\xf129e"] "Udiskie" 0
+                    , Run Com "echo" ["<action=`rofi-display`>\xf0379</action>"] "Displays" 0
+                    , Run Com ".local/bin/brightness_block" [] "Brightness" 360
+                    
+                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%_XMONAD_LOG_1%} {<action=`alacritty -e btop`>%cpu%</action> <action=`alacritty -e btop`>%memory%</action> %disku% %bell% <action=`alacritty -e sudo apt update && sudo apt upgrade`>%pacupdate%</action> <action=`alacritty -e ideapad_battery_limit_toggle`>%baticon% %battery%</action> %alsa:default:Master%  <action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action> <action=`juank-logout-menu`>%shutdownicon%</action>"
+       , template = "%_XMONAD_LOG_1%}{<action=`alacritty -e btop`>%cpu%</action>%sep%<action=`alacritty -e btop`>%memory%</action>%sep%%disku%%sep%%bell%<action=`alacritty -e sudo apt update && sudo apt upgrade`><fc=#7daea3>%pacupdate%</fc></action>%sep%<action=`alacritty -e ideapad_battery_limit_toggle`><fc=#d3869b>%Battery%</fc></action>%sep%%Displays% <action=`ronema`>%Wifi%</action> <action=`blueman-manager`>%Bluetooth%</action> %Brightness% <action=`rofi-caffeine`>%Caffeine%</action>  <action=`rofi-redshift`>%Redshift%</action>  %Udiskie%%sep%<action=`rofi-pulseaudio`><fc=#89b482>%alsa:default:Master%</fc></action>%sep%<action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`><fc=#d4be98>%date%</fc></action>%sep%<action=`juank-logout-menu`>%shutdownicon%</action>"
        }

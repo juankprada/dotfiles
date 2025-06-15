@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+chosen=$(printf "Enable Redshift\nDisable Redshift\nTemp 4500K\nTemp 5000K\nTemp 5500K\nTemp 6000K\nReset" | rofi -dmenu -p "Redshift")
+
+case "$chosen" in
+  "Enable Redshift") redshift -P ;;
+  "Disable Redshift") killall redshift ;;
+  "Temp 4500K") redshift -x && redshift -O 4500 ;;
+  "Temp 5000K") redshift -x && redshift -O 5000 ;;
+  "Temp 5500K") redshift -x && redshift -O 5500 ;;
+  "Temp 6000K") redshift -x && redshift -O 6000 ;;
+  "Reset") redshift -x ;;
+esac

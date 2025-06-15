@@ -11,14 +11,14 @@ import qualified Data.Char as Char
 -- to reduce duplication of workspace names
 myWsIcons :: M.Map String String
 myWsIcons = M.fromList [
-    ("Web", "\xf059f"),
+    ("Web", "\xf269"),
     ("Term", "\xf489"),
-    ("Dev", "\xf121"),
-    ("File", "\xe5fe"),
-    ("Chat", "\xf0b7b"),
+    ("Dev", "\xe632"),
+    ("File", "\xf07c"),
+    ("Chat", "\xf0b79"),
     ("Game", "\xf11b"),
-    ("Art", "\xe22b"),
-    ("Other", "\xf07c3")
+    ("Art", "\xf03d8"),
+    ("Other", "\xf292")
   ]
 
 myWorkspaces :: [String]
@@ -34,7 +34,7 @@ myWorkspaces = [
 myWorkspaceIndices = M.fromList $ zip myWorkspaces [1..] 
 
 clickable :: String -> String
-clickable ws = "<action=xdotool key super+" ++ show i ++ ">"++ show i ++ ":<fn=1>" ++ c ++ "</fn></action> "
+clickable ws = " <action=xdotool key super+" ++ show i ++ ">"++ c ++"</action> "
   where
     i = fromJust $ M.lookup ws myWorkspaceIndices
     c = fromJust $ M.lookup ws myWsIcons
